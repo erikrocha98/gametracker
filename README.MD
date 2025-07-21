@@ -8,6 +8,5 @@ Sistema de gerenciamento de biblioteca de jogos pessoal.
 
 ## Instalação
 1. Clone o repositório
-2. Copie `.env.example` para `.env`
 3. Execute `docker-compose up -d`
 4. Acesse http://localhost:8080
