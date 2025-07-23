@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: gametracker_web
+    ports:
+      - "8080:80"
+    volumes:
+      # Em desenvolvimento, montamos o código como volume
+      - .:/var/www/html
+      # Persiste os uploads mesmo se o container for recriado
+      - uploads:/var/www/html/public/uploads
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+    depends_on:
+      - db
+    networks:
+      - gametracker_network
+
+  db:
+    image: mysql:8.0
+    container_name: gametracker_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: gametracker
+      MYSQL_USER: gametracker_user
+      MYSQL_PASSWORD: gametracker_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - gametracker_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: gametracker_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - db
+    networks:
+      - gametracker_network
+
+volumes:
+  db_data:
+  uploads:
+
+networks:
+  gametracker_network:
+    driver: bridge
