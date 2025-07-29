@@ -20,7 +20,7 @@ class DataBase
     //Utilizando padrão singleton
     private function __construct() {}
     private function __clone() {}
-    private function __wakeup()
+    public function __wakeup()
     {
         throw new \Exception("Cannot unserialize singleton");
     }
@@ -61,11 +61,19 @@ class DataBase
     private static function getOptions(): array
     {
         return [
+            // Lançar exceções em caso de erro
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+
+            // Retornar arrays associativos por padrão
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+
+            // Desabilitar emulação de prepared statements
             PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::ATTR_TIMEOUT => 5,
+
+            // Usar buffered queries
             PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+
+            // Definir charset e timezone
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci, time_zone = '-03:00'"
         ];
     }
@@ -84,4 +92,28 @@ class DataBase
     }
 
     //Métodos de transação
+    public static function closeConnection(): void
+    {
+        self::$connection = null;
+    }
+
+    public static function beginTransaction(): bool
+    {
+        return self::getConnection()->beginTransaction();
+    }
+
+    public static function commit(): bool
+    {
+        return self::getConnection()->commit();
+    }
+
+    public static function rollback(): bool
+    {
+        return self::getConnection()->rollBack();
+    }
+
+    public static function inTransaction(): bool
+    {
+        return self::getConnection()->inTransaction();
+    }
 }

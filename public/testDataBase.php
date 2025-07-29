@@ -1,226 +1,212 @@
 <?php
-// Configuração de erros para debug
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Carregar autoload (vamos configurar depois)
+require_once __DIR__ . '/../src/config/database.php';
 
-// Estilo CSS para deixar a página mais bonita
+use gametracker\config\database;
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste do Banco de Dados - GameTracker</title>
+    <title>Teste PDO - GameTracker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            max-width: 800px;
+            margin: 50px auto;
         }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+
+        .success {
+            color: green;
         }
-        h1 { color: #333; }
-        h2 { color: #666; margin-top: 30px; }
-        .success { color: #28a745; }
-        .error { color: #dc3545; }
+
+        .error {
+            color: red;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
         table {
-            width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            width: 100%;
+            margin-top: 20px;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
+
         th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        tr:nth-child(even) { background-color: #f8f9fa; }
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.85em;
-        }
-        .played { background-color: #28a745; color: white; }
-        .to-play { background-color: #ffc107; color: #333; }
-        .rating {
-            color: #ffc107;
-            font-size: 1.2em;
+            background-color: #f2f2f2;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>🎮 GameTracker - Teste do Banco de Dados</h1>
-        
-        <?php
-        try {
-            // Conexão com o banco
-            $pdo = new PDO(
-                "mysql:host=db;dbname=gametracker;charset=utf8mb4",
-                "root",
-                "secret",
-                [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-                ]
-            );
-            
-            echo "<p class='success'>✅ Conexão com banco estabelecida com sucesso!</p>";
-            
-            // Verificar tabelas criadas
-            $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-            echo "<h2>📊 Tabelas criadas:</h2>";
-            echo "<ul>";
-            foreach ($tables as $table) {
-                $count = $pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn();
-                echo "<li><strong>$table</strong> - $count registro(s)</li>";
-            }
-            echo "</ul>";
-            
-            // Mostrar usuários
-            echo "<h2>👥 Usuários</h2>";
-            $usuarios = $pdo->query("SELECT * FROM usuarios")->fetchAll();
-            if ($usuarios) {
-                echo "<table>";
-                echo "<tr><th>ID</th><th>Nome</th><th>Username</th><th>Email</th><th>Criado em</th></tr>";
-                foreach ($usuarios as $user) {
-                    echo "<tr>";
-                    echo "<td>{$user['id_usuario']}</td>";
-                    echo "<td>{$user['nome']}</td>";
-                    echo "<td>@{$user['username']}</td>";
-                    echo "<td>{$user['email']}</td>";
-                    echo "<td>" . date('d/m/Y H:i', strtotime($user['created_at'])) . "</td>";
-                    echo "</tr>";
-                }
-                echo "</table>";
-            }
-            
-            // Mostrar jogos
-            echo "<h2>🎯 Jogos</h2>";
-            $games = $pdo->query("SELECT * FROM games")->fetchAll();
-            if ($games) {
-                echo "<table>";
-                echo "<tr><th>ID</th><th>Título</th><th>Sinopse</th><th>Horas</th><th>Lançamento</th><th>Developer</th><th>Plataforma</th></tr>";
-                foreach ($games as $game) {
-                    echo "<tr>";
-                    echo "<td>{$game['id_game']}</td>";
-                    echo "<td><strong>{$game['titulo']}</strong></td>";
-                    echo "<td>{$game['sinopse']}</td>";
-                    echo "<td>{$game['estimativa_horas']}h</td>";
-                    echo "<td>" . date('d/m/Y', strtotime($game['data_lancamento'])) . "</td>";
-                    echo "<td>{$game['developer']}</td>";
-                    echo "<td>{$game['plataforma']}</td>";
-                    echo "</tr>";
-                }
-                echo "</table>";
-            }
-            
-            // Mostrar biblioteca dos usuários
-            echo "<h2>📚 Biblioteca dos Usuários</h2>";
-            $biblioteca = $pdo->query("
-                SELECT 
-                    u.nome as usuario,
-                    g.titulo as jogo,
-                    ug.status,
-                    ug.data_adicao,
-                    ug.data_conclusao
-                FROM usuario_games ug
-                JOIN usuarios u ON u.id_usuario = ug.id_usuario
-                JOIN games g ON g.id_game = ug.id_game
-                ORDER BY u.nome, ug.data_adicao DESC
-            ")->fetchAll();
-            
-            if ($biblioteca) {
-                echo "<table>";
-                echo "<tr><th>Usuário</th><th>Jogo</th><th>Status</th><th>Adicionado em</th><th>Concluído em</th></tr>";
-                foreach ($biblioteca as $item) {
-                    $statusClass = $item['status'] == 'played' ? 'played' : 'to-play';
-                    $statusText = $item['status'] == 'played' ? 'Jogado' : 'Jogar';
-                    
-                    echo "<tr>";
-                    echo "<td>{$item['usuario']}</td>";
-                    echo "<td>{$item['jogo']}</td>";
-                    echo "<td><span class='status-badge {$statusClass}'>{$statusText}</span></td>";
-                    echo "<td>" . date('d/m/Y', strtotime($item['data_adicao'])) . "</td>";
-                    echo "<td>" . ($item['data_conclusao'] ? date('d/m/Y', strtotime($item['data_conclusao'])) : '-') . "</td>";
-                    echo "</tr>";
-                }
-                echo "</table>";
-            }
-            
-            // Mostrar reviews
-            echo "<h2>⭐ Reviews</h2>";
-            $reviews = $pdo->query("
-                SELECT 
-                    u.nome as usuario,
-                    g.titulo as jogo,
-                    r.nota,
-                    r.texto_review,
-                    r.created_at
-                FROM reviews r
-                JOIN usuarios u ON u.id_usuario = r.id_usuario
-                JOIN games g ON g.id_game = r.id_game
-                ORDER BY r.created_at DESC
-            ")->fetchAll();
-            
-            if ($reviews) {
-                echo "<table>";
-                echo "<tr><th>Usuário</th><th>Jogo</th><th>Nota</th><th>Review</th><th>Data</th></tr>";
-                foreach ($reviews as $review) {
-                    $stars = str_repeat('⭐', $review['nota']);
-                    
-                    echo "<tr>";
-                    echo "<td>{$review['usuario']}</td>";
-                    echo "<td>{$review['jogo']}</td>";
-                    echo "<td><span class='rating'>{$stars}</span> ({$review['nota']}/5)</td>";
-                    echo "<td>{$review['texto_review']}</td>";
-                    echo "<td>" . date('d/m/Y H:i', strtotime($review['created_at'])) . "</td>";
-                    echo "</tr>";
-                }
-                echo "</table>";
-            }
-            
-            // Estatísticas
-            echo "<h2>📈 Estatísticas</h2>";
-            $stats = $pdo->query("
-                SELECT 
-                    COUNT(DISTINCT u.id_usuario) as total_usuarios,
-                    COUNT(DISTINCT g.id_game) as total_jogos,
-                    COUNT(DISTINCT ug.id_usuario, ug.id_game) as total_biblioteca,
-                    COUNT(DISTINCT r.id_review) as total_reviews
-                FROM usuarios u
-                CROSS JOIN games g
-                LEFT JOIN usuario_games ug ON 1=1
-                LEFT JOIN reviews r ON 1=1
-            ")->fetch();
-            
-            echo "<ul>";
-            echo "<li>Total de usuários: <strong>{$stats['total_usuarios']}</strong></li>";
-            echo "<li>Total de jogos cadastrados: <strong>{$stats['total_jogos']}</strong></li>";
-            echo "<li>Jogos em bibliotecas: <strong>{$stats['total_biblioteca']}</strong></li>";
-            echo "<li>Reviews escritas: <strong>{$stats['total_reviews']}</strong></li>";
-            echo "</ul>";
-            
-        } catch (PDOException $e) {
-            echo "<p class='error'>❌ Erro na conexão: " . $e->getMessage() . "</p>";
-            echo "<pre>" . $e->getTraceAsString() . "</pre>";
+    <h1>🔧 Teste de Conexão PDO</h1>
+
+    <?php
+    try {
+        // Testar conexão
+        $pdo = Database::getConnection();
+        echo "<p class='success'>✅ Conexão estabelecida com sucesso!</p>";
+
+        // Testar prepared statement - SELECT
+        echo "<h2>1. Teste SELECT com Prepared Statement</h2>";
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = :email");
+        $stmt->execute(['email' => 'joao@test.com']);
+        $user = $stmt->fetch();
+
+        if ($user) {
+            echo "<p class='success'>✅ Usuário encontrado:</p>";
+            echo "<pre>" . print_r($user, true) . "</pre>";
         }
-        ?>
+
+        // Testar prepared statement - INSERT seguro
+        echo "<h2>2. Teste INSERT com Prepared Statement</h2>";
+        $stmt = $pdo->prepare("
+            INSERT INTO games (titulo, sinopse, plataforma) 
+            VALUES (:titulo, :sinopse, :plataforma)
+        ");
+
+        $novoJogo = [
+            ':titulo' => 'Portal 2',
+            ':sinopse' => 'Jogo de puzzle com portais',
+            ':plataforma' => 'PC'
+        ];
+
+        if ($stmt->execute($novoJogo)) {
+            $lastId = $pdo->lastInsertId();
+            echo "<p class='success'>✅ Jogo inserido com ID: $lastId</p>";
+        }
+
+        // Testar transação
+        echo "<h2>3. Teste de Transação</h2>";
+        try {
+            Database::beginTransaction();
+
+            // Inserir um usuário
+            $stmt = $pdo->prepare("
+                INSERT INTO usuarios (nome, username, email, password_hash) 
+                VALUES (:nome, :username, :email, :password)
+            ");
+            $stmt->execute([
+                ':nome' => 'Teste Transaction',
+                ':username' => 'teste_' . time(),
+                ':email' => 'teste_' . time() . '@test.com',
+                ':password' => password_hash('123456', PASSWORD_DEFAULT)
+            ]);
+
+            $userId = $pdo->lastInsertId();
+            echo "<p>➡️ Usuário inserido com ID: $userId</p>";
+
+            // Simular erro para testar rollback
+            // throw new Exception("Erro simulado!");
+
+            Database::commit();
+            echo "<p class='success'>✅ Transação confirmada!</p>";
+        } catch (Exception $e) {
+            Database::rollback();
+            echo "<p class='error'>❌ Transação revertida: " . $e->getMessage() . "</p>";
+        }
+
+        // Mostrar configurações PDO
+        echo "<h2>4. Configurações PDO Ativas</h2>";
+        $attributes = [
+            'ATTR_ERRMODE' => [PDO::ATTR_ERRMODE, [
+                PDO::ERRMODE_SILENT => 'SILENT',
+                PDO::ERRMODE_WARNING => 'WARNING',
+                PDO::ERRMODE_EXCEPTION => 'EXCEPTION'
+            ]],
+            'ATTR_DEFAULT_FETCH_MODE' => [PDO::ATTR_DEFAULT_FETCH_MODE, [
+                PDO::FETCH_ASSOC => 'FETCH_ASSOC',
+                PDO::FETCH_NUM => 'FETCH_NUM',
+                PDO::FETCH_BOTH => 'FETCH_BOTH',
+                PDO::FETCH_OBJ => 'FETCH_OBJ'
+            ]],
+            'ATTR_EMULATE_PREPARES' => [PDO::ATTR_EMULATE_PREPARES, [
+                0 => 'Desabilitado',
+                1 => 'Habilitado'
+            ]],
+            'MYSQL_ATTR_USE_BUFFERED_QUERY' => [PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, [
+                0 => 'Desabilitado',
+                1 => 'Habilitado'
+            ]]
+        ];
+
+        echo "<table>";
+        echo "<tr><th>Atributo</th><th>Valor</th><th>Significado</th></tr>";
+        foreach ($attributes as $name => [$const, $meanings]) {
+            try {
+                $value = $pdo->getAttribute($const);
+                $meaning = $meanings[$value] ?? $value;
+                echo "<tr>
+                        <td>$name</td>
+                        <td>$value</td>
+                        <td>$meaning</td>
+                      </tr>";
+            } catch (PDOException $e) {
+                echo "<tr>
+                        <td>$name</td>
+                        <td colspan='2' style='color: red;'>Não suportado</td>
+                      </tr>";
+            }
+        }
+        echo "</table>";
+
+        // Adicionar informações extras úteis
+        echo "<h2>5. Informações da Conexão</h2>";
+        echo "<table>";
+        echo "<tr><th>Informação</th><th>Valor</th></tr>";
+
+        // Versão do MySQL
+        $version = $pdo->query("SELECT VERSION()")->fetchColumn();
+        echo "<tr><td>Versão MySQL</td><td>$version</td></tr>";
+
+        // Charset atual
+        $charset = $pdo->query("SHOW VARIABLES LIKE 'character_set_connection'")->fetch();
+        echo "<tr><td>Charset</td><td>{$charset['Value']}</td></tr>";
+
+        // Timezone
+        $timezone = $pdo->query("SELECT @@time_zone")->fetchColumn();
+        echo "<tr><td>Timezone</td><td>$timezone</td></tr>";
+
+        // Status da conexão
+        echo "<tr><td>Status</td><td class='success'>Conectado</td></tr>";
+        echo "</table>";
         
-        <hr style="margin-top: 40px;">
-        <p style="text-align: center; color: #666;">
-            GameTracker Test Page - <?= date('d/m/Y H:i:s') ?>
-        </p>
-    </div>
+    } catch (Exception $e) {
+        echo "<p class='error'>❌ Erro: " . $e->getMessage() . "</p>";
+        echo "<pre>" . $e->getTraceAsString() . "</pre>";
+    }
+    ?>
+
+    <h2>6. Exemplo de Uso em Models</h2>
+    <pre><code>&lt;?php
+// Em um Model futuro
+class UserModel {
+    private PDO $db;
+    
+    public function __construct() {
+        $this->db = Database::getConnection();
+    }
+    
+    public function findByEmail(string $email): ?array {
+        $stmt = $this->db->prepare("SELECT * FROM usuarios WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        return $stmt->fetch() ?: null;
+    }
+}
+</code></pre>
 </body>
+
 </html>
