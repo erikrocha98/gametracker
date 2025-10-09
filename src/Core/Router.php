@@ -6,17 +6,18 @@ class Router
 {
     private $routes = [];
 
-    public function get(string $path, string $handler): void
+
+    public function get(string $path,  $handler): void
     {
         $this->addRoute('GET', $path, $handler);
     }
 
-    public function post(string $path, string $handler)
+    public function post(string $path,  $handler)
     {
         $this->addRoute('POST', $path, $handler);
     }
 
-    public function addRoute(string $method, string $path, string $handler)
+    public function addRoute(string $method, string $path, $handler)
     {
         $this->routes[] = [
             'method'    => $method,
@@ -46,22 +47,32 @@ class Router
     }
 
     //transforma a string handler em execução do controller
-    private function callHandler(string $handler, Request $request): void{
-        list($controller, $method) = explode ('@', $handler);
+    private function callHandler($handler, Request $request): void{
 
-        $controllerClass= "Controller\\$controller";
-
-        if(!class_exists($controllerClass)){
-            throw new \Exception("Controller $controllerClass não encontrado");
+        if (is_callable($handler)) {
+            $handler($request);
+            return;
         }
+        if (is_string($handler) && strpos($handler, '@') !== false){
 
-        $controllerInstance = new $controllerClass();
-
-        if(!method_exists($controllerInstance, $method)){
-            throw new \Exception("Método $method não encontrado em $controllerClass");
+            list($controller, $method) = explode ('@', $handler);
+    
+            $controllerClass= "Controller\\$controller";
+    
+            if(!class_exists($controllerClass)){
+                throw new \Exception("Controller $controllerClass não encontrado");
+            }
+    
+            $controllerInstance = new $controllerClass();
+    
+            if(!method_exists($controllerInstance, $method)){
+                throw new \Exception("Método $method não encontrado em $controllerClass");
+            }
+    
+            $controllerInstance->$method($request);
+            return;
         }
-
-        $controllerInstance->$method($request);
+        throw new \Exception("Invalid handler format");
 
     }
 }
