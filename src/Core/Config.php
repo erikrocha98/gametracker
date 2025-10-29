@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace GameTracker\Core;
 
 class Config
 {
