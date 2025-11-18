@@ -18,7 +18,7 @@ abstract class BaseModel implements ModelInterface
 
     public function find(int $id): ?array
     {
-        $sql = "SELECT *FROM {$this->table} WHERE {$this->primaryKey} = :$id LIMIT 1";
+        $sql = "SELECT * FROM {$this->table} WHERE {$this->primaryKey} = :id LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['id' => $id]);
 
@@ -28,12 +28,10 @@ abstract class BaseModel implements ModelInterface
 
     public function findAll(): array
     {
-        $sql = "SELECT *FROM {$this->table}";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $result ?: null;
+        $sql = "SELECT * FROM {$this->table}";
+        $stmt = $this->pdo->query($sql);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create(array $data): int

@@ -2,9 +2,10 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Core\Config;
-use Core\Container;
-use Models\User;
+use GameTracker\Core\Config;
+use GameTracker\Core\Container;
+use GameTracker\Models\User;
+use GameTracker\Models\Interfaces\ModelInterface;
 
 Config::load();
 
@@ -35,7 +36,7 @@ try {
     echo "<h2>✅ User Model criado com sucesso!</h2>";
     
     // Verifica se implementa a interface
-    if ($userModel instanceof \Interfaces\ModelInterface) {
+    if ($userModel instanceof ModelInterface) {
         echo "<p style='color: green;'>✓ User implementa ModelInterface corretamente!</p>";
     }
     

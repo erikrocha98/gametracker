@@ -4,9 +4,9 @@ require_once __DIR__ . '/../src/Core/Config.php';
 require_once __DIR__ . '/../src/Core/Request.php';
 require_once __DIR__ . '/../src/Core/Router.php';
 
-use Core\Config;
-use Core\Router;
-use Core\Request;
+use GameTracker\Core\Config;
+use GameTracker\Core\Router;
+use GameTracker\Core\Request;
 
 Config::load();
 session_start();
