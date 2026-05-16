@@ -29,6 +29,10 @@ services:
         condition: service_healthy
     volumes:
       - ./backend/app:/app/app
+    deploy:
+      resources:
+        limits:
+          memory: 1.5g
 
 volumes:
   postgres_data:
