@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
 import styled from 'styled-components'
 import { AuthTabs } from '../../molecules/AuthTabs'
 import type { AuthTabValue } from '../../molecules/AuthTabs'
 import { SignUpForm } from '../SignUpForm'
+import { LoginForm } from '../LoginForm'
 
 const CardWrapper = styled(Paper)`
   padding: 32px;
@@ -13,19 +13,17 @@ const CardWrapper = styled(Paper)`
   box-sizing: border-box;
 `
 
-export function AuthCard() {
-  const [activeTab, setActiveTab] = useState<AuthTabValue>('signup')
+interface AuthCardProps {
+  initialTab?: AuthTabValue
+}
+
+export function AuthCard({ initialTab = 'signup' }: AuthCardProps) {
+  const [activeTab, setActiveTab] = useState<AuthTabValue>(initialTab)
 
   return (
     <CardWrapper>
       <AuthTabs value={activeTab} onChange={setActiveTab} />
-      {activeTab === 'signup' ? (
-        <SignUpForm />
-      ) : (
-        <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 4 }}>
-          Em breve
-        </Typography>
-      )}
+      {activeTab === 'signup' ? <SignUpForm /> : <LoginForm />}
     </CardWrapper>
   )
 }

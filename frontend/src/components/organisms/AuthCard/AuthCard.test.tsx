@@ -5,11 +5,11 @@ import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
 import { AuthCard } from './AuthCard'
 
-function renderAuthCard() {
+function renderAuthCard(initialTab?: 'login' | 'signup') {
   return render(
     <ThemeProvider theme={theme}>
       <StyledThemeProvider theme={theme}>
-        <AuthCard />
+        <AuthCard initialTab={initialTab} />
       </StyledThemeProvider>
     </ThemeProvider>,
   )
@@ -20,8 +20,13 @@ test('renders signup form by default', () => {
   expect(screen.getByPlaceholderText('Seu nome')).toBeInTheDocument()
 })
 
-test('shows placeholder when login tab is selected', async () => {
+test('shows login form when login tab is clicked', async () => {
   renderAuthCard()
-  await userEvent.click(screen.getByText('Entrar'))
-  expect(screen.getByText('Em breve')).toBeInTheDocument()
+  await userEvent.click(screen.getByRole('tab', { name: 'Entrar' }))
+  expect(screen.getByPlaceholderText('voce@exemplo.com')).toBeInTheDocument()
+})
+
+test('renders login form directly when initialTab is login', () => {
+  renderAuthCard('login')
+  expect(screen.getByPlaceholderText('voce@exemplo.com')).toBeInTheDocument()
 })
