@@ -31,5 +31,9 @@ def get_db() -> Generator[Session, None, None]:
     db = _get_session_factory()()
     try:
         yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
