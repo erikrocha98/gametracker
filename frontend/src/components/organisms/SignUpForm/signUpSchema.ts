@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_=+[\]{};':",.<>/?\\|`~-]/
-const SAFE_NAME_REGEX = /^[a-zA-ZÀ-ÿ\s'-]+$/
 const SQL_INJECTION_REGEX =
   /--|;|\/\*|\*\/|\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|EXEC|ALTER|CREATE|TRUNCATE)\b/i
 
@@ -10,11 +9,11 @@ const SQL_INJECTION_MSG = 'Entrada inválida'
 
 export const signUpSchema = z
   .object({
-    name: z
+    username: z
       .string()
-      .min(1, 'Informe seu nome')
-      .max(100, 'Nome muito longo')
-      .regex(SAFE_NAME_REGEX, 'Nome contém caracteres inválidos')
+      .min(3, 'Mínimo 3 caracteres')
+      .max(30, 'Máximo 30 caracteres')
+      .regex(/^[a-zA-Z0-9_]+$/, 'Apenas letras, números e _')
       .refine(noSqlInjection, SQL_INJECTION_MSG),
     email: z
       .string()

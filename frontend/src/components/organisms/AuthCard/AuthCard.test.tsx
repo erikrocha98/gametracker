@@ -5,6 +5,10 @@ import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
 import { AuthCard } from './AuthCard'
 
+vi.mock('../../../services/auth', () => ({
+  signup: vi.fn(),
+}))
+
 function renderAuthCard(initialTab?: 'login' | 'signup') {
   return render(
     <ThemeProvider theme={theme}>
@@ -17,7 +21,7 @@ function renderAuthCard(initialTab?: 'login' | 'signup') {
 
 test('renders signup form by default', () => {
   renderAuthCard()
-  expect(screen.getByPlaceholderText('Seu nome')).toBeInTheDocument()
+  expect(screen.getByPlaceholderText('ex: joao_silva')).toBeInTheDocument()
 })
 
 test('shows login form when login tab is clicked', async () => {

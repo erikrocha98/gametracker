@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import styled from 'styled-components'
@@ -10,7 +11,8 @@ import { FormField } from '../../molecules/FormField'
 import { GoogleButton } from '../../molecules/GoogleButton'
 
 interface SignUpFormProps {
-  onSubmit?: (data: SignUpFormData) => void
+  onSubmit?: (data: SignUpFormData) => Promise<void> | void
+  apiError?: string | null
 }
 
 const Form = styled.form`
@@ -19,34 +21,31 @@ const Form = styled.form`
   gap: 16px;
 `
 
-export function SignUpForm({ onSubmit }: SignUpFormProps) {
+export function SignUpForm({ onSubmit, apiError }: SignUpFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   })
 
   const handleFormSubmit = useCallback(
-    (data: SignUpFormData) => {
-      if (onSubmit) {
-        onSubmit(data)
-      } else {
-        console.log(data)
-      }
+    async (data: SignUpFormData) => {
+      if (onSubmit) await onSubmit(data)
     },
     [onSubmit],
   )
 
   return (
     <Form onSubmit={handleSubmit(handleFormSubmit)}>
+      {apiError && <Alert severity="error">{apiError}</Alert>}
       <FormField
-        label="Nome"
-        name="name"
+        label="Usuário"
+        name="username"
         register={register}
-        error={errors.name?.message}
-        placeholder="Seu nome"
+        error={errors.username?.message}
+        placeholder="ex: joao_silva"
       />
       <FormField
         label="E-mail"
@@ -72,8 +71,8 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
         type="password"
         showPasswordToggle
       />
-      <Button type="submit" variant="contained" color="primary" fullWidth>
-        Criar conta
+      <Button type="submit" variant="contained" color="primary" fullWidth disabled={isSubmitting}>
+        {isSubmitting ? 'Criando conta...' : 'Criar conta'}
       </Button>
       <Divider sx={{ color: 'text.secondary', fontSize: '12px' }}>OU</Divider>
       <GoogleButton />

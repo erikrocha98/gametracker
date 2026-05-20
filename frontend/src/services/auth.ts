@@ -13,8 +13,16 @@ export interface LoginData {
   remember_me: boolean
 }
 
+export interface SignUpData {
+  username: string
+  email: string
+  password: string
+}
+
 export const login = (data: LoginData): Promise<User> => http.post('/auth/login', data)
 
 export const logout = (): Promise<void> => http.post('/auth/logout')
 
 export const getMe = (): Promise<User> => http.get('/auth/me')
+
+export const signup = (data: SignUpData): Promise<User> => http.post('/auth/signup', data)
