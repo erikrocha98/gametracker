@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 _SPECIAL_CHAR_RE = re.compile(r'[!@#$%^&*(),.?":{}|<>]')
 _USERNAME_RE = re.compile(r'^[a-zA-Z0-9_]+$')
@@ -46,3 +46,21 @@ class SignUpResponse(BaseModel):
 
 class VerifyEmailRequest(BaseModel):
     token: str
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
+    remember_me: bool = False
+
+
+class LoginResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    email_verified: bool
+
+    model_config = {"from_attributes": True}
+
+
+MeResponse = LoginResponse

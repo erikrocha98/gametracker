@@ -16,3 +16,7 @@ class ExpiredVerificationToken(Exception):
 
 class UsedVerificationToken(Exception):
     pass
+
+
+class InvalidCredentials(Exception):
+    pass

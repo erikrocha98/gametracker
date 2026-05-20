@@ -5,6 +5,7 @@ import { AuthTabs } from '../../molecules/AuthTabs'
 import type { AuthTabValue } from '../../molecules/AuthTabs'
 import { SignUpForm } from '../SignUpForm'
 import { LoginForm } from '../LoginForm'
+import type { LoginFormData } from '../LoginForm/loginSchema'
 
 const CardWrapper = styled(Paper)`
   padding: 32px;
@@ -15,15 +16,21 @@ const CardWrapper = styled(Paper)`
 
 interface AuthCardProps {
   initialTab?: AuthTabValue
+  onLoginSubmit?: (data: LoginFormData) => Promise<void> | void
+  loginError?: string | null
 }
 
-export function AuthCard({ initialTab = 'signup' }: AuthCardProps) {
+export function AuthCard({ initialTab = 'signup', onLoginSubmit, loginError }: AuthCardProps) {
   const [activeTab, setActiveTab] = useState<AuthTabValue>(initialTab)
 
   return (
     <CardWrapper>
       <AuthTabs value={activeTab} onChange={setActiveTab} />
-      {activeTab === 'signup' ? <SignUpForm /> : <LoginForm />}
+      {activeTab === 'signup' ? (
+        <SignUpForm />
+      ) : (
+        <LoginForm onSubmit={onLoginSubmit} apiError={loginError} />
+      )}
     </CardWrapper>
   )
 }

@@ -122,3 +122,136 @@ def test_verify_email_used_token_returns_400(api_client, user_repo, token_repo):
     response = api_client.post("/auth/verify-email", json={"token": raw})
     assert response.status_code == 400
     assert response.json()["detail"] == "Token já utilizado."
+
+
+# ── POST /auth/login ───────────────────────────────────────────────────────
+
+import bcrypt as _bcrypt
+
+_LOGIN_PASSWORD = "senha!123"
+_LOGIN_HASH = _bcrypt.hashpw(_LOGIN_PASSWORD.encode(), _bcrypt.gensalt(rounds=4)).decode()
+
+
+def _create_user(user_repo):
+    from app.modules.users.domain.entities import User
+
+    return user_repo.add(
+        User(
+            id=None,
+            username="loginuser",
+            email="login@example.com",
+            password_hash=_LOGIN_HASH,
+            email_verified=True,
+            created_at=None,
+            updated_at=None,
+        )
+    )
+
+
+def test_login_returns_200_with_user_data(api_client, user_repo):
+    _create_user(user_repo)
+    response = api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": _LOGIN_PASSWORD}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["username"] == "loginuser"
+    assert data["email"] == "login@example.com"
+    assert "id" in data
+    assert "password_hash" not in data
+
+
+def test_login_sets_access_token_cookie(api_client, user_repo):
+    _create_user(user_repo)
+    response = api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": _LOGIN_PASSWORD}
+    )
+    assert "access_token" in response.cookies
+
+
+def test_login_remember_me_true_sets_max_age(api_client, user_repo):
+    _create_user(user_repo)
+    response = api_client.post(
+        "/auth/login",
+        json={"email": "login@example.com", "password": _LOGIN_PASSWORD, "remember_me": True},
+    )
+    set_cookie = response.headers.get("set-cookie", "")
+    assert "max-age" in set_cookie.lower()
+
+
+def test_login_remember_me_false_sets_session_cookie(api_client, user_repo):
+    _create_user(user_repo)
+    response = api_client.post(
+        "/auth/login",
+        json={"email": "login@example.com", "password": _LOGIN_PASSWORD, "remember_me": False},
+    )
+    set_cookie = response.headers.get("set-cookie", "")
+    assert "max-age" not in set_cookie.lower()
+
+
+def test_login_wrong_email_returns_401_generic(api_client):
+    response = api_client.post(
+        "/auth/login", json={"email": "nobody@example.com", "password": _LOGIN_PASSWORD}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "E-mail ou senha inválidos."
+
+
+def test_login_wrong_password_returns_401_generic(api_client, user_repo):
+    _create_user(user_repo)
+    response = api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": "wrongpass!"}
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "E-mail ou senha inválidos."
+
+
+def test_login_invalid_email_format_returns_422(api_client):
+    response = api_client.post(
+        "/auth/login", json={"email": "not-an-email", "password": _LOGIN_PASSWORD}
+    )
+    assert response.status_code == 422
+
+
+def test_login_empty_password_returns_422(api_client):
+    response = api_client.post("/auth/login", json={"email": "login@example.com", "password": ""})
+    assert response.status_code == 422
+
+
+# ── GET /auth/me ───────────────────────────────────────────────────────────
+
+
+def test_me_returns_user_when_authenticated(api_client, user_repo):
+    _create_user(user_repo)
+    api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": _LOGIN_PASSWORD}
+    )
+    response = api_client.get("/auth/me")
+    assert response.status_code == 200
+    assert response.json()["username"] == "loginuser"
+
+
+def test_me_returns_401_without_cookie(api_client):
+    response = api_client.get("/auth/me")
+    assert response.status_code == 401
+
+
+def test_me_returns_401_with_invalid_token(api_client):
+    api_client.cookies.set("access_token", "not.a.valid.jwt")
+    response = api_client.get("/auth/me")
+    assert response.status_code == 401
+    api_client.cookies.clear()
+
+
+# ── POST /auth/logout ──────────────────────────────────────────────────────
+
+
+def test_logout_returns_204_and_clears_cookie(api_client, user_repo):
+    _create_user(user_repo)
+    api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": _LOGIN_PASSWORD}
+    )
+    response = api_client.post("/auth/logout")
+    assert response.status_code == 204
+    # after logout the /me endpoint must reject
+    assert api_client.get("/auth/me").status_code == 401

@@ -1,15 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import timedelta
 
+from fastapi import APIRouter, Depends, HTTPException, Response
+
+from app.core.config import Settings, get_settings
+from app.core.security import create_access_token
 from app.modules.users.api.dependencies import (
+    get_current_user,
+    get_login_use_case,
     get_signup_use_case,
     get_verify_email_use_case,
 )
-from app.modules.users.api.schemas import SignUpRequest, SignUpResponse, VerifyEmailRequest
+from app.modules.users.api.schemas import (
+    LoginRequest,
+    LoginResponse,
+    MeResponse,
+    SignUpRequest,
+    SignUpResponse,
+    VerifyEmailRequest,
+)
+from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
+from app.modules.users.domain.entities import User
 from app.modules.users.domain.exceptions import (
     EmailAlreadyTaken,
     ExpiredVerificationToken,
+    InvalidCredentials,
     InvalidVerificationToken,
     UsedVerificationToken,
     UsernameAlreadyTaken,
@@ -49,3 +65,51 @@ def verify_email(
         raise HTTPException(status_code=400, detail="Token expirado.")
     except UsedVerificationToken:
         raise HTTPException(status_code=400, detail="Token já utilizado.")
+
+
+@router.post("/login", response_model=LoginResponse)
+def login(
+    payload: LoginRequest,
+    response: Response,
+    use_case: LoginUserUseCase = Depends(get_login_use_case),
+    settings: Settings = Depends(get_settings),
+):
+    try:
+        user = use_case.execute(email=str(payload.email), password=payload.password)
+    except InvalidCredentials:
+        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos.")
+
+    if payload.remember_me:
+        expires_delta = timedelta(days=settings.jwt_remember_me_ttl_days)
+        max_age = int(expires_delta.total_seconds())
+    else:
+        expires_delta = timedelta(hours=settings.jwt_access_ttl_hours)
+        max_age = None
+
+    token = create_access_token(user.id, expires_delta, settings.jwt_secret)
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=settings.cookie_secure,
+        samesite="lax",
+        path="/",
+        max_age=max_age,
+    )
+    return LoginResponse.model_validate(user)
+
+
+@router.post("/logout", status_code=204)
+def logout(response: Response, settings: Settings = Depends(get_settings)):
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        secure=settings.cookie_secure,
+        httponly=True,
+        samesite="lax",
+    )
+
+
+@router.get("/me", response_model=MeResponse)
+def me(current_user: User = Depends(get_current_user)):
+    return MeResponse.model_validate(current_user)

@@ -1,13 +1,32 @@
 from datetime import datetime, timezone
 
 import pytest
+from fastapi import HTTPException, Request
 from fastapi.testclient import TestClient
 
+from app.core.config import Settings, get_settings
+from app.core.security import decode_access_token
 from app.main import app
-from app.modules.users.api.dependencies import get_signup_use_case, get_verify_email_use_case
+from app.modules.users.api.dependencies import (
+    get_current_user,
+    get_login_use_case,
+    get_signup_use_case,
+    get_verify_email_use_case,
+)
+from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
 from app.modules.users.domain.entities import EmailVerificationToken, User
+
+import jwt as pyjwt
+
+_TEST_JWT_SECRET = "test-jwt-secret-do-not-use-in-prod"
+
+_TEST_SETTINGS = Settings(
+    database_url="postgresql://test:test@localhost/test",
+    jwt_secret=_TEST_JWT_SECRET,
+    cookie_secure=False,
+)
 
 
 # ── Fakes ──────────────────────────────────────────────────────────────────
@@ -111,8 +130,31 @@ def api_client(user_repo: FakeUserRepo, token_repo: FakeTokenRepo, email_sender:
             token_repo=token_repo,
         )
 
+    def _login_use_case() -> LoginUserUseCase:
+        return LoginUserUseCase(user_repo=user_repo)
+
+    def _get_settings() -> Settings:
+        return _TEST_SETTINGS
+
+    def _get_current_user(request: Request) -> User:
+        token = request.cookies.get("access_token")
+        if not token:
+            raise HTTPException(status_code=401, detail="Não autenticado.")
+        try:
+            user_id = decode_access_token(token, _TEST_JWT_SECRET)
+        except pyjwt.PyJWTError:
+            raise HTTPException(status_code=401, detail="Não autenticado.")
+        user = user_repo.get_by_id(user_id)
+        if user is None:
+            raise HTTPException(status_code=401, detail="Não autenticado.")
+        return user
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
+    app.dependency_overrides[get_login_use_case] = _login_use_case
+    app.dependency_overrides[get_settings] = _get_settings
+    app.dependency_overrides[get_current_user] = _get_current_user
+
     with TestClient(app) as client:
         yield client
     app.dependency_overrides.clear()

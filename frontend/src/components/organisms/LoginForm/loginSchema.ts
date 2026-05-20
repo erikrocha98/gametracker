@@ -17,6 +17,7 @@ export const loginSchema = z.object({
     .min(1, 'Informe sua senha')
     .max(128, 'Senha muito longa')
     .refine(noSqlInjection, SQL_INJECTION_MSG),
+  remember_me: z.boolean().default(false),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>

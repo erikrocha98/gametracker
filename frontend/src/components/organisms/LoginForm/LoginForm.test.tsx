@@ -33,7 +33,7 @@ test('shows error for malformed email', async () => {
   })
 })
 
-test('calls onSubmit with correct data on valid submission', async () => {
+test('calls onSubmit with correct data including remember_me false by default', async () => {
   const onSubmit = vi.fn()
   const { container } = renderLoginForm(onSubmit)
   await userEvent.type(screen.getByPlaceholderText('voce@exemplo.com'), 'joao@test.com')
@@ -43,6 +43,40 @@ test('calls onSubmit with correct data on valid submission', async () => {
     expect(onSubmit).toHaveBeenCalledWith({
       email: 'joao@test.com',
       password: 'minhasenha',
+      remember_me: false,
     })
   })
+})
+
+test('renders remember_me checkbox unchecked by default', () => {
+  renderLoginForm()
+  const checkbox = screen.getByRole('checkbox', { name: 'Lembrar de mim' })
+  expect(checkbox).not.toBeChecked()
+})
+
+test('calls onSubmit with remember_me true when checkbox is checked', async () => {
+  const onSubmit = vi.fn()
+  const { container } = renderLoginForm(onSubmit)
+  await userEvent.type(screen.getByPlaceholderText('voce@exemplo.com'), 'joao@test.com')
+  await userEvent.type(container.querySelector('input[name="password"]')!, 'minhasenha')
+  await userEvent.click(screen.getByRole('checkbox', { name: 'Lembrar de mim' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+  await waitFor(() => {
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: 'joao@test.com',
+      password: 'minhasenha',
+      remember_me: true,
+    })
+  })
+})
+
+test('shows apiError alert when provided', () => {
+  render(
+    <ThemeProvider theme={theme}>
+      <StyledThemeProvider theme={theme}>
+        <LoginForm apiError="E-mail ou senha inválidos." />
+      </StyledThemeProvider>
+    </ThemeProvider>,
+  )
+  expect(screen.getByText('E-mail ou senha inválidos.')).toBeInTheDocument()
 })
