@@ -26,6 +26,7 @@ _TEST_SETTINGS = Settings(
     database_url="postgresql://test:test@localhost/test",
     jwt_secret=_TEST_JWT_SECRET,
     cookie_secure=False,
+    google_client_id="test-google-client-id",
 )
 
 

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
+import { MemoryRouter } from 'react-router-dom'
 import { theme } from '../../../theme/theme'
 import { AuthCard } from './AuthCard'
 
@@ -9,13 +10,23 @@ vi.mock('../../../services/auth', () => ({
   signup: vi.fn(),
 }))
 
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: () => ({ loginWithGoogle: vi.fn() }),
+}))
+
+vi.mock('@react-oauth/google', () => ({
+  GoogleLogin: () => null,
+}))
+
 function renderAuthCard(initialTab?: 'login' | 'signup') {
   return render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <AuthCard initialTab={initialTab} />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <AuthCard initialTab={initialTab} />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
 }
 

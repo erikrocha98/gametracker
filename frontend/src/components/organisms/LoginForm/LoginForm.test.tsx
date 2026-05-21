@@ -2,16 +2,27 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
+import { MemoryRouter } from 'react-router-dom'
 import { theme } from '../../../theme/theme'
 import { LoginForm } from './LoginForm'
 
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: () => ({ loginWithGoogle: vi.fn() }),
+}))
+
+vi.mock('@react-oauth/google', () => ({
+  GoogleLogin: () => null,
+}))
+
 function renderLoginForm(onSubmit = vi.fn()) {
   return render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <LoginForm onSubmit={onSubmit} />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <LoginForm onSubmit={onSubmit} />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -72,11 +83,13 @@ test('calls onSubmit with remember_me true when checkbox is checked', async () =
 
 test('shows apiError alert when provided', () => {
   render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <LoginForm apiError="E-mail ou senha inválidos." />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <LoginForm apiError="E-mail ou senha inválidos." />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
   expect(screen.getByText('E-mail ou senha inválidos.')).toBeInTheDocument()
 })

@@ -2,16 +2,27 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
+import { MemoryRouter } from 'react-router-dom'
 import { theme } from '../../../theme/theme'
 import { SignUpForm } from './SignUpForm'
 
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: () => ({ loginWithGoogle: vi.fn() }),
+}))
+
+vi.mock('@react-oauth/google', () => ({
+  GoogleLogin: () => null,
+}))
+
 function renderSignUpForm(onSubmit = vi.fn()) {
   return render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <SignUpForm onSubmit={onSubmit} />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <SignUpForm onSubmit={onSubmit} />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -100,11 +111,13 @@ test('calls onSubmit with correct data on valid submission', async () => {
 
 test('shows apiError alert when provided', () => {
   render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <SignUpForm apiError="Não foi possível criar a conta." />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <SignUpForm apiError="Não foi possível criar a conta." />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
   expect(screen.getByText('Não foi possível criar a conta.')).toBeInTheDocument()
 })
