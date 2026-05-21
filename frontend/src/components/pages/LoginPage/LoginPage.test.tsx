@@ -8,6 +8,10 @@ import { LoginPage } from './LoginPage'
 
 const mockLogin = vi.fn()
 
+vi.mock('@react-oauth/google', () => ({
+  GoogleLogin: () => null,
+}))
+
 vi.mock('../../../contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
