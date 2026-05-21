@@ -25,12 +25,17 @@ class SQLAlchemyUserRepository:
         model = self._db.get(UserModel, user_id)
         return self._to_entity(model) if model else None
 
+    def get_by_google_id(self, google_id: str) -> User | None:
+        model = self._db.query(UserModel).filter_by(google_id=google_id).first()
+        return self._to_entity(model) if model else None
+
     def add(self, user: User) -> User:
         model = UserModel(
             username=user.username,
             email=user.email,
             password_hash=user.password_hash,
             email_verified=user.email_verified,
+            google_id=user.google_id,
         )
         self._db.add(model)
         self._db.flush()
@@ -42,6 +47,12 @@ class SQLAlchemyUserRepository:
             model.email_verified = True
             model.updated_at = datetime.now(timezone.utc)
 
+    def link_google_account(self, user_id: int, google_id: str) -> None:
+        model = self._db.get(UserModel, user_id)
+        if model:
+            model.google_id = google_id
+            model.updated_at = datetime.now(timezone.utc)
+
     @staticmethod
     def _to_entity(model: UserModel) -> User:
         return User(
@@ -50,6 +61,7 @@ class SQLAlchemyUserRepository:
             email=model.email,
             password_hash=model.password_hash,
             email_verified=model.email_verified,
+            google_id=model.google_id,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )

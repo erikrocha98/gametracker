@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { getMe, login as apiLogin, logout as apiLogout } from '../services/auth'
+import { getMe, googleLogin as apiGoogleLogin, login as apiLogin, logout as apiLogout } from '../services/auth'
 import type { LoginData, User } from '../services/auth'
 
 type AuthStatus = 'loading' | 'authenticated' | 'guest'
@@ -8,6 +8,7 @@ interface AuthContextValue {
   user: User | null
   status: AuthStatus
   login: (data: LoginData) => Promise<void>
+  loginWithGoogle: (credential: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -32,6 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus('authenticated')
   }, [])
 
+  const loginWithGoogle = useCallback(async (credential: string) => {
+    const u = await apiGoogleLogin(credential)
+    setUser(u)
+    setStatus('authenticated')
+  }, [])
+
   const logout = useCallback(async () => {
     await apiLogout()
     setUser(null)
@@ -39,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, status, login, logout }}>
+    <AuthContext.Provider value={{ user, status, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   )

@@ -11,6 +11,7 @@ class User:
     email_verified: bool
     created_at: datetime | None
     updated_at: datetime | None
+    google_id: str | None = None
 
 
 @dataclass

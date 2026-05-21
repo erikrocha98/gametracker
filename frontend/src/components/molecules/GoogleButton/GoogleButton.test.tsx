@@ -1,25 +1,65 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { ThemeProvider } from '@mui/material/styles'
-import { theme } from '../../../theme/theme'
+import { MemoryRouter } from 'react-router-dom'
 import { GoogleButton } from './GoogleButton'
 
-function renderGoogleButton(onClick = vi.fn()) {
+const mockLoginWithGoogle = vi.fn()
+const mockNavigate = vi.fn()
+
+vi.mock('@react-oauth/google', () => ({
+  GoogleLogin: ({ onSuccess }: { onSuccess: (r: { credential: string }) => void }) => (
+    <button onClick={() => onSuccess({ credential: 'fake-token' })}>
+      Continuar com Google
+    </button>
+  ),
+}))
+
+vi.mock('../../../contexts/AuthContext', () => ({
+  useAuth: () => ({ loginWithGoogle: mockLoginWithGoogle }),
+}))
+
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>()
+  return { ...actual, useNavigate: () => mockNavigate }
+})
+
+function renderButton() {
   return render(
-    <ThemeProvider theme={theme}>
-      <GoogleButton onClick={onClick} />
-    </ThemeProvider>,
+    <MemoryRouter>
+      <GoogleButton />
+    </MemoryRouter>,
   )
 }
 
-test('renders the button label', () => {
-  renderGoogleButton()
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+test('renders the Google login button', () => {
+  renderButton()
   expect(screen.getByText('Continuar com Google')).toBeInTheDocument()
 })
 
-test('calls onClick when clicked', async () => {
-  const onClick = vi.fn()
-  renderGoogleButton(onClick)
-  await userEvent.click(screen.getByText('Continuar com Google'))
-  expect(onClick).toHaveBeenCalledTimes(1)
+test('calls loginWithGoogle and navigates on success', async () => {
+  mockLoginWithGoogle.mockResolvedValue(undefined)
+  renderButton()
+
+  screen.getByText('Continuar com Google').click()
+
+  await vi.waitFor(() => {
+    expect(mockLoginWithGoogle).toHaveBeenCalledWith('fake-token')
+    expect(mockNavigate).toHaveBeenCalledWith('/', { replace: true })
+  })
+})
+
+test('shows error alert when loginWithGoogle fails', async () => {
+  mockLoginWithGoogle.mockRejectedValue(new Error('auth failed'))
+  renderButton()
+
+  screen.getByText('Continuar com Google').click()
+
+  await vi.waitFor(() => {
+    expect(
+      screen.getByText('Não foi possível autenticar com o Google. Tente novamente.'),
+    ).toBeInTheDocument()
+  })
 })

@@ -46,6 +46,9 @@ class FakeUserRepo:
     def get_by_id(self, user_id: int) -> User | None:
         return next((u for u in self._users if u.id == user_id), None)
 
+    def get_by_google_id(self, google_id: str) -> User | None:
+        return next((u for u in self._users if u.google_id == google_id), None)
+
     def add(self, user: User) -> User:
         user.id = self._next_id
         self._next_id += 1
@@ -58,6 +61,11 @@ class FakeUserRepo:
         for u in self._users:
             if u.id == user_id:
                 u.email_verified = True
+
+    def link_google_account(self, user_id: int, google_id: str) -> None:
+        for u in self._users:
+            if u.id == user_id:
+                u.google_id = google_id
 
 
 class FakeTokenRepo:

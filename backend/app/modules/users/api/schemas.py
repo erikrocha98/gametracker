@@ -64,3 +64,7 @@ class LoginResponse(BaseModel):
 
 
 MeResponse = LoginResponse
+
+
+class GoogleAuthRequest(BaseModel):
+    credential: str

@@ -5,11 +5,13 @@ from sqlalchemy.orm import Session
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
 from app.core.security import decode_access_token
+from app.modules.users.application.google_auth import GoogleAuthUseCase
 from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
 from app.modules.users.domain.entities import User
 from app.modules.users.infrastructure.email_sender_console import ConsoleEmailSender
+from app.modules.users.infrastructure.google_token_verifier import GoogleIdTokenVerifier
 from app.modules.users.infrastructure.repositories import (
     SQLAlchemyEmailVerificationTokenRepository,
     SQLAlchemyUserRepository,
@@ -40,6 +42,16 @@ def get_verify_email_use_case(
 
 def get_login_use_case(db: Session = Depends(get_db)) -> LoginUserUseCase:
     return LoginUserUseCase(user_repo=SQLAlchemyUserRepository(db))
+
+
+def get_google_auth_use_case(
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> GoogleAuthUseCase:
+    return GoogleAuthUseCase(
+        user_repo=SQLAlchemyUserRepository(db),
+        token_verifier=GoogleIdTokenVerifier(settings.google_client_id),
+    )
 
 
 def get_current_user(

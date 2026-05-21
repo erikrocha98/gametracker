@@ -26,3 +26,6 @@ export const logout = (): Promise<void> => http.post('/auth/logout')
 export const getMe = (): Promise<User> => http.get('/auth/me')
 
 export const signup = (data: SignUpData): Promise<User> => http.post('/auth/signup', data)
+
+export const googleLogin = (credential: string): Promise<User> =>
+  http.post('/auth/google', { credential })

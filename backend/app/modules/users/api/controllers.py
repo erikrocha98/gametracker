@@ -6,11 +6,13 @@ from app.core.config import Settings, get_settings
 from app.core.security import create_access_token
 from app.modules.users.api.dependencies import (
     get_current_user,
+    get_google_auth_use_case,
     get_login_use_case,
     get_signup_use_case,
     get_verify_email_use_case,
 )
 from app.modules.users.api.schemas import (
+    GoogleAuthRequest,
     LoginRequest,
     LoginResponse,
     MeResponse,
@@ -18,6 +20,7 @@ from app.modules.users.api.schemas import (
     SignUpResponse,
     VerifyEmailRequest,
 )
+from app.modules.users.application.google_auth import GoogleAuthUseCase
 from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
@@ -26,6 +29,7 @@ from app.modules.users.domain.exceptions import (
     EmailAlreadyTaken,
     ExpiredVerificationToken,
     InvalidCredentials,
+    InvalidGoogleToken,
     InvalidVerificationToken,
     UsedVerificationToken,
     UsernameAlreadyTaken,
@@ -108,6 +112,31 @@ def logout(response: Response, settings: Settings = Depends(get_settings)):
         httponly=True,
         samesite="lax",
     )
+
+
+@router.post("/google", response_model=LoginResponse)
+def google_auth(
+    payload: GoogleAuthRequest,
+    response: Response,
+    use_case: GoogleAuthUseCase = Depends(get_google_auth_use_case),
+    settings: Settings = Depends(get_settings),
+):
+    try:
+        user = use_case.execute(payload.credential)
+    except InvalidGoogleToken:
+        raise HTTPException(status_code=401, detail="Não foi possível autenticar com o Google.")
+
+    expires_delta = timedelta(hours=settings.jwt_access_ttl_hours)
+    token = create_access_token(user.id, expires_delta, settings.jwt_secret)
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=settings.cookie_secure,
+        samesite="lax",
+        path="/",
+    )
+    return LoginResponse.model_validate(user)
 
 
 @router.get("/me", response_model=MeResponse)

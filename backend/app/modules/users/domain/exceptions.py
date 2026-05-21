@@ -20,3 +20,7 @@ class UsedVerificationToken(Exception):
 
 class InvalidCredentials(Exception):
     pass
+
+
+class InvalidGoogleToken(Exception):
+    pass
