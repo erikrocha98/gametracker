@@ -1,18 +1,19 @@
 import { createTheme } from '@mui/material/styles'
+import { colors } from './colors'
 
 export const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#22c55e',
+      main: colors.primary,
     },
     background: {
-      default: '#0a0b0f',
-      paper: '#131418',
+      default: colors.backgroundDefault,
+      paper: colors.backgroundPaper,
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#9ca3af',
+      primary: colors.textPrimary,
+      secondary: colors.textSecondary,
     },
   },
   shape: {
@@ -28,12 +29,12 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            backgroundColor: '#1a1b21',
+            backgroundColor: colors.inputBackground,
             '& fieldset': {
-              borderColor: '#2e303a',
+              borderColor: colors.inputBorder,
             },
             '&:hover fieldset': {
-              borderColor: '#4a4c58',
+              borderColor: colors.inputBorderHover,
             },
           },
         },
@@ -46,7 +47,7 @@ export const theme = createTheme({
           fontWeight: 600,
           padding: '10px 16px',
           '&.MuiButton-containedPrimary': {
-            color: '#000',
+            color: colors.buttonPrimaryText,
           },
         },
       },

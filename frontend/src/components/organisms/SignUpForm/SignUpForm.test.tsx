@@ -108,16 +108,3 @@ test('calls onSubmit with correct data on valid submission', async () => {
     })
   })
 })
-
-test('shows apiError alert when provided', () => {
-  render(
-    <MemoryRouter>
-      <ThemeProvider theme={theme}>
-        <StyledThemeProvider theme={theme}>
-          <SignUpForm apiError="Não foi possível criar a conta." />
-        </StyledThemeProvider>
-      </ThemeProvider>
-    </MemoryRouter>,
-  )
-  expect(screen.getByText('Não foi possível criar a conta.')).toBeInTheDocument()
-})

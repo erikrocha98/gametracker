@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import styled from 'styled-components'
@@ -12,7 +11,6 @@ import { GoogleButton } from '../../molecules/GoogleButton'
 
 interface SignUpFormProps {
   onSubmit?: (data: SignUpFormData) => Promise<void> | void
-  apiError?: string | null
 }
 
 const Form = styled.form`
@@ -21,7 +19,7 @@ const Form = styled.form`
   gap: 16px;
 `
 
-export function SignUpForm({ onSubmit, apiError }: SignUpFormProps) {
+export function SignUpForm({ onSubmit }: SignUpFormProps) {
   const {
     register,
     handleSubmit,
@@ -39,7 +37,6 @@ export function SignUpForm({ onSubmit, apiError }: SignUpFormProps) {
 
   return (
     <Form onSubmit={handleSubmit(handleFormSubmit)}>
-      {apiError && <Alert severity="error">{apiError}</Alert>}
       <FormField
         label="Usuário"
         name="username"
