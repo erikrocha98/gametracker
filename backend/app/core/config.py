@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     jwt_remember_me_ttl_days: int = 30
     cookie_secure: bool = True
     google_client_id: str
+    rawg_api_key: str = ""
 
     model_config = SettingsConfigDict(
         env_file=("../.env", ".env"), env_file_encoding="utf-8", extra="ignore"

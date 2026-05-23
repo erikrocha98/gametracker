@@ -7,6 +7,10 @@ from fastapi.testclient import TestClient
 from app.core.config import Settings, get_settings
 from app.core.security import decode_access_token
 from app.main import app
+from app.modules.games.api.dependencies import get_game_search_provider, get_search_games_use_case
+from app.modules.games.application.search_games import SearchGamesUseCase
+from app.modules.games.domain.entities import GameSearchResult
+from app.modules.games.domain.exceptions import GameProviderUnavailable
 from app.modules.users.api.dependencies import (
     get_current_user,
     get_login_use_case,
@@ -27,6 +31,7 @@ _TEST_SETTINGS = Settings(
     jwt_secret=_TEST_JWT_SECRET,
     cookie_secure=False,
     google_client_id="test-google-client-id",
+    rawg_api_key="test-rawg-key",
 )
 
 
@@ -96,6 +101,17 @@ class FakeTokenRepo:
                 t.used_at = datetime.now(timezone.utc)
 
 
+class FakeGameSearchProvider:
+    def __init__(self, results: list[GameSearchResult] | None = None, *, raise_unavailable: bool = False) -> None:
+        self._results = results or []
+        self._raise = raise_unavailable
+
+    def search(self, query: str) -> list[GameSearchResult]:
+        if self._raise:
+            raise GameProviderUnavailable
+        return self._results
+
+
 class FakeEmailSender:
     def __init__(self) -> None:
         self.sent: list[dict[str, str]] = []
@@ -105,6 +121,11 @@ class FakeEmailSender:
 
 
 # ── Fixtures ───────────────────────────────────────────────────────────────
+
+
+@pytest.fixture
+def fake_game_provider() -> FakeGameSearchProvider:
+    return FakeGameSearchProvider()
 
 
 @pytest.fixture
@@ -123,7 +144,12 @@ def email_sender() -> FakeEmailSender:
 
 
 @pytest.fixture
-def api_client(user_repo: FakeUserRepo, token_repo: FakeTokenRepo, email_sender: FakeEmailSender):
+def api_client(
+    user_repo: FakeUserRepo,
+    token_repo: FakeTokenRepo,
+    email_sender: FakeEmailSender,
+    fake_game_provider: FakeGameSearchProvider,
+):
     def _signup_use_case() -> SignUpUserUseCase:
         return SignUpUserUseCase(
             user_repo=user_repo,
@@ -158,11 +184,19 @@ def api_client(user_repo: FakeUserRepo, token_repo: FakeTokenRepo, email_sender:
             raise HTTPException(status_code=401, detail="Não autenticado.")
         return user
 
+    def _get_game_search_provider() -> FakeGameSearchProvider:
+        return fake_game_provider
+
+    def _get_search_games_use_case() -> SearchGamesUseCase:
+        return SearchGamesUseCase(provider=fake_game_provider)
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
     app.dependency_overrides[get_settings] = _get_settings
     app.dependency_overrides[get_current_user] = _get_current_user
+    app.dependency_overrides[get_game_search_provider] = _get_game_search_provider
+    app.dependency_overrides[get_search_games_use_case] = _get_search_games_use_case
 
     with TestClient(app) as client:
         yield client

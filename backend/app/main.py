@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.modules.games.api.controllers import router as games_router
 from app.modules.users.api.controllers import router as users_router
 
 app = FastAPI(title="GameTracker API", version="0.1.0")
@@ -14,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(users_router)
+app.include_router(games_router)
 
 
 @app.get("/")
