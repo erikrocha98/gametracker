@@ -12,7 +12,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const http = {
-  get: <T>(path: string) => request<T>(path, { method: 'GET' }),
+  get: <T>(path: string, init?: RequestInit) => request<T>(path, { method: 'GET', ...init }),
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, {
       method: 'POST',

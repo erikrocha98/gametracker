@@ -10,4 +10,9 @@ export const colors = {
   buttonPrimaryText: '#000000',
   success: '#4ade80',
   error: '#f87171',
+  headerBackground: '#0d0e14',
+  headerBorder: '#1e2028',
+  cardHover: '#1a1b22',
+  overlayScrim: 'rgba(0, 0, 0, 0.5)',
+  placeholderBackground: '#1a1b21',
 }

@@ -64,7 +64,6 @@ export function FeedbackModal({
     <Dialog
       open={open}
       onClose={type === 'success' ? handleClose : undefined}
-      disableEscapeKeyDown={type === 'error'}
       maxWidth="xs"
     >
       <Content>

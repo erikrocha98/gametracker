@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { SignUpPage } from '../components/pages/SignUpPage'
 import { LoginPage } from '../components/pages/LoginPage'
-import { HomePage } from '../components/pages/HomePage'
+import { CatalogPage } from '../components/pages/CatalogPage'
+import { ComingSoonPage } from '../components/pages/ComingSoonPage'
+import { MainTemplate } from '../components/templates/MainTemplate'
 import { ProtectedRoute } from './ProtectedRoute'
 
 export function AppRoutes() {
@@ -13,7 +15,29 @@ export function AppRoutes() {
         path="/"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <MainTemplate>
+              <CatalogPage />
+            </MainTemplate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/adicionar"
+        element={
+          <ProtectedRoute>
+            <MainTemplate>
+              <ComingSoonPage />
+            </MainTemplate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <MainTemplate>
+              <ComingSoonPage />
+            </MainTemplate>
           </ProtectedRoute>
         }
       />
