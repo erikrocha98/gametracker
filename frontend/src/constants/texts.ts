@@ -8,11 +8,11 @@ export const texts = {
   },
   header: {
     navCatalog: 'Catálogo',
-    navAdd: 'Adicionar',
     navProfile: 'Perfil',
     logoutAriaLabel: 'Sair',
     searchPlaceholder: 'Buscar jogos...',
     searchClearAriaLabel: 'Limpar busca',
+    searchToggleAriaLabel: 'Abrir busca',
   },
   search: {
     loading: 'Buscando...',

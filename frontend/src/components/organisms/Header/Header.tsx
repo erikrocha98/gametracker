@@ -1,5 +1,6 @@
-import { IconButton } from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout'
+import SearchIcon from '@mui/icons-material/Search'
+import { IconButton } from '@mui/material'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -10,7 +11,6 @@ import { useDebounce } from '../../../hooks/useDebounce'
 import { useGameSearch } from '../../../hooks/useGameSearch'
 import { Logo } from '../../atoms/Logo'
 import { NavLink } from '../../atoms/NavLink'
-import { SearchBar } from '../../molecules/SearchBar'
 import { SearchDropdown } from '../SearchDropdown'
 
 const Wrapper = styled.header`
@@ -37,49 +37,88 @@ const Nav = styled.nav`
   gap: 20px;
 `
 
-const SearchWrapper = styled.div`
-  position: relative;
-  flex: 1;
-  max-width: 360px;
-`
-
 const Actions = styled.div`
   margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 4px;
+`
+
+const SearchWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`
+
+const SearchInputContainer = styled.div<{ $open: boolean }>`
+  width: ${({ $open }) => ($open ? '220px' : '0px')};
+  overflow: hidden;
+  transition: width 0.25s ease;
+`
+
+const SearchInput = styled.input`
+  width: 220px;
+  padding: 7px 12px;
+  background-color: ${colors.inputBackground};
+  border: 1px solid ${colors.inputBorder};
+  border-radius: 8px;
+  color: ${colors.textPrimary};
+  font-size: 0.875rem;
+  outline: none;
+  font-family: inherit;
+
+  &::placeholder {
+    color: ${colors.textSecondary};
+  }
+
+  &:focus {
+    border-color: ${colors.primary};
+  }
 `
 
 export function Header() {
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
-  const [open, setOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const debouncedQuery = useDebounce(query, 300)
   const { status, results } = useGameSearch(debouncedQuery)
 
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false)
+    setDropdownOpen(false)
+    setQuery('')
+  }, [])
+
+  const toggleSearch = useCallback(() => {
+    if (searchOpen) {
+      closeSearch()
+    } else {
+      setSearchOpen(true)
+      setTimeout(() => inputRef.current?.focus(), 50)
+    }
+  }, [searchOpen, closeSearch])
+
   const handleChange = useCallback((value: string) => {
     setQuery(value)
-    setOpen(value.trim().length > 0)
+    setDropdownOpen(value.trim().length > 0)
   }, [])
 
   const handleFocus = useCallback(() => {
-    if (query.trim()) setOpen(true)
+    if (query.trim()) setDropdownOpen(true)
   }, [query])
 
-  const handleClear = useCallback(() => {
-    setQuery('')
-    setOpen(false)
-  }, [])
-
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') setOpen(false)
-  }, [])
+    if (e.key === 'Escape') closeSearch()
+  }, [closeSearch])
 
   const handleSelect = useCallback(() => {
-    setQuery('')
-    setOpen(false)
-  }, [])
+    closeSearch()
+  }, [closeSearch])
 
   const handleRetry = useCallback(() => {
     const current = query
@@ -95,12 +134,12 @@ export function Header() {
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false)
+        closeSearch()
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [closeSearch])
 
   return (
     <Wrapper>
@@ -108,26 +147,36 @@ export function Header() {
         <Logo size="sm" />
         <Nav>
           <NavLink to="/">{texts.header.navCatalog}</NavLink>
-          <NavLink to="/adicionar">{texts.header.navAdd}</NavLink>
           <NavLink to="/perfil">{texts.header.navProfile}</NavLink>
+          <SearchWrapper ref={wrapperRef}>
+            <IconButton
+              onClick={toggleSearch}
+              aria-label={texts.header.searchToggleAriaLabel}
+              size="small"
+              sx={{ color: searchOpen ? colors.primary : colors.textSecondary }}
+            >
+              <SearchIcon fontSize="small" />
+            </IconButton>
+            <SearchInputContainer $open={searchOpen}>
+              <SearchInput
+                ref={inputRef}
+                value={query}
+                placeholder={texts.header.searchPlaceholder}
+                onChange={(e) => handleChange(e.target.value)}
+                onFocus={handleFocus}
+                onKeyDown={handleKeyDown}
+              />
+            </SearchInputContainer>
+            {dropdownOpen && (
+              <SearchDropdown
+                status={status}
+                results={results}
+                onSelect={handleSelect}
+                onRetry={handleRetry}
+              />
+            )}
+          </SearchWrapper>
         </Nav>
-        <SearchWrapper ref={wrapperRef}>
-          <SearchBar
-            value={query}
-            onChange={handleChange}
-            onClear={handleClear}
-            onFocus={handleFocus}
-            onKeyDown={handleKeyDown}
-          />
-          {open && (
-            <SearchDropdown
-              status={status}
-              results={results}
-              onSelect={handleSelect}
-              onRetry={handleRetry}
-            />
-          )}
-        </SearchWrapper>
         <Actions>
           <IconButton
             onClick={handleLogout}
