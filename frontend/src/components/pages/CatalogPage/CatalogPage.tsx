@@ -12,7 +12,10 @@ export function CatalogPage() {
   useEffect(() => {
     getCollection()
       .then((data) => setItems(data.items))
-      .catch(() => setError(true))
+      .catch((err) => {
+        if (err instanceof Response && err.status === 404) return
+        setError(true)
+      })
       .finally(() => setLoading(false))
   }, [])
 

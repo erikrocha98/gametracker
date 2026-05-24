@@ -22,11 +22,11 @@ export const texts = {
   },
   catalog: {
     heroTitle: 'Seu diário de jogos.',
-    heroSubtitle: 'Registre, organize e acompanhe todos os jogos da sua vida.',
+    heroSubtitle: 'Descubra, avalie e comente os jogos que marcaram a sua jornada.',
     sectionTitle: 'No catálogo',
     counterLabel: 'jogos',
     emptyTitle: 'Nenhum jogo ainda',
-    emptyDescription: 'Adicione jogos ao seu catálogo e acompanhe sua jornada.',
+    emptyDescription: 'Seja o primeiro a adicionar um jogo ao catálogo.',
     emptyAction: 'Adicionar jogo',
     loadError: 'Não foi possível carregar sua coleção.',
   },

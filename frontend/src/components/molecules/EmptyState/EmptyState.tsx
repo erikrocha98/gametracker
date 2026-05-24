@@ -1,10 +1,12 @@
 import { Button, Typography } from '@mui/material'
+import type { ReactNode } from 'react'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 
 interface EmptyStateProps {
   title: string
   description: string
+  icon?: ReactNode
   actionLabel?: string
   onAction?: () => void
 }
@@ -17,12 +19,14 @@ const Card = styled.div`
   padding: 48px 24px;
   border-radius: 12px;
   background-color: ${colors.backgroundPaper};
+  border: 1px solid ${colors.inputBorder};
   text-align: center;
 `
 
-export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
+export function EmptyState({ title, description, icon, actionLabel, onAction }: EmptyStateProps) {
   return (
     <Card>
+      {icon}
       <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 600 }}>
         {title}
       </Typography>

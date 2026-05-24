@@ -1,3 +1,4 @@
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import { CircularProgress, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -20,7 +21,7 @@ const Section = styled.section`
 const SectionHeader = styled.div`
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 24px;
 `
 
@@ -71,6 +72,7 @@ export function CatalogCollection({ items, loading, error }: CatalogCollectionPr
 
       {!loading && !error && items.length === 0 && (
         <EmptyState
+          icon={<SportsEsportsIcon sx={{ fontSize: 48, color: colors.textSecondary }} />}
           title={texts.catalog.emptyTitle}
           description={texts.catalog.emptyDescription}
           actionLabel={texts.catalog.emptyAction}
