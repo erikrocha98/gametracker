@@ -11,6 +11,7 @@ import { loginSchema } from './loginSchema'
 import type { LoginFormData } from './loginSchema'
 import { FormField } from '../../molecules/FormField'
 import { GoogleButton } from '../../molecules/GoogleButton'
+import { colors } from '../../../theme/colors'
 
 interface LoginFormProps {
   onSubmit?: (data: LoginFormData) => Promise<void> | void
@@ -21,6 +22,17 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 16px;
+`
+
+const ErrorAlert = styled(Alert)`
+  &.MuiAlert-root {
+    background-color: ${colors.error};
+    color: ${colors.textPrimary};
+
+    .MuiAlert-icon {
+      color: ${colors.textPrimary};
+    }
+  }
 `
 
 export function LoginForm({ onSubmit, apiError }: LoginFormProps) {
@@ -43,7 +55,7 @@ export function LoginForm({ onSubmit, apiError }: LoginFormProps) {
 
   return (
     <Form onSubmit={handleSubmit(handleFormSubmit)}>
-      {apiError && <Alert severity="error">{apiError}</Alert>}
+      {apiError && <ErrorAlert severity="error">{apiError}</ErrorAlert>}
       <FormField
         label="E-mail"
         name="email"

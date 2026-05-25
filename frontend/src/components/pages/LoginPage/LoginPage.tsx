@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthTemplate } from '../../templates/AuthTemplate'
 import { AuthCard } from '../../organisms/AuthCard'
@@ -9,6 +9,12 @@ export function LoginPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const [loginError, setLoginError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!loginError) return
+    const timer = setTimeout(() => setLoginError(null), 3000)
+    return () => clearTimeout(timer)
+  }, [loginError])
 
   const handleLoginSubmit = useCallback(
     async (data: LoginFormData) => {
