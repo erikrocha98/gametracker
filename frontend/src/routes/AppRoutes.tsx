@@ -22,7 +22,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/adicionar"
+        path="/add-game"
         element={
           <ProtectedRoute>
             <MainTemplate>
@@ -32,7 +32,7 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/perfil"
+        path="/profile"
         element={
           <ProtectedRoute>
             <MainTemplate>

@@ -147,7 +147,7 @@ export function Header() {
         <Logo size="sm" />
         <Nav>
           <NavLink to="/">{texts.header.navCatalog}</NavLink>
-          <NavLink to="/perfil">{texts.header.navProfile}</NavLink>
+          <NavLink to="/profile">{texts.header.navProfile}</NavLink>
           <SearchWrapper ref={wrapperRef}>
             <IconButton
               onClick={toggleSearch}

@@ -76,7 +76,7 @@ export function CatalogCollection({ items, loading, error }: CatalogCollectionPr
           title={texts.catalog.emptyTitle}
           description={texts.catalog.emptyDescription}
           actionLabel={texts.catalog.emptyAction}
-          onAction={() => navigate('/adicionar')}
+          onAction={() => navigate('/add-game')}
         />
       )}
 
