@@ -7,8 +7,8 @@ const mockNavigate = vi.fn()
 
 vi.mock('@react-oauth/google', () => ({
   GoogleLogin: ({ onSuccess }: { onSuccess: (r: { credential: string }) => void }) => (
-    <button onClick={() => onSuccess({ credential: 'fake-token' })}>
-      Continuar com Google
+    <button data-testid="google-oauth-trigger" onClick={() => onSuccess({ credential: 'fake-token' })}>
+      google-oauth
     </button>
   ),
 }))
@@ -43,7 +43,7 @@ test('calls loginWithGoogle and navigates on success', async () => {
   mockLoginWithGoogle.mockResolvedValue(undefined)
   renderButton()
 
-  screen.getByText('Continuar com Google').click()
+  screen.getByTestId('google-oauth-trigger').click()
 
   await vi.waitFor(() => {
     expect(mockLoginWithGoogle).toHaveBeenCalledWith('fake-token')
@@ -55,7 +55,7 @@ test('shows error alert when loginWithGoogle fails', async () => {
   mockLoginWithGoogle.mockRejectedValue(new Error('auth failed'))
   renderButton()
 
-  screen.getByText('Continuar com Google').click()
+  screen.getByTestId('google-oauth-trigger').click()
 
   await vi.waitFor(() => {
     expect(
