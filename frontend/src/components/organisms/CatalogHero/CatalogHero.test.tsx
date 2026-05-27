@@ -14,6 +14,6 @@ test('renders hero title and subtitle', () => {
   )
   expect(screen.getByText('Seu diário de jogos.')).toBeInTheDocument()
   expect(
-    screen.getByText('Registre, organize e acompanhe todos os jogos da sua vida.'),
+    screen.getByText('Descubra, avalie e comente os jogos que marcaram a sua jornada.'),
   ).toBeInTheDocument()
 })

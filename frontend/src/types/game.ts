@@ -24,3 +24,19 @@ export interface CollectionResponse {
 }
 
 export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error'
+
+export interface GameDetailResponse {
+  id: string
+  name: string
+  description: string | null
+  releaseDate: string | null
+  coverUrl: string | null
+  genres: string[]
+  platforms: string[]
+  developers: string[]
+  platformAverageRating: number | null
+  rawgRating: number | null
+  screenshots: string[]
+}
+
+export type DetailsStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'

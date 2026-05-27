@@ -3,6 +3,7 @@ import { SignUpPage } from '../components/pages/SignUpPage'
 import { LoginPage } from '../components/pages/LoginPage'
 import { CatalogPage } from '../components/pages/CatalogPage'
 import { ComingSoonPage } from '../components/pages/ComingSoonPage'
+import { GameDetailsPage } from '../components/pages/GameDetailsPage'
 import { MainTemplate } from '../components/templates/MainTemplate'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -37,6 +38,16 @@ export function AppRoutes() {
           <ProtectedRoute>
             <MainTemplate>
               <ComingSoonPage />
+            </MainTemplate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/games/:gameId"
+        element={
+          <ProtectedRoute>
+            <MainTemplate>
+              <GameDetailsPage />
             </MainTemplate>
           </ProtectedRoute>
         }

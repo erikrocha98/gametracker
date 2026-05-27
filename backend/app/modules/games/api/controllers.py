@@ -1,7 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.modules.games.api.dependencies import get_game_details_use_case, get_search_games_use_case
-from app.modules.games.api.schemas import GameDetailResponse, GameSearchResponse, GameSearchResultResponse
+from app.modules.games.api.schemas import (
+    CollectionResponse,
+    GameDetailResponse,
+    GameSearchResponse,
+    GameSearchResultResponse,
+)
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.domain.exceptions import GameNotFound, GameProviderNotConfigured, GameProviderUnavailable
@@ -36,6 +41,13 @@ def search_games(
             for r in results
         ]
     )
+
+
+@router.get("/collection", response_model=CollectionResponse, response_model_by_alias=True)
+def get_collection(
+    _current_user: User = Depends(get_current_user),
+):
+    return CollectionResponse(items=[])
 
 
 @router.get("/{game_id}", response_model=GameDetailResponse, response_model_by_alias=True)

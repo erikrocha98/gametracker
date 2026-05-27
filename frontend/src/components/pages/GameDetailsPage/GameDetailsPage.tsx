@@ -1,0 +1,89 @@
+import SearchOffIcon from '@mui/icons-material/SearchOff'
+import { Button, CircularProgress, Typography } from '@mui/material'
+import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import { colors } from '../../../theme/colors'
+import { texts } from '../../../constants/texts'
+import { useGameDetails } from '../../../hooks/useGameDetails'
+import { EmptyState } from '../../molecules/EmptyState'
+import { GameDetailsHeader } from '../../organisms/GameDetailsHeader'
+import { GameDescription } from '../../organisms/GameDescription'
+import { GameScreenshots } from '../../organisms/GameScreenshots'
+
+const PageWrapper = styled.div`
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+`
+
+const Divider = styled.hr`
+  border: none;
+  border-bottom: 1px solid ${colors.headerBorder};
+  margin: 32px 0;
+`
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+`
+
+const ErrorWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 0;
+  text-align: center;
+`
+
+export function GameDetailsPage() {
+  const { gameId } = useParams<{ gameId: string }>()
+  const { status, data, refetch } = useGameDetails(gameId)
+
+  if (status === 'loading' || status === 'idle') {
+    return (
+      <LoadingWrapper>
+        <CircularProgress size={40} sx={{ color: colors.primary }} />
+      </LoadingWrapper>
+    )
+  }
+
+  if (status === 'not-found') {
+    return (
+      <PageWrapper>
+        <EmptyState
+          icon={<SearchOffIcon sx={{ fontSize: 48, color: colors.textSecondary }} />}
+          title={texts.gameDetails.notFoundTitle}
+          description={texts.gameDetails.notFoundDescription}
+        />
+      </PageWrapper>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <ErrorWrapper>
+        <Typography variant="body1" sx={{ color: colors.error }}>
+          {texts.gameDetails.loadError}
+        </Typography>
+        <Button variant="outlined" onClick={refetch} sx={{ color: colors.primary, borderColor: colors.primary }}>
+          {texts.gameDetails.retry}
+        </Button>
+      </ErrorWrapper>
+    )
+  }
+
+  if (!data) return null
+
+  return (
+    <PageWrapper>
+      <GameDetailsHeader game={data} />
+      <Divider />
+      <GameDescription description={data.description} />
+      <Divider />
+      <GameScreenshots screenshots={data.screenshots} />
+    </PageWrapper>
+  )
+}

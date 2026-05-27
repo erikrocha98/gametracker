@@ -1,4 +1,5 @@
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { formatYear } from '../../../utils/game'
@@ -7,6 +8,12 @@ import type { CollectionGame } from '../../../types/game'
 interface GameCardProps {
   game: CollectionGame
 }
+
+const CardLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  display: block;
+`
 
 const Card = styled.div`
   display: flex;
@@ -62,22 +69,24 @@ const Meta = styled.p`
 
 export function GameCard({ game }: GameCardProps) {
   return (
-    <Card>
-      <CoverWrapper>
-        {game.coverUrl ? (
-          <img src={game.coverUrl} alt={game.name} />
-        ) : (
-          <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
-        )}
-      </CoverWrapper>
-      <div>
-        <Name>{game.name}</Name>
-        <Meta>
-          {[game.platforms.slice(0, 2).join(', '), formatYear(game.releaseYear)]
-            .filter(Boolean)
-            .join(' · ')}
-        </Meta>
-      </div>
-    </Card>
+    <CardLink to={`/games/${game.gameId}`}>
+      <Card>
+        <CoverWrapper>
+          {game.coverUrl ? (
+            <img src={game.coverUrl} alt={game.name} />
+          ) : (
+            <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
+          )}
+        </CoverWrapper>
+        <div>
+          <Name>{game.name}</Name>
+          <Meta>
+            {[game.platforms.slice(0, 2).join(', '), formatYear(game.releaseYear)]
+              .filter(Boolean)
+              .join(' · ')}
+          </Meta>
+        </div>
+      </Card>
+    </CardLink>
   )
 }

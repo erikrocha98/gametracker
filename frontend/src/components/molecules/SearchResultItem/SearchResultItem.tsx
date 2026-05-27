@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { GameCover } from '../../atoms/GameCover'
@@ -9,7 +10,7 @@ interface SearchResultItemProps {
   onClick: () => void
 }
 
-const Item = styled.button`
+const Item = styled(Link)`
   display: flex;
   align-items: center;
   gap: 12px;
@@ -19,6 +20,8 @@ const Item = styled.button`
   border: none;
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
+  color: inherit;
   transition: background-color 0.15s;
 
   &:hover {
@@ -56,7 +59,7 @@ export function SearchResultItem({ result, onClick }: SearchResultItemProps) {
     .join(' · ')
 
   return (
-    <Item onClick={onClick}>
+    <Item to={`/games/${result.id}`} onClick={onClick}>
       <GameCover coverUrl={result.coverUrl} name={result.name} size="sm" />
       <Info>
         <Name>{result.name}</Name>

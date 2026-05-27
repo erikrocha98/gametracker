@@ -1,0 +1,1 @@
+export { GameScreenshots } from './GameScreenshots'

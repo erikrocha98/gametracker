@@ -2,18 +2,21 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 
+type CoverSize = 'sm' | 'md' | 'lg'
+
 interface GameCoverProps {
   coverUrl: string | null
   name: string
-  size?: 'sm' | 'md'
+  size?: CoverSize
 }
 
-const sizes = {
+const sizes: Record<CoverSize, { width: string; height: string; iconSize: string }> = {
   sm: { width: '40px', height: '54px', iconSize: '20px' },
   md: { width: '64px', height: '86px', iconSize: '28px' },
+  lg: { width: '240px', height: '320px', iconSize: '48px' },
 }
 
-const Wrapper = styled.div<{ $size: 'sm' | 'md' }>`
+const Wrapper = styled.div<{ $size: CoverSize }>`
   width: ${({ $size }) => sizes[$size].width};
   height: ${({ $size }) => sizes[$size].height};
   border-radius: 4px;
@@ -32,7 +35,7 @@ const Img = styled.img`
   display: block;
 `
 
-const Fallback = styled(SportsEsportsIcon)<{ $size: 'sm' | 'md' }>`
+const Fallback = styled(SportsEsportsIcon)<{ $size: CoverSize }>`
   color: ${colors.textSecondary};
   font-size: ${({ $size }) => sizes[$size].iconSize} !important;
 `

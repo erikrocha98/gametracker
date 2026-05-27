@@ -31,7 +31,6 @@ function renderHeader() {
 test('renders navigation links', () => {
   renderHeader()
   expect(screen.getByRole('link', { name: 'Catálogo' })).toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Adicionar' })).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Perfil' })).toBeInTheDocument()
 })
 

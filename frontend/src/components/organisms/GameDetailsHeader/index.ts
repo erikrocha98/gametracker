@@ -1,0 +1,1 @@
+export { GameDetailsHeader } from './GameDetailsHeader'
