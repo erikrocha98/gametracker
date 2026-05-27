@@ -7,9 +7,16 @@ from fastapi.testclient import TestClient
 from app.core.config import Settings, get_settings
 from app.core.security import decode_access_token
 from app.main import app
-from app.modules.games.api.dependencies import get_game_search_provider, get_search_games_use_case
+from app.modules.games.api.dependencies import (
+    get_game_detail_provider,
+    get_game_details_use_case,
+    get_game_repository,
+    get_game_search_provider,
+    get_search_games_use_case,
+)
+from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
-from app.modules.games.domain.entities import GameSearchResult
+from app.modules.games.domain.entities import GameDetail, GameSearchResult
 from app.modules.games.domain.exceptions import GameProviderUnavailable
 from app.modules.users.api.dependencies import (
     get_current_user,
@@ -112,6 +119,32 @@ class FakeGameSearchProvider:
         return self._results
 
 
+class FakeGameDetailProvider:
+    def __init__(self, detail: GameDetail | None = None, *, raise_: type[Exception] | None = None) -> None:
+        self._detail = detail
+        self._raise = raise_
+        self.calls: list[str] = []
+
+    def get_by_id(self, game_id: str) -> GameDetail:
+        self.calls.append(game_id)
+        if self._raise is not None:
+            raise self._raise
+        return self._detail
+
+
+class FakeGameRepository:
+    def __init__(self) -> None:
+        self._stored: dict[str, GameDetail] = {}
+        self.saved: list[GameDetail] = []
+
+    def find_by_id(self, game_id: str) -> GameDetail | None:
+        return self._stored.get(game_id)
+
+    def save(self, detail: GameDetail) -> None:
+        self._stored[detail.id] = detail
+        self.saved.append(detail)
+
+
 class FakeEmailSender:
     def __init__(self) -> None:
         self.sent: list[dict[str, str]] = []
@@ -126,6 +159,16 @@ class FakeEmailSender:
 @pytest.fixture
 def fake_game_provider() -> FakeGameSearchProvider:
     return FakeGameSearchProvider()
+
+
+@pytest.fixture
+def fake_game_detail_provider() -> FakeGameDetailProvider:
+    return FakeGameDetailProvider()
+
+
+@pytest.fixture
+def fake_game_repo() -> FakeGameRepository:
+    return FakeGameRepository()
 
 
 @pytest.fixture
@@ -149,6 +192,8 @@ def api_client(
     token_repo: FakeTokenRepo,
     email_sender: FakeEmailSender,
     fake_game_provider: FakeGameSearchProvider,
+    fake_game_detail_provider: FakeGameDetailProvider,
+    fake_game_repo: FakeGameRepository,
 ):
     def _signup_use_case() -> SignUpUserUseCase:
         return SignUpUserUseCase(
@@ -190,6 +235,15 @@ def api_client(
     def _get_search_games_use_case() -> SearchGamesUseCase:
         return SearchGamesUseCase(provider=fake_game_provider)
 
+    def _get_game_detail_provider() -> FakeGameDetailProvider:
+        return fake_game_detail_provider
+
+    def _get_game_repository() -> FakeGameRepository:
+        return fake_game_repo
+
+    def _get_game_details_use_case() -> GetGameDetailsUseCase:
+        return GetGameDetailsUseCase(provider=fake_game_detail_provider, repository=fake_game_repo)
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
@@ -197,6 +251,9 @@ def api_client(
     app.dependency_overrides[get_current_user] = _get_current_user
     app.dependency_overrides[get_game_search_provider] = _get_game_search_provider
     app.dependency_overrides[get_search_games_use_case] = _get_search_games_use_case
+    app.dependency_overrides[get_game_detail_provider] = _get_game_detail_provider
+    app.dependency_overrides[get_game_repository] = _get_game_repository
+    app.dependency_overrides[get_game_details_use_case] = _get_game_details_use_case
 
     with TestClient(app) as client:
         yield client

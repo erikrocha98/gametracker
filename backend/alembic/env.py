@@ -6,6 +6,7 @@ from alembic import context
 from app.core.config import get_settings
 from app.core.database import Base
 import app.modules.users.infrastructure.models  # noqa: F401 — registers models with Base
+import app.modules.games.infrastructure.sqlalchemy_repository  # noqa: F401 — registers GameModel with Base
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)

@@ -4,3 +4,7 @@ class GameProviderUnavailable(Exception):
 
 class GameProviderNotConfigured(Exception):
     pass
+
+
+class GameNotFound(Exception):
+    pass
