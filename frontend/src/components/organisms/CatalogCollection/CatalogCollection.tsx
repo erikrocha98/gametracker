@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import { CircularProgress, Typography } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { EmptyState } from '../../molecules/EmptyState'
 import { GameCard } from '../../molecules/GameCard'
+import { ActivityFilters } from '../../molecules/ActivityFilters'
+import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 import type { CollectionGame } from '../../../types/game'
 
 interface CatalogCollectionProps {
@@ -43,7 +45,7 @@ const LoadingWrapper = styled.div`
 `
 
 export function CatalogCollection({ items, loading, error }: CatalogCollectionProps) {
-  const navigate = useNavigate()
+  const [filter, setFilter] = useState<ActivityFilterValue>('added')
 
   return (
     <Section>
@@ -57,6 +59,8 @@ export function CatalogCollection({ items, loading, error }: CatalogCollectionPr
           </Counter>
         )}
       </SectionHeader>
+
+      <ActivityFilters value={filter} onChange={setFilter} />
 
       {loading && (
         <LoadingWrapper>
@@ -75,8 +79,6 @@ export function CatalogCollection({ items, loading, error }: CatalogCollectionPr
           icon={<SportsEsportsIcon sx={{ fontSize: 48, color: colors.textSecondary }} />}
           title={texts.catalog.emptyTitle}
           description={texts.catalog.emptyDescription}
-          actionLabel={texts.catalog.emptyAction}
-          onAction={() => navigate('/add-game')}
         />
       )}
 

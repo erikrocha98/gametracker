@@ -22,6 +22,23 @@ function renderCollection(props: Parameters<typeof CatalogCollection>[0]) {
   )
 }
 
+test('shows section title ATIVIDADE RECENTE', () => {
+  renderCollection({ items: [], loading: false, error: false })
+  expect(screen.getByText('ATIVIDADE RECENTE')).toBeInTheDocument()
+})
+
+test('shows all three activity filter tabs', () => {
+  renderCollection({ items: [], loading: false, error: false })
+  expect(screen.getByText('Jogos adicionados')).toBeInTheDocument()
+  expect(screen.getByText('Finalizados')).toBeInTheDocument()
+  expect(screen.getByText('Reviews')).toBeInTheDocument()
+})
+
+test('does not show add game button', () => {
+  renderCollection({ items: [], loading: false, error: false })
+  expect(screen.queryByText('Adicionar jogo')).not.toBeInTheDocument()
+})
+
 test('shows loading spinner when loading', () => {
   renderCollection({ items: [], loading: true, error: false })
   expect(screen.getByRole('progressbar')).toBeInTheDocument()
@@ -34,7 +51,7 @@ test('shows error message when error occurs', () => {
 
 test('shows empty state when no items', () => {
   renderCollection({ items: [], loading: false, error: false })
-  expect(screen.getByText('Nenhum jogo ainda')).toBeInTheDocument()
+  expect(screen.getByText('Nenhuma atividade ainda')).toBeInTheDocument()
 })
 
 test('shows game cards when items exist', () => {
