@@ -4,6 +4,7 @@ import { LoginPage } from '../components/pages/LoginPage'
 import { CatalogPage } from '../components/pages/CatalogPage'
 import { ComingSoonPage } from '../components/pages/ComingSoonPage'
 import { GameDetailsPage } from '../components/pages/GameDetailsPage'
+import { MyGamesPage } from '../components/pages/MyGamesPage'
 import { MainTemplate } from '../components/templates/MainTemplate'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -23,7 +24,27 @@ export function AppRoutes() {
         }
       />
       <Route
-        path="/add-game"
+        path="/my-games"
+        element={
+          <ProtectedRoute>
+            <MainTemplate>
+              <MyGamesPage />
+            </MainTemplate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-lists"
+        element={
+          <ProtectedRoute>
+            <MainTemplate>
+              <ComingSoonPage />
+            </MainTemplate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reviews"
         element={
           <ProtectedRoute>
             <MainTemplate>

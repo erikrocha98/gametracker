@@ -32,6 +32,11 @@ class CollectionResponse(BaseModel):
     items: list[CollectionGameResponse]
 
 
+class AddToCollectionRequest(BaseModel):
+    game_id: str = Field(..., alias="gameId", min_length=1)
+    model_config = {"populate_by_name": True}
+
+
 class GameDetailResponse(BaseModel):
     id: str
     name: str

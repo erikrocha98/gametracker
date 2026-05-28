@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import { CircularProgress, Typography } from '@mui/material'
 import styled from 'styled-components'
@@ -7,6 +7,7 @@ import { texts } from '../../../constants/texts'
 import { EmptyState } from '../../molecules/EmptyState'
 import { GameCard } from '../../molecules/GameCard'
 import { ActivityFilters } from '../../molecules/ActivityFilters'
+import { AddGameModal } from '../AddGameModal'
 import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 import type { CollectionGame } from '../../../types/game'
 
@@ -14,6 +15,7 @@ interface CatalogCollectionProps {
   items: CollectionGame[]
   loading: boolean
   error: boolean
+  onItemAdded?: () => void
 }
 
 const Section = styled.section`
@@ -44,8 +46,12 @@ const LoadingWrapper = styled.div`
   padding: 48px 0;
 `
 
-export function CatalogCollection({ items, loading, error }: Readonly<CatalogCollectionProps>) {
+export function CatalogCollection({ items, loading, error, onItemAdded }: Readonly<CatalogCollectionProps>) {
   const [filter, setFilter] = useState<ActivityFilterValue>('added')
+  const [addOpen, setAddOpen] = useState(false)
+
+  const handleOpenAdd = useCallback(() => setAddOpen(true), [])
+  const handleCloseAdd = useCallback(() => setAddOpen(false), [])
 
   return (
     <Section>
@@ -80,7 +86,7 @@ export function CatalogCollection({ items, loading, error }: Readonly<CatalogCol
           title={texts.catalog.emptyTitle}
           description={texts.catalog.emptyDescription}
           actionLabel={filter === 'added' ? texts.catalog.emptyAddAction : undefined}
-          onAction={filter === 'added' ? () => {} : undefined}
+          onAction={filter === 'added' ? handleOpenAdd : undefined}
         />
       )}
 
@@ -91,6 +97,8 @@ export function CatalogCollection({ items, loading, error }: Readonly<CatalogCol
           ))}
         </Grid>
       )}
+
+      <AddGameModal open={addOpen} onClose={handleCloseAdd} onAdded={onItemAdded} />
     </Section>
   )
 }

@@ -1,5 +1,6 @@
 import AddIcon from '@mui/icons-material/Add'
-import { Button, Chip, Typography } from '@mui/material'
+import CheckIcon from '@mui/icons-material/Check'
+import { Button, Chip, CircularProgress, Typography } from '@mui/material'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
@@ -10,6 +11,9 @@ import type { GameDetailResponse } from '../../../types/game'
 
 interface GameDetailsHeaderProps {
   game: GameDetailResponse
+  onAddToWantToPlay: () => void
+  addLoading: boolean
+  added: boolean
 }
 
 const Grid = styled.div`
@@ -47,7 +51,7 @@ const MetaText = styled.p`
   color: ${colors.textSecondary};
 `
 
-export function GameDetailsHeader({ game }: GameDetailsHeaderProps) {
+export function GameDetailsHeader({ game, onAddToWantToPlay, addLoading, added }: GameDetailsHeaderProps) {
   const releaseDateFormatted = formatReleaseDate(game.releaseDate)
   const metaParts = [
     releaseDateFormatted,
@@ -102,10 +106,18 @@ export function GameDetailsHeader({ game }: GameDetailsHeaderProps) {
 
         <Button
           variant="contained"
-          startIcon={<AddIcon />}
+          startIcon={
+            addLoading
+              ? <CircularProgress size={16} sx={{ color: colors.buttonPrimaryText }} />
+              : added
+                ? <CheckIcon />
+                : <AddIcon />
+          }
+          disabled={addLoading || added}
+          onClick={onAddToWantToPlay}
           sx={{ alignSelf: 'flex-start' }}
         >
-          {texts.gameDetails.addToWantToPlay}
+          {added ? texts.gameDetails.addedToWantToPlay : texts.gameDetails.addToWantToPlay}
         </Button>
       </Info>
     </Grid>

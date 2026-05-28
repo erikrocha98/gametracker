@@ -12,11 +12,16 @@ export const texts = {
   },
   header: {
     navCatalog: 'Catálogo',
-    navProfile: 'Perfil',
     logoutAriaLabel: 'Sair',
     searchPlaceholder: 'Buscar jogos...',
     searchClearAriaLabel: 'Limpar busca',
     searchToggleAriaLabel: 'Abrir busca',
+    userMenu: {
+      profile: 'Perfil',
+      myLists: 'Minhas listas',
+      myGames: 'Meus jogos',
+      reviews: 'Reviews',
+    },
   },
   search: {
     loading: 'Buscando...',
@@ -39,6 +44,22 @@ export const texts = {
       reviews: 'Reviews',
     },
   },
+  addGame: {
+    modalTitle: 'Adicionar um jogo',
+    searchPlaceholder: 'Buscar jogos...',
+    successMessage: 'Jogo adicionado com sucesso!',
+    errorMessage: 'Não foi possível adicionar o jogo. Tente novamente.',
+  },
+  myGames: {
+    pageTitle: 'Meus jogos',
+    emptyTitle: 'Nenhum jogo adicionado',
+    emptyDescription: 'Adicione jogos à sua lista para vê-los aqui.',
+    loadError: 'Não foi possível carregar seus jogos.',
+    perPageLabel: 'Por página:',
+    removeAriaLabel: 'Remover jogo',
+    removeSuccessMessage: 'Jogo removido com sucesso!',
+    removeErrorMessage: 'Não foi possível remover o jogo. Tente novamente.',
+  },
   comingSoon: {
     title: 'Em breve',
     description: 'Esta funcionalidade ainda está sendo desenvolvida.',
@@ -59,5 +80,8 @@ export const texts = {
     notFoundDescription: 'Não conseguimos localizar este jogo.',
     retry: 'Tentar novamente',
     addToWantToPlay: 'Quero jogar',
+    addedToWantToPlay: 'Adicionado',
+    addToWantToPlaySuccess: 'Jogo adicionado à sua lista!',
+    addToWantToPlayError: 'Não foi possível adicionar o jogo. Tente novamente.',
   },
 }

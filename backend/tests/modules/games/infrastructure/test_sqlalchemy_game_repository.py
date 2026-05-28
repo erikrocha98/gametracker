@@ -3,10 +3,10 @@ from datetime import date
 import pytest
 
 from app.modules.games.domain.entities import GameDetail
+from app.modules.games.infrastructure.external_id import parse_external_id as _parse_external_id
 from app.modules.games.infrastructure.sqlalchemy_repository import (
     GameModel,
     SqlAlchemyGameRepository,
-    _parse_external_id,
 )
 
 

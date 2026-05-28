@@ -12,3 +12,11 @@ export function getCollection(): Promise<CollectionResponse> {
 export function getGameDetails(gameId: string, signal?: AbortSignal): Promise<GameDetailResponse> {
   return http.get<GameDetailResponse>(`/games/${encodeURIComponent(gameId)}`, { signal })
 }
+
+export function addToWantToPlay(gameId: string): Promise<void> {
+  return http.post<void>('/games/want-to-play', { gameId })
+}
+
+export function removeFromWantToPlay(gameId: string): Promise<void> {
+  return http.delete<void>(`/games/want-to-play/${encodeURIComponent(gameId)}`)
+}

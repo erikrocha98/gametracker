@@ -1,12 +1,16 @@
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
+import { IconButton } from '@mui/material'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
+import { texts } from '../../../constants/texts'
 import { formatYear } from '../../../utils/game'
 import type { CollectionGame } from '../../../types/game'
 
 interface GameCardProps {
   game: CollectionGame
+  onRemove?: () => void
 }
 
 const CardLink = styled(Link)`
@@ -31,6 +35,7 @@ const Card = styled.div`
 `
 
 const CoverWrapper = styled.div`
+  position: relative;
   width: 100%;
   aspect-ratio: 3/4;
   border-radius: 4px;
@@ -45,6 +50,19 @@ const CoverWrapper = styled.div`
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+`
+
+const RemoveButton = styled(IconButton)`
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  background-color: ${colors.overlayCardAction} !important;
+  color: ${colors.textPrimary} !important;
+  padding: 4px !important;
+
+  &:hover {
+    color: ${colors.error} !important;
   }
 `
 
@@ -67,7 +85,7 @@ const Meta = styled.p`
   text-overflow: ellipsis;
 `
 
-export function GameCard({ game }: GameCardProps) {
+export function GameCard({ game, onRemove }: GameCardProps) {
   return (
     <CardLink to={`/games/${game.gameId}`}>
       <Card>
@@ -76,6 +94,19 @@ export function GameCard({ game }: GameCardProps) {
             <img src={game.coverUrl} alt={game.name} />
           ) : (
             <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
+          )}
+          {onRemove && (
+            <RemoveButton
+              size="small"
+              aria-label={texts.myGames.removeAriaLabel}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onRemove()
+              }}
+            >
+              <DeleteOutlineIcon fontSize="small" />
+            </RemoveButton>
           )}
         </CoverWrapper>
         <div>

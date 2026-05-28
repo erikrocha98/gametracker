@@ -13,7 +13,7 @@ vi.mock('../../../hooks/useGameSearch', () => ({
 }))
 
 vi.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({ logout: mockLogout }),
+  useAuth: () => ({ logout: mockLogout, user: { username: 'testuser' } }),
 }))
 
 function renderHeader() {
@@ -31,7 +31,7 @@ function renderHeader() {
 test('renders navigation links', () => {
   renderHeader()
   expect(screen.getByRole('link', { name: 'Catálogo' })).toBeInTheDocument()
-  expect(screen.getByRole('link', { name: 'Perfil' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: /testuser/i })).toBeInTheDocument()
 })
 
 test('renders search input', () => {

@@ -8,3 +8,11 @@ class GameProviderNotConfigured(Exception):
 
 class GameNotFound(Exception):
     pass
+
+
+class GameAlreadyInCollection(Exception):
+    pass
+
+
+class GameNotInCollection(Exception):
+    pass

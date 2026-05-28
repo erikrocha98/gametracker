@@ -25,7 +25,7 @@ function renderHeader(game = GAME) {
     <MemoryRouter>
       <MuiThemeProvider theme={theme}>
         <StyledThemeProvider theme={theme}>
-          <GameDetailsHeader game={game} />
+          <GameDetailsHeader game={game} onAddToWantToPlay={() => {}} addLoading={false} added={false} />
         </StyledThemeProvider>
       </MuiThemeProvider>
     </MemoryRouter>,

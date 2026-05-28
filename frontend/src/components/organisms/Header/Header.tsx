@@ -11,6 +11,7 @@ import { useDebounce } from '../../../hooks/useDebounce'
 import { useGameSearch } from '../../../hooks/useGameSearch'
 import { Logo } from '../../atoms/Logo'
 import { NavLink } from '../../atoms/NavLink'
+import { UserMenu } from '../../molecules/UserMenu'
 import { SearchDropdown } from '../SearchDropdown'
 
 const Wrapper = styled.header`
@@ -78,7 +79,7 @@ const SearchInput = styled.input`
 `
 
 export function Header() {
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -147,7 +148,7 @@ export function Header() {
         <Logo size="sm" />
         <Nav>
           <NavLink to="/">{texts.header.navCatalog}</NavLink>
-          <NavLink to="/profile">{texts.header.navProfile}</NavLink>
+          <UserMenu username={user?.username ?? ''} />
           <SearchWrapper ref={wrapperRef}>
             <IconButton
               onClick={toggleSearch}

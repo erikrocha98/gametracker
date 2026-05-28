@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 
 
 @dataclass
@@ -23,3 +23,16 @@ class GameDetail:
     developers: list[str]
     rawg_rating: float | None
     screenshots: list[str]
+
+
+@dataclass
+class UserGame:
+    id: int
+    user_id: int
+    game_id: int
+    external_id: str
+    name: str
+    cover_url: str | None
+    platforms: list[str]
+    release_year: int | None
+    added_at: datetime

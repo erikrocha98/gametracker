@@ -31,7 +31,7 @@ test('renders hero title', async () => {
 test('shows empty state after collection loads with no items', async () => {
   mockGetCollection.mockResolvedValue({ items: [] })
   renderPage()
-  await waitFor(() => expect(screen.getByText('Nenhum jogo ainda')).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText('Nenhuma atividade ainda')).toBeInTheDocument())
 })
 
 test('shows error state when collection fails to load', async () => {

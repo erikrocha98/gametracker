@@ -14,5 +14,6 @@ export const colors = {
   headerBorder: '#1e2028',
   cardHover: '#1a1b22',
   overlayScrim: 'rgba(0, 0, 0, 0.5)',
+  overlayCardAction: 'rgba(19, 20, 24, 0.85)',
   placeholderBackground: '#1a1b21',
 }

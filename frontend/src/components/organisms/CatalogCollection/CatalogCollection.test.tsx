@@ -22,9 +22,9 @@ function renderCollection(props: Parameters<typeof CatalogCollection>[0]) {
   )
 }
 
-test('shows section title ATIVIDADE RECENTE', () => {
+test('shows section title Atividade Recente', () => {
   renderCollection({ items: [], loading: false, error: false })
-  expect(screen.getByText('ATIVIDADE RECENTE')).toBeInTheDocument()
+  expect(screen.getByText('Atividade Recente')).toBeInTheDocument()
 })
 
 test('shows all three activity filter tabs', () => {

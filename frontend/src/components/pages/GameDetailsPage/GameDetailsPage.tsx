@@ -1,11 +1,14 @@
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 import { Button, CircularProgress, Typography } from '@mui/material'
+import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { useGameDetails } from '../../../hooks/useGameDetails'
+import { addToWantToPlay } from '../../../services/games'
 import { EmptyState } from '../../molecules/EmptyState'
+import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { GameDetailsHeader } from '../../organisms/GameDetailsHeader'
 import { GameDescription } from '../../organisms/GameDescription'
 import { GameScreenshots } from '../../organisms/GameScreenshots'
@@ -41,6 +44,27 @@ const ErrorWrapper = styled.div`
 export function GameDetailsPage() {
   const { gameId } = useParams<{ gameId: string }>()
   const { status, data, refetch } = useGameDetails(gameId)
+  const [addLoading, setAddLoading] = useState(false)
+  const [added, setAdded] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
+    type: 'success',
+    message: '',
+    open: false,
+  })
+
+  const handleAddToWantToPlay = useCallback(async () => {
+    if (!gameId) return
+    setAddLoading(true)
+    try {
+      await addToWantToPlay(gameId)
+      setAdded(true)
+      setFeedback({ type: 'success', message: texts.gameDetails.addToWantToPlaySuccess, open: true })
+    } catch {
+      setFeedback({ type: 'error', message: texts.gameDetails.addToWantToPlayError, open: true })
+    } finally {
+      setAddLoading(false)
+    }
+  }, [gameId])
 
   if (status === 'loading' || status === 'idle') {
     return (
@@ -78,12 +102,26 @@ export function GameDetailsPage() {
   if (!data) return null
 
   return (
-    <PageWrapper>
-      <GameDetailsHeader game={data} />
-      <Divider />
-      <GameDescription description={data.description} />
-      <Divider />
-      <GameScreenshots screenshots={data.screenshots} />
-    </PageWrapper>
+    <>
+      <PageWrapper>
+        <GameDetailsHeader
+          game={data}
+          onAddToWantToPlay={handleAddToWantToPlay}
+          addLoading={addLoading}
+          added={added}
+        />
+        <Divider />
+        <GameDescription description={data.description} />
+        <Divider />
+        <GameScreenshots screenshots={data.screenshots} />
+      </PageWrapper>
+
+      <FeedbackModal
+        type={feedback.type}
+        message={feedback.message}
+        open={feedback.open}
+        onClose={() => setFeedback((prev) => ({ ...prev, open: false }))}
+      />
+    </>
   )
 }

@@ -8,15 +8,22 @@ from app.core.config import Settings, get_settings
 from app.core.security import decode_access_token
 from app.main import app
 from app.modules.games.api.dependencies import (
+    get_add_game_to_collection_use_case,
     get_game_detail_provider,
     get_game_details_use_case,
     get_game_repository,
     get_game_search_provider,
+    get_remove_game_from_collection_use_case,
     get_search_games_use_case,
+    get_user_collection_use_case,
+    get_user_game_repository,
 )
+from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
+from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
+from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
-from app.modules.games.domain.entities import GameDetail, GameSearchResult
+from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame
 from app.modules.games.domain.exceptions import GameProviderUnavailable
 from app.modules.users.api.dependencies import (
     get_current_user,
@@ -145,6 +152,45 @@ class FakeGameRepository:
         self.saved.append(detail)
 
 
+class FakeUserGameRepository:
+    def __init__(self) -> None:
+        self._rows: list[UserGame] = []
+        self._next_id = 1
+        self.internal_ids: dict[str, int] = {}
+
+    def find_internal_game_id(self, external_id: str) -> int | None:
+        return self.internal_ids.get(external_id)
+
+    def exists(self, *, user_id: int, game_id: int) -> bool:
+        return any(r.user_id == user_id and r.game_id == game_id for r in self._rows)
+
+    def add(self, *, user_id: int, game_id: int) -> UserGame:
+        row = UserGame(
+            id=self._next_id,
+            user_id=user_id,
+            game_id=game_id,
+            external_id=next(
+                (k for k, v in self.internal_ids.items() if v == game_id), ""
+            ),
+            name="",
+            cover_url=None,
+            platforms=[],
+            release_year=None,
+            added_at=datetime.now(timezone.utc),
+        )
+        self._next_id += 1
+        self._rows.append(row)
+        return row
+
+    def remove(self, *, user_id: int, game_id: int) -> bool:
+        before = len(self._rows)
+        self._rows = [r for r in self._rows if not (r.user_id == user_id and r.game_id == game_id)]
+        return len(self._rows) < before
+
+    def list_by_user(self, user_id: int) -> list[UserGame]:
+        return [r for r in self._rows if r.user_id == user_id]
+
+
 class FakeEmailSender:
     def __init__(self) -> None:
         self.sent: list[dict[str, str]] = []
@@ -172,6 +218,11 @@ def fake_game_repo() -> FakeGameRepository:
 
 
 @pytest.fixture
+def fake_user_game_repo() -> FakeUserGameRepository:
+    return FakeUserGameRepository()
+
+
+@pytest.fixture
 def user_repo() -> FakeUserRepo:
     return FakeUserRepo()
 
@@ -194,6 +245,7 @@ def api_client(
     fake_game_provider: FakeGameSearchProvider,
     fake_game_detail_provider: FakeGameDetailProvider,
     fake_game_repo: FakeGameRepository,
+    fake_user_game_repo: FakeUserGameRepository,
 ):
     def _signup_use_case() -> SignUpUserUseCase:
         return SignUpUserUseCase(
@@ -244,6 +296,23 @@ def api_client(
     def _get_game_details_use_case() -> GetGameDetailsUseCase:
         return GetGameDetailsUseCase(provider=fake_game_detail_provider, repository=fake_game_repo)
 
+    def _get_user_game_repository() -> FakeUserGameRepository:
+        return fake_user_game_repo
+
+    def _get_add_game_to_collection_use_case() -> AddGameToCollectionUseCase:
+        return AddGameToCollectionUseCase(
+            details_use_case=GetGameDetailsUseCase(
+                provider=fake_game_detail_provider, repository=fake_game_repo
+            ),
+            repository=fake_user_game_repo,
+        )
+
+    def _get_remove_game_from_collection_use_case() -> RemoveGameFromCollectionUseCase:
+        return RemoveGameFromCollectionUseCase(repository=fake_user_game_repo)
+
+    def _get_user_collection_use_case() -> GetUserCollectionUseCase:
+        return GetUserCollectionUseCase(repository=fake_user_game_repo)
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
@@ -254,6 +323,10 @@ def api_client(
     app.dependency_overrides[get_game_detail_provider] = _get_game_detail_provider
     app.dependency_overrides[get_game_repository] = _get_game_repository
     app.dependency_overrides[get_game_details_use_case] = _get_game_details_use_case
+    app.dependency_overrides[get_user_game_repository] = _get_user_game_repository
+    app.dependency_overrides[get_add_game_to_collection_use_case] = _get_add_game_to_collection_use_case
+    app.dependency_overrides[get_remove_game_from_collection_use_case] = _get_remove_game_from_collection_use_case
+    app.dependency_overrides[get_user_collection_use_case] = _get_user_collection_use_case
 
     with TestClient(app) as client:
         yield client

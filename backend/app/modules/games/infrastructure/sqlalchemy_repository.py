@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from app.core.database import Base
 from app.modules.games.domain.entities import GameDetail
+from app.modules.games.infrastructure.external_id import parse_external_id
 
 
 class GameModel(Base):
@@ -33,19 +34,12 @@ class GameModel(Base):
     )
 
 
-def _parse_external_id(api_id: str) -> tuple[str, str]:
-    parts = api_id.split("-", 1)
-    if len(parts) != 2 or not parts[0] or not parts[1]:
-        raise ValueError(f"Invalid game id format: {api_id!r}")
-    return parts[0], parts[1]
-
-
 class SqlAlchemyGameRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
     def find_by_id(self, game_id: str) -> GameDetail | None:
-        external_source, external_id = _parse_external_id(game_id)
+        external_source, external_id = parse_external_id(game_id)
         row = (
             self._session.query(GameModel)
             .filter_by(external_source=external_source, external_id=external_id)
@@ -56,7 +50,7 @@ class SqlAlchemyGameRepository:
         return self._to_entity(row)
 
     def save(self, detail: GameDetail) -> None:
-        external_source, external_id = _parse_external_id(detail.id)
+        external_source, external_id = parse_external_id(detail.id)
         existing = (
             self._session.query(GameModel)
             .filter_by(external_source=external_source, external_id=external_id)
