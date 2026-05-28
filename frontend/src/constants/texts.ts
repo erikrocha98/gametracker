@@ -27,10 +27,11 @@ export const texts = {
   catalog: {
     heroTitle: 'Seu diário de jogos.',
     heroSubtitle: 'Descubra, avalie e comente os jogos que marcaram a sua jornada.',
-    sectionTitle: 'ATIVIDADE RECENTE',
+    sectionTitle: 'Atividade Recente',
     counterLabel: 'jogos',
     emptyTitle: 'Nenhuma atividade ainda',
     emptyDescription: 'Adicione, finalize ou avalie um jogo para começar.',
+    emptyAddAction: 'Adicionar',
     loadError: 'Não foi possível carregar sua coleção.',
     activityFilters: {
       added: 'Jogos adicionados',

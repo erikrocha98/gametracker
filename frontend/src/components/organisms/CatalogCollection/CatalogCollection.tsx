@@ -44,7 +44,7 @@ const LoadingWrapper = styled.div`
   padding: 48px 0;
 `
 
-export function CatalogCollection({ items, loading, error }: CatalogCollectionProps) {
+export function CatalogCollection({ items, loading, error }: Readonly<CatalogCollectionProps>) {
   const [filter, setFilter] = useState<ActivityFilterValue>('added')
 
   return (
@@ -79,6 +79,8 @@ export function CatalogCollection({ items, loading, error }: CatalogCollectionPr
           icon={<SportsEsportsIcon sx={{ fontSize: 48, color: colors.textSecondary }} />}
           title={texts.catalog.emptyTitle}
           description={texts.catalog.emptyDescription}
+          actionLabel={filter === 'added' ? texts.catalog.emptyAddAction : undefined}
+          onAction={filter === 'added' ? () => {} : undefined}
         />
       )}
 
