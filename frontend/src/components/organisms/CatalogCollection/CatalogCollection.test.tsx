@@ -1,21 +1,31 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
 import { CatalogCollection } from './CatalogCollection'
 import type { CollectionGame } from '../../../types/game'
+import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 
 const GAMES: CollectionGame[] = [
   { id: 1, gameId: 'rawg-1', name: 'Zelda', coverUrl: null, platforms: [], releaseYear: 2017 },
 ]
 
-function renderCollection(props: Parameters<typeof CatalogCollection>[0]) {
+function renderCollection(
+  props: Omit<Parameters<typeof CatalogCollection>[0], 'filter' | 'onFilterChange'> & {
+    filter?: ActivityFilterValue
+    onFilterChange?: (v: ActivityFilterValue) => void
+  },
+) {
   return render(
     <MemoryRouter>
       <MuiThemeProvider theme={theme}>
         <StyledThemeProvider theme={theme}>
-          <CatalogCollection {...props} />
+          <CatalogCollection
+            filter={props.filter ?? 'added'}
+            onFilterChange={props.onFilterChange ?? (() => {})}
+            {...props}
+          />
         </StyledThemeProvider>
       </MuiThemeProvider>
     </MemoryRouter>,
@@ -62,4 +72,35 @@ test('shows game cards when items exist', () => {
 test('shows item count', () => {
   renderCollection({ items: GAMES, loading: false, error: false })
   expect(screen.getByText(/1 jogos/)).toBeInTheDocument()
+})
+
+test('calls onFilterChange when a tab is clicked', () => {
+  const onFilterChange = vi.fn()
+  renderCollection({ items: [], loading: false, error: false, onFilterChange })
+  fireEvent.click(screen.getByText('Finalizados'))
+  expect(onFilterChange).toHaveBeenCalledWith('finished')
+})
+
+test('shows add action on added tab, not on finished tab', () => {
+  const { rerender } = render(
+    <MemoryRouter>
+      <MuiThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <CatalogCollection items={[]} loading={false} error={false} filter="added" onFilterChange={() => {}} />
+        </StyledThemeProvider>
+      </MuiThemeProvider>
+    </MemoryRouter>,
+  )
+  expect(screen.getByText('Adicionar jogo')).toBeInTheDocument()
+
+  rerender(
+    <MemoryRouter>
+      <MuiThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <CatalogCollection items={[]} loading={false} error={false} filter="finished" onFilterChange={() => {}} />
+        </StyledThemeProvider>
+      </MuiThemeProvider>
+    </MemoryRouter>,
+  )
+  expect(screen.queryByText('Adicionar jogo')).not.toBeInTheDocument()
 })

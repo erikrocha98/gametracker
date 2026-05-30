@@ -1,9 +1,15 @@
+import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import BigInteger, DateTime, Enum as SAEnum, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+
+
+class UserGameStatus(enum.Enum):
+    want_to_play = "want_to_play"
+    finished = "finished"
 
 
 class UserGameModel(Base):
@@ -24,4 +30,9 @@ class UserGameModel(Base):
         DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
+    )
+    status: Mapped[UserGameStatus] = mapped_column(
+        SAEnum(UserGameStatus, name="user_game_status"),
+        nullable=False,
+        default=UserGameStatus.want_to_play,
     )

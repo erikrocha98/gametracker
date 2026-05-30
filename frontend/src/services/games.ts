@@ -1,12 +1,15 @@
 import type { CollectionResponse, GameDetailResponse, GameSearchResponse } from '../types/game'
 import { http } from './http'
 
+export type CollectionStatus = 'want_to_play' | 'finished'
+
 export function searchGames(q: string, signal?: AbortSignal): Promise<GameSearchResponse> {
   return http.get<GameSearchResponse>(`/games/search?q=${encodeURIComponent(q)}`, { signal })
 }
 
-export function getCollection(): Promise<CollectionResponse> {
-  return http.get<CollectionResponse>('/games/collection')
+export function getCollection(status?: CollectionStatus): Promise<CollectionResponse> {
+  const query = status ? `?status=${status}` : ''
+  return http.get<CollectionResponse>(`/games/collection${query}`)
 }
 
 export function getGameDetails(gameId: string, signal?: AbortSignal): Promise<GameDetailResponse> {

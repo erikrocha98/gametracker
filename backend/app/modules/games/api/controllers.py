@@ -28,6 +28,7 @@ from app.modules.games.domain.exceptions import (
     GameProviderNotConfigured,
     GameProviderUnavailable,
 )
+from app.modules.games.domain.entities import UserGameStatus
 from app.modules.users.api.dependencies import get_current_user
 from app.modules.users.domain.entities import User
 
@@ -74,10 +75,11 @@ def search_games(
 
 @router.get("/collection", response_model=CollectionResponse, response_model_by_alias=True)
 def get_collection(
+    status: UserGameStatus | None = Query(default=None),
     current_user: User = Depends(get_current_user),
     use_case: GetUserCollectionUseCase = Depends(get_user_collection_use_case),
 ):
-    items = use_case.execute(current_user.id)
+    items = use_case.execute(current_user.id, status)
     return CollectionResponse(items=[_to_collection_response(i) for i in items])
 
 

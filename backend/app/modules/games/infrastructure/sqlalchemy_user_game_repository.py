@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 
-from app.modules.games.domain.entities import UserGame
+from app.modules.games.domain.entities import UserGame, UserGameStatus
 from app.modules.games.infrastructure.external_id import parse_external_id
 from app.modules.games.infrastructure.sqlalchemy_repository import GameModel
-from app.modules.games.infrastructure.user_game_model import UserGameModel
+from app.modules.games.infrastructure.user_game_model import UserGameModel, UserGameStatus as OrmUserGameStatus
 
 
 class SqlAlchemyUserGameRepository:
@@ -43,13 +43,11 @@ class SqlAlchemyUserGameRepository:
         )
         return bool(deleted)
 
-    def list_by_user(self, user_id: int) -> list[UserGame]:
-        rows = (
-            self._session.query(UserGameModel)
-            .filter_by(user_id=user_id)
-            .order_by(UserGameModel.added_at.desc())
-            .all()
-        )
+    def list_by_user(self, user_id: int, status: UserGameStatus | None = None) -> list[UserGame]:
+        query = self._session.query(UserGameModel).filter_by(user_id=user_id)
+        if status is not None:
+            query = query.filter(UserGameModel.status == OrmUserGameStatus(status.value))
+        rows = query.order_by(UserGameModel.added_at.desc()).all()
         return [self._hydrate(r) for r in rows]
 
     def _hydrate(self, row: UserGameModel) -> UserGame:
@@ -66,4 +64,5 @@ class SqlAlchemyUserGameRepository:
             platforms=list(game.platforms) if game else [],
             release_year=release_year,
             added_at=row.added_at,
+            status=UserGameStatus(row.status.value),
         )

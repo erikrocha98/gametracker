@@ -139,3 +139,33 @@ def test_get_collection_returns_empty_list(api_client):
 def test_get_collection_401_without_auth(api_client):
     resp = api_client.get("/games/collection")
     assert resp.status_code == 401
+
+
+def test_get_collection_filters_by_status_want_to_play(
+    api_client, fake_game_detail_provider, fake_game_repo, fake_user_game_repo
+):
+    _seed(fake_game_detail_provider, fake_game_repo, fake_user_game_repo)
+    _login(api_client)
+    api_client.post("/games/want-to-play", json={"gameId": EXTERNAL_ID})
+
+    resp = api_client.get("/games/collection?status=want_to_play")
+    assert resp.status_code == 200
+    assert len(resp.json()["items"]) == 1
+
+
+def test_get_collection_filters_by_status_finished_returns_empty(
+    api_client, fake_game_detail_provider, fake_game_repo, fake_user_game_repo
+):
+    _seed(fake_game_detail_provider, fake_game_repo, fake_user_game_repo)
+    _login(api_client)
+    api_client.post("/games/want-to-play", json={"gameId": EXTERNAL_ID})
+
+    resp = api_client.get("/games/collection?status=finished")
+    assert resp.status_code == 200
+    assert resp.json()["items"] == []
+
+
+def test_get_collection_invalid_status_returns_422(api_client):
+    _login(api_client)
+    resp = api_client.get("/games/collection?status=invalid_value")
+    assert resp.status_code == 422

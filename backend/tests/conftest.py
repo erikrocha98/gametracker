@@ -23,7 +23,7 @@ from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
-from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame
+from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import GameProviderUnavailable
 from app.modules.users.api.dependencies import (
     get_current_user,
@@ -164,7 +164,7 @@ class FakeUserGameRepository:
     def exists(self, *, user_id: int, game_id: int) -> bool:
         return any(r.user_id == user_id and r.game_id == game_id for r in self._rows)
 
-    def add(self, *, user_id: int, game_id: int) -> UserGame:
+    def add(self, *, user_id: int, game_id: int, status: UserGameStatus = UserGameStatus.want_to_play) -> UserGame:
         row = UserGame(
             id=self._next_id,
             user_id=user_id,
@@ -177,6 +177,7 @@ class FakeUserGameRepository:
             platforms=[],
             release_year=None,
             added_at=datetime.now(timezone.utc),
+            status=status,
         )
         self._next_id += 1
         self._rows.append(row)
@@ -187,8 +188,11 @@ class FakeUserGameRepository:
         self._rows = [r for r in self._rows if not (r.user_id == user_id and r.game_id == game_id)]
         return len(self._rows) < before
 
-    def list_by_user(self, user_id: int) -> list[UserGame]:
-        return [r for r in self._rows if r.user_id == user_id]
+    def list_by_user(self, user_id: int, status: UserGameStatus | None = None) -> list[UserGame]:
+        rows = [r for r in self._rows if r.user_id == user_id]
+        if status is not None:
+            rows = [r for r in rows if r.status == status]
+        return rows
 
 
 class FakeEmailSender:

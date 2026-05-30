@@ -16,6 +16,8 @@ interface CatalogCollectionProps {
   items: CollectionGame[]
   loading: boolean
   error: boolean
+  filter: ActivityFilterValue
+  onFilterChange: (value: ActivityFilterValue) => void
   onItemAdded?: () => void
 }
 
@@ -47,11 +49,22 @@ const LoadingWrapper = styled.div`
   padding: 48px 0;
 `
 
-export function CatalogCollection({ items, loading, error, onItemAdded }: Readonly<CatalogCollectionProps>) {
-  const [filter, setFilter] = useState<ActivityFilterValue>('added')
+export function CatalogCollection({
+  items,
+  loading,
+  error,
+  filter,
+  onFilterChange,
+  onItemAdded,
+}: Readonly<CatalogCollectionProps>) {
   const [addOpen, setAddOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+
+  const handleFilterChange = useCallback((value: ActivityFilterValue) => {
+    setPage(1)
+    onFilterChange(value)
+  }, [onFilterChange])
 
   const handleOpenAdd = useCallback(() => setAddOpen(true), [])
   const handleCloseAdd = useCallback(() => setAddOpen(false), [])
@@ -79,7 +92,7 @@ export function CatalogCollection({ items, loading, error, onItemAdded }: Readon
         )}
       </SectionHeader>
 
-      <ActivityFilters value={filter} onChange={setFilter} />
+      <ActivityFilters value={filter} onChange={handleFilterChange} />
 
       {loading && (
         <LoadingWrapper>

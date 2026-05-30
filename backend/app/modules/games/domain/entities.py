@@ -1,5 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from enum import Enum
+
+
+class UserGameStatus(Enum):
+    want_to_play = "want_to_play"
+    finished = "finished"
 
 
 @dataclass
@@ -36,3 +42,4 @@ class UserGame:
     platforms: list[str]
     release_year: int | None
     added_at: datetime
+    status: UserGameStatus = UserGameStatus.want_to_play
