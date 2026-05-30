@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import { CircularProgress, Typography } from '@mui/material'
 import styled from 'styled-components'
@@ -7,6 +7,7 @@ import { texts } from '../../../constants/texts'
 import { EmptyState } from '../../molecules/EmptyState'
 import { GameCard } from '../../molecules/GameCard'
 import { ActivityFilters } from '../../molecules/ActivityFilters'
+import { PaginationControls } from '../../molecules/PaginationControls'
 import { AddGameModal } from '../AddGameModal'
 import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 import type { CollectionGame } from '../../../types/game'
@@ -49,9 +50,21 @@ const LoadingWrapper = styled.div`
 export function CatalogCollection({ items, loading, error, onItemAdded }: Readonly<CatalogCollectionProps>) {
   const [filter, setFilter] = useState<ActivityFilterValue>('added')
   const [addOpen, setAddOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   const handleOpenAdd = useCallback(() => setAddOpen(true), [])
   const handleCloseAdd = useCallback(() => setAddOpen(false), [])
+
+  const pagedItems = useMemo(() => {
+    const start = (page - 1) * pageSize
+    return items.slice(start, start + pageSize)
+  }, [items, page, pageSize])
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size)
+    setPage(1)
+  }, [])
 
   return (
     <Section>
@@ -91,11 +104,20 @@ export function CatalogCollection({ items, loading, error, onItemAdded }: Readon
       )}
 
       {!loading && !error && items.length > 0 && (
-        <Grid>
-          {items.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </Grid>
+        <>
+          <Grid>
+            {pagedItems.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
+          </Grid>
+          <PaginationControls
+            page={page}
+            pageSize={pageSize}
+            totalItems={items.length}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </>
       )}
 
       <AddGameModal open={addOpen} onClose={handleCloseAdd} onAdded={onItemAdded} />

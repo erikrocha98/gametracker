@@ -68,7 +68,7 @@ export function MyGamesPage() {
 
         <MyGamesGrid items={pagedItems} loading={loading} error={error} onRemove={handleRemove} />
 
-        {!loading && !error && items.length > pageSize && (
+        {!loading && !error && items.length > 0 && (
           <PaginationControls
             page={page}
             pageSize={pageSize}
