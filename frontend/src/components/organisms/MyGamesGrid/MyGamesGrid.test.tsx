@@ -9,8 +9,8 @@ import { texts } from '../../../constants/texts'
 import type { CollectionGame } from '../../../types/game'
 
 const items: CollectionGame[] = [
-  { id: 1, gameId: 'zelda', name: 'Zelda', coverUrl: null, platforms: ['Switch'], releaseYear: 2017 },
-  { id: 2, gameId: 'mario', name: 'Mario', coverUrl: null, platforms: ['Switch'], releaseYear: 2017 },
+  { id: 1, gameId: 'zelda', name: 'Zelda', coverUrl: null, platforms: ['Switch'], releaseYear: 2017, rating: null },
+  { id: 2, gameId: 'mario', name: 'Mario', coverUrl: null, platforms: ['Switch'], releaseYear: 2017, rating: null },
 ]
 
 function renderGrid(props = {}) {

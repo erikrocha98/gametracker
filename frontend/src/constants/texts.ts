@@ -83,5 +83,10 @@ export const texts = {
     addedToWantToPlay: 'Adicionado',
     addToWantToPlaySuccess: 'Jogo adicionado à sua lista!',
     addToWantToPlayError: 'Não foi possível adicionar o jogo. Tente novamente.',
+    yourRatingLabel: 'Sua nota',
+    rateSuccess: 'Nota registrada com sucesso!',
+    rateError: 'Não foi possível registrar sua nota. Tente novamente.',
+    ratingRemovedSuccess: 'Nota removida.',
+    removeRatingError: 'Não foi possível remover sua nota. Tente novamente.',
   },
 }

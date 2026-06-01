@@ -43,3 +43,4 @@ class UserGame:
     release_year: int | None
     added_at: datetime
     status: UserGameStatus = UserGameStatus.want_to_play
+    rating: float | None = None

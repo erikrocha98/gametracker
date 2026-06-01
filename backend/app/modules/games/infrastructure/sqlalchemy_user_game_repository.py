@@ -29,8 +29,16 @@ class SqlAlchemyUserGameRepository:
             .first()
         ) is not None
 
-    def add(self, *, user_id: int, game_id: int) -> UserGame:
-        row = UserGameModel(user_id=user_id, game_id=game_id)
+    def get(self, *, user_id: int, game_id: int) -> UserGame | None:
+        row = (
+            self._session.query(UserGameModel)
+            .filter_by(user_id=user_id, game_id=game_id)
+            .first()
+        )
+        return self._hydrate(row) if row else None
+
+    def add(self, *, user_id: int, game_id: int, status: UserGameStatus = UserGameStatus.want_to_play) -> UserGame:
+        row = UserGameModel(user_id=user_id, game_id=game_id, status=OrmUserGameStatus(status.value))
         self._session.add(row)
         self._session.flush()
         return self._hydrate(row)
@@ -42,6 +50,29 @@ class SqlAlchemyUserGameRepository:
             .delete()
         )
         return bool(deleted)
+
+    def set_rating(self, *, user_id: int, game_id: int, rating: float) -> UserGame:
+        row = (
+            self._session.query(UserGameModel)
+            .filter_by(user_id=user_id, game_id=game_id)
+            .first()
+        )
+        row.rating = rating
+        row.status = OrmUserGameStatus.finished
+        self._session.flush()
+        return self._hydrate(row)
+
+    def clear_rating(self, *, user_id: int, game_id: int) -> bool:
+        row = (
+            self._session.query(UserGameModel)
+            .filter_by(user_id=user_id, game_id=game_id)
+            .first()
+        )
+        if row is None:
+            return False
+        row.rating = None
+        self._session.flush()
+        return True
 
     def list_by_user(self, user_id: int, status: UserGameStatus | None = None) -> list[UserGame]:
         query = self._session.query(UserGameModel).filter_by(user_id=user_id)
@@ -65,4 +96,5 @@ class SqlAlchemyUserGameRepository:
             release_year=release_year,
             added_at=row.added_at,
             status=UserGameStatus(row.status.value),
+            rating=float(row.rating) if row.rating is not None else None,
         )

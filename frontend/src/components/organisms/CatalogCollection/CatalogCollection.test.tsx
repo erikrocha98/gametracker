@@ -8,7 +8,7 @@ import type { CollectionGame } from '../../../types/game'
 import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 
 const GAMES: CollectionGame[] = [
-  { id: 1, gameId: 'rawg-1', name: 'Zelda', coverUrl: null, platforms: [], releaseYear: 2017 },
+  { id: 1, gameId: 'rawg-1', name: 'Zelda', coverUrl: null, platforms: [], releaseYear: 2017, rating: null },
 ]
 
 function renderCollection(
@@ -91,7 +91,7 @@ test('shows add action on added tab, not on finished tab', () => {
       </MuiThemeProvider>
     </MemoryRouter>,
   )
-  expect(screen.getByText('Adicionar jogo')).toBeInTheDocument()
+  expect(screen.getByText('Adicionar')).toBeInTheDocument()
 
   rerender(
     <MemoryRouter>

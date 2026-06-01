@@ -1,0 +1,1 @@
+export { GamepadRating } from './GamepadRating'

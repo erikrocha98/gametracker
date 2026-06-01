@@ -6,6 +6,7 @@ import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { GameCover } from '../../atoms/GameCover'
 import { RatingBadge } from '../../molecules/RatingBadge'
+import { GamepadRating } from '../../molecules/GamepadRating'
 import { formatReleaseDate } from '../../../utils/game'
 import type { GameDetailResponse } from '../../../types/game'
 
@@ -14,6 +15,9 @@ interface GameDetailsHeaderProps {
   onAddToWantToPlay: () => void
   addLoading: boolean
   added: boolean
+  userRating: number | null
+  onRate: (value: number | null) => void
+  ratingLoading: boolean
 }
 
 const Grid = styled.div`
@@ -51,7 +55,22 @@ const MetaText = styled.p`
   color: ${colors.textSecondary};
 `
 
-export function GameDetailsHeader({ game, onAddToWantToPlay, addLoading, added }: GameDetailsHeaderProps) {
+const YourRatingLabel = styled.p`
+  margin: 0;
+  font-size: 0.75rem;
+  color: ${colors.textSecondary};
+  font-weight: 500;
+`
+
+export function GameDetailsHeader({
+  game,
+  onAddToWantToPlay,
+  addLoading,
+  added,
+  userRating,
+  onRate,
+  ratingLoading,
+}: GameDetailsHeaderProps) {
   const releaseDateFormatted = formatReleaseDate(game.releaseDate)
   const metaParts = [
     releaseDateFormatted,
@@ -103,6 +122,11 @@ export function GameDetailsHeader({ game, onAddToWantToPlay, addLoading, added }
             {game.platforms.join(', ')}
           </MetaText>
         )}
+
+        <div>
+          <YourRatingLabel>{texts.gameDetails.yourRatingLabel}</YourRatingLabel>
+          <GamepadRating value={userRating} onChange={ratingLoading ? undefined : onRate} />
+        </div>
 
         <Button
           variant="contained"

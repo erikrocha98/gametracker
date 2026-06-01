@@ -13,6 +13,7 @@ const GAME: CollectionGame = {
   coverUrl: 'https://example.com/cover.jpg',
   platforms: ['PlayStation 5', 'PC'],
   releaseYear: 2013,
+  rating: null,
 }
 
 function renderCard(game = GAME) {

@@ -18,5 +18,10 @@ export const http = {
       method: 'POST',
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
+  put: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: 'PUT',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
   delete: <T>(path: string, init?: RequestInit) => request<T>(path, { method: 'DELETE', ...init }),
 }

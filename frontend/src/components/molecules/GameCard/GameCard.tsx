@@ -7,6 +7,7 @@ import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { formatYear } from '../../../utils/game'
 import type { CollectionGame } from '../../../types/game'
+import { GamepadRating } from '../GamepadRating'
 
 interface GameCardProps {
   game: CollectionGame
@@ -116,6 +117,9 @@ export function GameCard({ game, onRemove }: GameCardProps) {
               .filter(Boolean)
               .join(' · ')}
           </Meta>
+          {game.rating != null && (
+            <GamepadRating value={game.rating} readOnly size="small" />
+          )}
         </div>
       </Card>
     </CardLink>

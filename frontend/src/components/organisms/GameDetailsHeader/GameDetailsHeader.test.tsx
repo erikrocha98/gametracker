@@ -18,6 +18,7 @@ const GAME: GameDetailResponse = {
   platformAverageRating: null,
   rawgRating: 4.5,
   screenshots: [],
+  userRating: null,
 }
 
 function renderHeader(game = GAME) {
@@ -25,7 +26,7 @@ function renderHeader(game = GAME) {
     <MemoryRouter>
       <MuiThemeProvider theme={theme}>
         <StyledThemeProvider theme={theme}>
-          <GameDetailsHeader game={game} onAddToWantToPlay={() => {}} addLoading={false} added={false} />
+          <GameDetailsHeader game={game} onAddToWantToPlay={() => {}} addLoading={false} added={false} userRating={null} onRate={() => {}} ratingLoading={false} />
         </StyledThemeProvider>
       </MuiThemeProvider>
     </MemoryRouter>,

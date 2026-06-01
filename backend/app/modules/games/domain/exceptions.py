@@ -16,3 +16,7 @@ class GameAlreadyInCollection(Exception):
 
 class GameNotInCollection(Exception):
     pass
+
+
+class InvalidRating(Exception):
+    pass

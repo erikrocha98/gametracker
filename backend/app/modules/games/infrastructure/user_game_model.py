@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, DateTime, Enum as SAEnum, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import BigInteger, DateTime, Enum as SAEnum, ForeignKey, Index, Numeric, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -36,3 +36,4 @@ class UserGameModel(Base):
         nullable=False,
         default=UserGameStatus.want_to_play,
     )
+    rating: Mapped[float | None] = mapped_column(Numeric(2, 1), nullable=True)

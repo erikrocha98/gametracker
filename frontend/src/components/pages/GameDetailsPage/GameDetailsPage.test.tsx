@@ -23,6 +23,7 @@ const GAME: GameDetailResponse = {
   platformAverageRating: null,
   rawgRating: 4.5,
   screenshots: [],
+  userRating: null,
 }
 
 function mockHook(status: DetailsStatus, data: GameDetailResponse | null = null, refetch = vi.fn()) {

@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { useGameDetails } from '../../../hooks/useGameDetails'
-import { addToWantToPlay } from '../../../services/games'
+import { addToWantToPlay, rateGame, removeRating } from '../../../services/games'
 import { EmptyState } from '../../molecules/EmptyState'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { GameDetailsHeader } from '../../organisms/GameDetailsHeader'
@@ -46,6 +46,10 @@ export function GameDetailsPage() {
   const { status, data, refetch } = useGameDetails(gameId)
   const [addLoading, setAddLoading] = useState(false)
   const [added, setAdded] = useState(false)
+  // undefined = not yet overridden by the user; null/number = user-set value
+  const [userRatingOverride, setUserRatingOverride] = useState<number | null | undefined>(undefined)
+  const userRating = userRatingOverride !== undefined ? userRatingOverride : (data?.userRating ?? null)
+  const [ratingLoading, setRatingLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
     type: 'success',
     message: '',
@@ -63,6 +67,28 @@ export function GameDetailsPage() {
       setFeedback({ type: 'error', message: texts.gameDetails.addToWantToPlayError, open: true })
     } finally {
       setAddLoading(false)
+    }
+  }, [gameId])
+
+  const handleRate = useCallback(async (value: number | null) => {
+    if (!gameId) return
+    setRatingLoading(true)
+    try {
+      if (value === null) {
+        await removeRating(gameId)
+        setUserRatingOverride(null)
+        setFeedback({ type: 'success', message: texts.gameDetails.ratingRemovedSuccess, open: true })
+      } else {
+        await rateGame(gameId, value)
+        setUserRatingOverride(value)
+        setAdded(true)
+        setFeedback({ type: 'success', message: texts.gameDetails.rateSuccess, open: true })
+      }
+    } catch {
+      const message = value === null ? texts.gameDetails.removeRatingError : texts.gameDetails.rateError
+      setFeedback({ type: 'error', message, open: true })
+    } finally {
+      setRatingLoading(false)
     }
   }, [gameId])
 
@@ -109,6 +135,9 @@ export function GameDetailsPage() {
           onAddToWantToPlay={handleAddToWantToPlay}
           addLoading={addLoading}
           added={added}
+          userRating={userRating}
+          onRate={handleRate}
+          ratingLoading={ratingLoading}
         />
         <Divider />
         <GameDescription description={data.description} />

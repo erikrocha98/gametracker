@@ -6,7 +6,10 @@ from app.core.database import get_db
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
+from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
+from app.modules.games.application.rate_game import RateGameUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
+from app.modules.games.application.remove_rating import RemoveRatingUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.domain.repositories import GameDetailProvider, GameRepository, GameSearchProvider, UserGameRepository
 from app.modules.games.infrastructure.rawg_provider import RawgGameDetailProvider, RawgGameSearchProvider
@@ -68,3 +71,22 @@ def get_user_collection_use_case(
     repo: UserGameRepository = Depends(get_user_game_repository),
 ) -> GetUserCollectionUseCase:
     return GetUserCollectionUseCase(repository=repo)
+
+
+def get_rate_game_use_case(
+    details_uc: GetGameDetailsUseCase = Depends(get_game_details_use_case),
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> RateGameUseCase:
+    return RateGameUseCase(details_use_case=details_uc, repository=repo)
+
+
+def get_remove_rating_use_case(
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> RemoveRatingUseCase:
+    return RemoveRatingUseCase(repository=repo)
+
+
+def get_user_game_rating_use_case(
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> GetUserGameRatingUseCase:
+    return GetUserGameRatingUseCase(repository=repo)

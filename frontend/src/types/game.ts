@@ -17,6 +17,7 @@ export interface CollectionGame {
   coverUrl: string | null
   platforms: string[]
   releaseYear: number | null
+  rating: number | null
 }
 
 export interface CollectionResponse {
@@ -37,6 +38,7 @@ export interface GameDetailResponse {
   platformAverageRating: number | null
   rawgRating: number | null
   screenshots: string[]
+  userRating: number | null
 }
 
 export type DetailsStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'

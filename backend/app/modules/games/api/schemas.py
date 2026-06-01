@@ -24,6 +24,7 @@ class CollectionGameResponse(BaseModel):
     cover_url: str | None = Field(None, alias="coverUrl")
     platforms: list[str]
     release_year: int | None = Field(None, alias="releaseYear")
+    rating: float | None = Field(None)
 
     model_config = {"populate_by_name": True, "from_attributes": True}
 
@@ -35,6 +36,10 @@ class CollectionResponse(BaseModel):
 class AddToCollectionRequest(BaseModel):
     game_id: str = Field(..., alias="gameId", min_length=1)
     model_config = {"populate_by_name": True}
+
+
+class RateGameRequest(BaseModel):
+    rating: float = Field(..., ge=0.5, le=5.0, multiple_of=0.5)
 
 
 class GameDetailResponse(BaseModel):
@@ -49,5 +54,6 @@ class GameDetailResponse(BaseModel):
     platform_average_rating: float | None = Field(None, alias="platformAverageRating")
     rawg_rating: float | None = Field(None, alias="rawgRating")
     screenshots: list[str]
+    user_rating: float | None = Field(None, alias="userRating")
 
     model_config = {"populate_by_name": True, "from_attributes": True}
