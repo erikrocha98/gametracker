@@ -1,3 +1,4 @@
 /documentacao
 .env*
 CLAUDE.md
+.claude

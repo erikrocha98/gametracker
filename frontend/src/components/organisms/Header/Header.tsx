@@ -2,7 +2,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import SearchIcon from '@mui/icons-material/Search'
 import { IconButton } from '@mui/material'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
@@ -43,6 +43,11 @@ const Actions = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+`
+
+const LogoLink = styled(Link)`
+  display: flex;
+  text-decoration: none;
 `
 
 const SearchWrapper = styled.div`
@@ -145,7 +150,9 @@ export function Header() {
   return (
     <Wrapper>
       <Inner>
-        <Logo size="sm" />
+        <LogoLink to="/">
+          <Logo size="sm" />
+        </LogoLink>
         <Nav>
           <NavLink to="/">{texts.header.navCatalog}</NavLink>
           <UserMenu username={user?.username ?? ''} />
