@@ -11,6 +11,8 @@ class UpdateBioUseCase:
 
     def execute(self, user_id: int, bio: str | None) -> User:
         normalized = bio.strip() if bio else None
+        if not normalized:
+            normalized = None
 
         if normalized is not None and len(normalized) > MAX_BIO_LENGTH:
             raise BioTooLong
