@@ -5,6 +5,7 @@ from enum import Enum
 
 class UserGameStatus(Enum):
     want_to_play = "want_to_play"
+    playing = "playing"
     finished = "finished"
 
 

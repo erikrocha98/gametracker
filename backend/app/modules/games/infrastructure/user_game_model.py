@@ -9,6 +9,7 @@ from app.core.database import Base
 
 class UserGameStatus(enum.Enum):
     want_to_play = "want_to_play"
+    playing = "playing"
     finished = "finished"
 
 
