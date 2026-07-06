@@ -12,6 +12,7 @@ class User:
     created_at: datetime | None
     updated_at: datetime | None
     google_id: str | None = None
+    bio: str | None = None
 
 
 @dataclass

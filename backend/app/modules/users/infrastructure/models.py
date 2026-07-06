@@ -19,6 +19,7 @@ class UserModel(Base):
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     google_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)
+    bio: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_now
     )

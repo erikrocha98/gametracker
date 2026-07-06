@@ -62,6 +62,7 @@ class SQLAlchemyUserRepository:
             password_hash=model.password_hash,
             email_verified=model.email_verified,
             google_id=model.google_id,
+            bio=model.bio,
             created_at=model.created_at,
             updated_at=model.updated_at,
         )
