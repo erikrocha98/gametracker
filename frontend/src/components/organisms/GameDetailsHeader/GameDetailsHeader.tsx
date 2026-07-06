@@ -62,6 +62,32 @@ const YourRatingLabel = styled.p`
   font-weight: 500;
 `
 
+const RatingRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`
+
+const RemoveRatingButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: ${colors.textSecondary};
+  transition: color 0.15s;
+
+  &:hover {
+    color: ${colors.error};
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+`
+
 export function GameDetailsHeader({
   game,
   onAddToWantToPlay,
@@ -125,7 +151,14 @@ export function GameDetailsHeader({
 
         <div>
           <YourRatingLabel>{texts.gameDetails.yourRatingLabel}</YourRatingLabel>
-          <GamepadRating value={userRating} onChange={ratingLoading ? undefined : onRate} />
+          <RatingRow>
+            <GamepadRating value={userRating} onChange={ratingLoading ? undefined : onRate} />
+            {userRating != null && (
+              <RemoveRatingButton onClick={() => onRate(null)} disabled={ratingLoading}>
+                {texts.gameDetails.removeRating}
+              </RemoveRatingButton>
+            )}
+          </RatingRow>
         </div>
 
         <Button

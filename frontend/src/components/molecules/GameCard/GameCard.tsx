@@ -1,23 +1,32 @@
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
-import { IconButton } from '@mui/material'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
-import { texts } from '../../../constants/texts'
 import { formatYear } from '../../../utils/game'
 import type { CollectionGame } from '../../../types/game'
 import { GamepadRating } from '../GamepadRating'
+import { GameCardMenu } from '../GameCardMenu'
 
 interface GameCardProps {
   game: CollectionGame
   onRemove?: () => void
+  onRate?: (value: number | null) => void
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
 
 const CardLink = styled(Link)`
   text-decoration: none;
   color: inherit;
   display: block;
+`
+
+const RatingRow = styled.div`
+  padding: 0 4px;
 `
 
 const Card = styled.div`
@@ -54,19 +63,6 @@ const CoverWrapper = styled.div`
   }
 `
 
-const RemoveButton = styled(IconButton)`
-  position: absolute !important;
-  top: 8px !important;
-  right: 8px !important;
-  background-color: ${colors.overlayCardAction} !important;
-  color: ${colors.textPrimary} !important;
-  padding: 4px !important;
-
-  &:hover {
-    color: ${colors.error} !important;
-  }
-`
-
 const Name = styled.p`
   margin: 0;
   font-size: 0.875rem;
@@ -86,42 +82,36 @@ const Meta = styled.p`
   text-overflow: ellipsis;
 `
 
-export function GameCard({ game, onRemove }: GameCardProps) {
+export function GameCard({ game, onRemove, onRate }: GameCardProps) {
   return (
-    <CardLink to={`/games/${game.gameId}`}>
-      <Card>
-        <CoverWrapper>
-          {game.coverUrl ? (
-            <img src={game.coverUrl} alt={game.name} />
-          ) : (
-            <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
-          )}
-          {onRemove && (
-            <RemoveButton
-              size="small"
-              aria-label={texts.myGames.removeAriaLabel}
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onRemove()
-              }}
-            >
-              <DeleteOutlineIcon fontSize="small" />
-            </RemoveButton>
-          )}
-        </CoverWrapper>
-        <div>
-          <Name>{game.name}</Name>
-          <Meta>
-            {[game.platforms.slice(0, 2).join(', '), formatYear(game.releaseYear)]
-              .filter(Boolean)
-              .join(' · ')}
-          </Meta>
-          {game.rating != null && (
-            <GamepadRating value={game.rating} readOnly size="small" />
-          )}
-        </div>
-      </Card>
-    </CardLink>
+    <Wrapper>
+      <CardLink to={`/games/${game.gameId}`}>
+        <Card>
+          <CoverWrapper>
+            {game.coverUrl ? (
+              <img src={game.coverUrl} alt={game.name} />
+            ) : (
+              <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
+            )}
+            {onRemove && onRate && (
+              <GameCardMenu rating={game.rating} onRate={onRate} onDelete={onRemove} />
+            )}
+          </CoverWrapper>
+          <div>
+            <Name>{game.name}</Name>
+            <Meta>
+              {[game.platforms.slice(0, 2).join(', '), formatYear(game.releaseYear)]
+                .filter(Boolean)
+                .join(' · ')}
+            </Meta>
+          </div>
+        </Card>
+      </CardLink>
+      {game.rating != null && (
+        <RatingRow>
+          <GamepadRating value={game.rating} readOnly size="small" />
+        </RatingRow>
+      )}
+    </Wrapper>
   )
 }

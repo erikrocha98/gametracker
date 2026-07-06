@@ -12,6 +12,7 @@ interface MyGamesGridProps {
   loading: boolean
   error: boolean
   onRemove: (gameId: string) => void
+  onRate: (gameId: string, value: number | null) => void
 }
 
 const Grid = styled.div`
@@ -26,7 +27,7 @@ const LoadingWrapper = styled.div`
   padding: 48px 0;
 `
 
-export function MyGamesGrid({ items, loading, error, onRemove }: MyGamesGridProps) {
+export function MyGamesGrid({ items, loading, error, onRemove, onRate }: MyGamesGridProps) {
   if (loading) {
     return (
       <LoadingWrapper>
@@ -56,7 +57,12 @@ export function MyGamesGrid({ items, loading, error, onRemove }: MyGamesGridProp
   return (
     <Grid>
       {items.map((game) => (
-        <GameCard key={game.id} game={game} onRemove={() => onRemove(game.gameId)} />
+        <GameCard
+          key={game.id}
+          game={game}
+          onRemove={() => onRemove(game.gameId)}
+          onRate={(value) => onRate(game.gameId, value)}
+        />
       ))}
     </Grid>
   )

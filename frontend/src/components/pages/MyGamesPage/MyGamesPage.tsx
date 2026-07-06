@@ -3,7 +3,7 @@ import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
-import { getCollection, removeFromWantToPlay } from '../../../services/games'
+import { getCollection, rateGame, removeFromWantToPlay, removeRating } from '../../../services/games'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { PaginationControls } from '../../molecules/PaginationControls'
 import { MyGamesGrid } from '../../organisms/MyGamesGrid'
@@ -59,6 +59,23 @@ export function MyGamesPage() {
     }
   }, [])
 
+  const handleRate = useCallback(async (gameId: string, value: number | null) => {
+    try {
+      if (value === null) {
+        await removeRating(gameId)
+        setItems((prev) => prev.map((g) => (g.gameId === gameId ? { ...g, rating: null } : g)))
+        setFeedback({ type: 'success', message: texts.myGames.ratingRemovedMessage, open: true })
+      } else {
+        const updated = await rateGame(gameId, value)
+        setItems((prev) => prev.map((g) => (g.gameId === gameId ? { ...g, rating: updated.rating ?? value } : g)))
+        setFeedback({ type: 'success', message: texts.myGames.rateSuccessMessage, open: true })
+      }
+    } catch {
+      const message = value === null ? texts.myGames.removeRatingErrorMessage : texts.myGames.rateErrorMessage
+      setFeedback({ type: 'error', message, open: true })
+    }
+  }, [])
+
   return (
     <>
       <PageWrapper>
@@ -66,7 +83,13 @@ export function MyGamesPage() {
           {texts.myGames.pageTitle}
         </PageTitle>
 
-        <MyGamesGrid items={pagedItems} loading={loading} error={error} onRemove={handleRemove} />
+        <MyGamesGrid
+          items={pagedItems}
+          loading={loading}
+          error={error}
+          onRemove={handleRemove}
+          onRate={handleRate}
+        />
 
         {!loading && !error && items.length > 0 && (
           <PaginationControls
