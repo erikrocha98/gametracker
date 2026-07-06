@@ -35,10 +35,12 @@ from app.modules.users.api.dependencies import (
     get_current_user,
     get_login_use_case,
     get_signup_use_case,
+    get_update_bio_use_case,
     get_verify_email_use_case,
 )
 from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
+from app.modules.users.application.update_bio import UpdateBioUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
 from app.modules.users.domain.entities import EmailVerificationToken, User
 
@@ -301,6 +303,9 @@ def api_client(
     def _login_use_case() -> LoginUserUseCase:
         return LoginUserUseCase(user_repo=user_repo)
 
+    def _update_bio_use_case() -> UpdateBioUseCase:
+        return UpdateBioUseCase(user_repo=user_repo)
+
     def _get_settings() -> Settings:
         return _TEST_SETTINGS
 
@@ -366,6 +371,7 @@ def api_client(
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
+    app.dependency_overrides[get_update_bio_use_case] = _update_bio_use_case
     app.dependency_overrides[get_settings] = _get_settings
     app.dependency_overrides[get_current_user] = _get_current_user
     app.dependency_overrides[get_game_search_provider] = _get_game_search_provider

@@ -9,6 +9,7 @@ from app.modules.users.api.dependencies import (
     get_google_auth_use_case,
     get_login_use_case,
     get_signup_use_case,
+    get_update_bio_use_case,
     get_verify_email_use_case,
 )
 from app.modules.users.api.schemas import (
@@ -18,14 +19,17 @@ from app.modules.users.api.schemas import (
     MeResponse,
     SignUpRequest,
     SignUpResponse,
+    UpdateBioRequest,
     VerifyEmailRequest,
 )
 from app.modules.users.application.google_auth import GoogleAuthUseCase
 from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
+from app.modules.users.application.update_bio import UpdateBioUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
 from app.modules.users.domain.entities import User
 from app.modules.users.domain.exceptions import (
+    BioTooLong,
     EmailAlreadyTaken,
     ExpiredVerificationToken,
     InvalidCredentials,
@@ -142,3 +146,16 @@ def google_auth(
 @router.get("/me", response_model=MeResponse)
 def me(current_user: User = Depends(get_current_user)):
     return MeResponse.model_validate(current_user)
+
+
+@router.patch("/me", response_model=MeResponse)
+def update_me(
+    payload: UpdateBioRequest,
+    current_user: User = Depends(get_current_user),
+    use_case: UpdateBioUseCase = Depends(get_update_bio_use_case),
+):
+    try:
+        user = use_case.execute(current_user.id, payload.bio)
+    except BioTooLong:
+        raise HTTPException(status_code=400, detail="Bio deve ter no máximo 500 caracteres.")
+    return MeResponse.model_validate(user)

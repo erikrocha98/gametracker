@@ -8,6 +8,7 @@ from app.core.security import decode_access_token
 from app.modules.users.application.google_auth import GoogleAuthUseCase
 from app.modules.users.application.login_user import LoginUserUseCase
 from app.modules.users.application.signup_user import SignUpUserUseCase
+from app.modules.users.application.update_bio import UpdateBioUseCase
 from app.modules.users.application.verify_email import VerifyEmailUseCase
 from app.modules.users.domain.entities import User
 from app.modules.users.infrastructure.email_sender_console import ConsoleEmailSender
@@ -42,6 +43,10 @@ def get_verify_email_use_case(
 
 def get_login_use_case(db: Session = Depends(get_db)) -> LoginUserUseCase:
     return LoginUserUseCase(user_repo=SQLAlchemyUserRepository(db))
+
+
+def get_update_bio_use_case(db: Session = Depends(get_db)) -> UpdateBioUseCase:
+    return UpdateBioUseCase(user_repo=SQLAlchemyUserRepository(db))
 
 
 def get_google_auth_use_case(

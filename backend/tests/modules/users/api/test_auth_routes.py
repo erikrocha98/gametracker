@@ -243,6 +243,53 @@ def test_me_returns_401_with_invalid_token(api_client):
     api_client.cookies.clear()
 
 
+def test_me_returns_profile_fields(api_client, user_repo):
+    _create_user(user_repo)
+    api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": _LOGIN_PASSWORD}
+    )
+    response = api_client.get("/auth/me")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["bio"] is None
+    assert data["avatarUrl"] is None
+    assert "memberSince" in data
+
+
+# ── PATCH /auth/me ─────────────────────────────────────────────────────────
+
+
+def _login(api_client, user_repo):
+    _create_user(user_repo)
+    api_client.post(
+        "/auth/login", json={"email": "login@example.com", "password": _LOGIN_PASSWORD}
+    )
+
+
+def test_update_me_changes_bio_returns_200(api_client, user_repo):
+    _login(api_client, user_repo)
+    response = api_client.patch("/auth/me", json={"bio": "Gamer desde 1998."})
+    assert response.status_code == 200
+    assert response.json()["bio"] == "Gamer desde 1998."
+
+
+def test_update_me_persists_bio(api_client, user_repo):
+    _login(api_client, user_repo)
+    api_client.patch("/auth/me", json={"bio": "minha bio"})
+    assert api_client.get("/auth/me").json()["bio"] == "minha bio"
+
+
+def test_update_me_bio_too_long_returns_400(api_client, user_repo):
+    _login(api_client, user_repo)
+    response = api_client.patch("/auth/me", json={"bio": "a" * 501})
+    assert response.status_code == 400
+
+
+def test_update_me_returns_401_without_cookie(api_client):
+    response = api_client.patch("/auth/me", json={"bio": "hello"})
+    assert response.status_code == 401
+
+
 # ── POST /auth/logout ──────────────────────────────────────────────────────
 
 

@@ -63,7 +63,20 @@ class LoginResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-MeResponse = LoginResponse
+class MeResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    email_verified: bool
+    bio: str | None = None
+    avatar_url: str | None = Field(default=None, serialization_alias="avatarUrl")
+    created_at: datetime = Field(serialization_alias="memberSince")
+
+    model_config = {"from_attributes": True}
+
+
+class UpdateBioRequest(BaseModel):
+    bio: str | None = None
 
 
 class GoogleAuthRequest(BaseModel):
