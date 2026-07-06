@@ -2,6 +2,8 @@ from datetime import date
 
 from pydantic import BaseModel, Field
 
+from app.modules.games.domain.entities import UserGameStatus
+
 
 class GameSearchResultResponse(BaseModel):
     id: str
@@ -40,6 +42,17 @@ class AddToCollectionRequest(BaseModel):
 
 class RateGameRequest(BaseModel):
     rating: float = Field(..., ge=0.5, le=5.0, multiple_of=0.5)
+
+
+class SetGameStatusRequest(BaseModel):
+    status: UserGameStatus
+
+
+class GameStatusResponse(BaseModel):
+    game_id: str = Field(..., alias="gameId")
+    status: UserGameStatus
+
+    model_config = {"populate_by_name": True}
 
 
 class GameDetailResponse(BaseModel):

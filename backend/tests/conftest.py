@@ -17,6 +17,7 @@ from app.modules.games.api.dependencies import (
     get_remove_game_from_collection_use_case,
     get_remove_rating_use_case,
     get_search_games_use_case,
+    get_set_game_status_use_case,
     get_user_collection_use_case,
     get_user_game_rating_use_case,
     get_user_game_repository,
@@ -29,6 +30,7 @@ from app.modules.games.application.rate_game import RateGameUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.remove_rating import RemoveRatingUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
+from app.modules.games.application.set_game_status import SetGameStatusUseCase
 from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import GameProviderUnavailable
 from app.modules.users.api.dependencies import (
@@ -222,6 +224,11 @@ class FakeUserGameRepository:
         row.rating = None
         return True
 
+    def set_status(self, *, user_id: int, game_id: int, status: UserGameStatus) -> UserGame:
+        row = self.get(user_id=user_id, game_id=game_id)
+        row.status = status
+        return row
+
     def list_by_user(self, user_id: int, status: UserGameStatus | None = None) -> list[UserGame]:
         rows = [r for r in self._rows if r.user_id == user_id]
         if status is not None:
@@ -368,6 +375,9 @@ def api_client(
     def _get_user_game_rating_use_case() -> GetUserGameRatingUseCase:
         return GetUserGameRatingUseCase(repository=fake_user_game_repo)
 
+    def _get_set_game_status_use_case() -> SetGameStatusUseCase:
+        return SetGameStatusUseCase(repository=fake_user_game_repo)
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
@@ -386,6 +396,7 @@ def api_client(
     app.dependency_overrides[get_rate_game_use_case] = _get_rate_game_use_case
     app.dependency_overrides[get_remove_rating_use_case] = _get_remove_rating_use_case
     app.dependency_overrides[get_user_game_rating_use_case] = _get_user_game_rating_use_case
+    app.dependency_overrides[get_set_game_status_use_case] = _get_set_game_status_use_case
 
     with TestClient(app) as client:
         yield client

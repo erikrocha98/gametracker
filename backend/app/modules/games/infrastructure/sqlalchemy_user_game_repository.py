@@ -74,6 +74,16 @@ class SqlAlchemyUserGameRepository:
         self._session.flush()
         return True
 
+    def set_status(self, *, user_id: int, game_id: int, status: UserGameStatus) -> UserGame:
+        row = (
+            self._session.query(UserGameModel)
+            .filter_by(user_id=user_id, game_id=game_id)
+            .first()
+        )
+        row.status = OrmUserGameStatus(status.value)
+        self._session.flush()
+        return self._hydrate(row)
+
     def list_by_user(self, user_id: int, status: UserGameStatus | None = None) -> list[UserGame]:
         query = self._session.query(UserGameModel).filter_by(user_id=user_id)
         if status is not None:

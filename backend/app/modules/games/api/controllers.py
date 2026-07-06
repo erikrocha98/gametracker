@@ -7,6 +7,7 @@ from app.modules.games.api.dependencies import (
     get_remove_game_from_collection_use_case,
     get_remove_rating_use_case,
     get_search_games_use_case,
+    get_set_game_status_use_case,
     get_user_collection_use_case,
     get_user_game_rating_use_case,
 )
@@ -17,7 +18,9 @@ from app.modules.games.api.schemas import (
     GameDetailResponse,
     GameSearchResponse,
     GameSearchResultResponse,
+    GameStatusResponse,
     RateGameRequest,
+    SetGameStatusRequest,
 )
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
@@ -27,6 +30,7 @@ from app.modules.games.application.rate_game import RateGameUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.remove_rating import RemoveRatingUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
+from app.modules.games.application.set_game_status import SetGameStatusUseCase
 from app.modules.games.domain.entities import UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import (
     GameAlreadyInCollection,
@@ -42,6 +46,7 @@ from app.modules.users.domain.entities import User
 router = APIRouter(prefix="/games", tags=["games"])
 
 _ERR_GAME_NOT_FOUND = "Game not found"
+_ERR_GAME_NOT_IN_COLLECTION = "Game not in collection"
 _ERR_PROVIDER_UNAVAILABLE = "Game provider unavailable"
 _ERR_PROVIDER_NOT_CONFIGURED = "Game provider not configured"
 
@@ -128,7 +133,7 @@ def remove_from_collection(
     try:
         use_case.execute(user_id=current_user.id, external_id=game_id)
     except GameNotInCollection:
-        raise HTTPException(status_code=404, detail="Game not in collection")
+        raise HTTPException(status_code=404, detail=_ERR_GAME_NOT_IN_COLLECTION)
 
 
 @router.put(
@@ -155,6 +160,26 @@ def rate_game(
     return _to_collection_response(item)
 
 
+@router.patch(
+    "/{game_id}/status",
+    response_model=GameStatusResponse,
+    response_model_by_alias=True,
+)
+def set_game_status(
+    game_id: str,
+    payload: SetGameStatusRequest,
+    current_user: User = Depends(get_current_user),
+    use_case: SetGameStatusUseCase = Depends(get_set_game_status_use_case),
+):
+    try:
+        item = use_case.execute(
+            user_id=current_user.id, external_id=game_id, status=payload.status
+        )
+    except GameNotInCollection:
+        raise HTTPException(status_code=404, detail=_ERR_GAME_NOT_IN_COLLECTION)
+    return GameStatusResponse(gameId=item.external_id, status=item.status)
+
+
 @router.delete("/{game_id}/rating", status_code=204)
 def remove_rating(
     game_id: str,
@@ -164,7 +189,7 @@ def remove_rating(
     try:
         use_case.execute(user_id=current_user.id, external_id=game_id)
     except GameNotInCollection:
-        raise HTTPException(status_code=404, detail="Game not in collection")
+        raise HTTPException(status_code=404, detail=_ERR_GAME_NOT_IN_COLLECTION)
 
 
 @router.get("/{game_id}", response_model=GameDetailResponse, response_model_by_alias=True)
