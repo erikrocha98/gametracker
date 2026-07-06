@@ -53,6 +53,12 @@ class SQLAlchemyUserRepository:
             model.google_id = google_id
             model.updated_at = datetime.now(timezone.utc)
 
+    def update_bio(self, user_id: int, bio: str | None) -> User:
+        model = self._db.get(UserModel, user_id)
+        model.bio = bio
+        model.updated_at = datetime.now(timezone.utc)
+        return self._to_entity(model)
+
     @staticmethod
     def _to_entity(model: UserModel) -> User:
         return User(

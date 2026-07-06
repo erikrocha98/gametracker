@@ -93,6 +93,13 @@ class FakeUserRepo:
             if u.id == user_id:
                 u.google_id = google_id
 
+    def update_bio(self, user_id: int, bio: str | None) -> User:
+        for u in self._users:
+            if u.id == user_id:
+                u.bio = bio
+                return u
+        raise ValueError("user not found")
+
 
 class FakeTokenRepo:
     def __init__(self) -> None:

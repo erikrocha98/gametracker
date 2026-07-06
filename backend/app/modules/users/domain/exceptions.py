@@ -24,3 +24,7 @@ class InvalidCredentials(Exception):
 
 class InvalidGoogleToken(Exception):
     pass
+
+
+class BioTooLong(Exception):
+    pass
