@@ -9,6 +9,7 @@ from app.core.security import decode_access_token
 from app.main import app
 from app.modules.games.api.dependencies import (
     get_add_game_to_collection_use_case,
+    get_collection_stats_use_case,
     get_game_detail_provider,
     get_game_details_use_case,
     get_game_repository,
@@ -24,6 +25,7 @@ from app.modules.games.api.dependencies import (
 )
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
+from app.modules.games.application.get_collection_stats import GetCollectionStatsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
 from app.modules.games.application.rate_game import RateGameUseCase
@@ -378,6 +380,9 @@ def api_client(
     def _get_set_game_status_use_case() -> SetGameStatusUseCase:
         return SetGameStatusUseCase(repository=fake_user_game_repo)
 
+    def _get_collection_stats_use_case() -> GetCollectionStatsUseCase:
+        return GetCollectionStatsUseCase(repository=fake_user_game_repo)
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
@@ -397,6 +402,7 @@ def api_client(
     app.dependency_overrides[get_remove_rating_use_case] = _get_remove_rating_use_case
     app.dependency_overrides[get_user_game_rating_use_case] = _get_user_game_rating_use_case
     app.dependency_overrides[get_set_game_status_use_case] = _get_set_game_status_use_case
+    app.dependency_overrides[get_collection_stats_use_case] = _get_collection_stats_use_case
 
     with TestClient(app) as client:
         yield client

@@ -6,6 +6,7 @@ from app.modules.games.api.dependencies import (
     get_rate_game_use_case,
     get_remove_game_from_collection_use_case,
     get_remove_rating_use_case,
+    get_collection_stats_use_case,
     get_search_games_use_case,
     get_set_game_status_use_case,
     get_user_collection_use_case,
@@ -15,15 +16,18 @@ from app.modules.games.api.schemas import (
     AddToCollectionRequest,
     CollectionGameResponse,
     CollectionResponse,
+    CollectionStatsResponse,
     GameDetailResponse,
     GameSearchResponse,
     GameSearchResultResponse,
     GameStatusResponse,
     RateGameRequest,
     SetGameStatusRequest,
+    StatusCountsResponse,
 )
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
+from app.modules.games.application.get_collection_stats import GetCollectionStatsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
 from app.modules.games.application.rate_game import RateGameUseCase
@@ -60,6 +64,7 @@ def _to_collection_response(user_game: UserGame) -> CollectionGameResponse:
         platforms=user_game.platforms,
         release_year=user_game.release_year,
         rating=user_game.rating,
+        status=user_game.status,
     )
 
 
@@ -98,6 +103,25 @@ def get_collection(
 ):
     items = use_case.execute(current_user.id, status)
     return CollectionResponse(items=[_to_collection_response(i) for i in items])
+
+
+# Registered before the dynamic "/{game_id}" route so "stats" is not captured as an id.
+@router.get("/stats", response_model=CollectionStatsResponse, response_model_by_alias=True)
+def get_collection_stats(
+    current_user: User = Depends(get_current_user),
+    use_case: GetCollectionStatsUseCase = Depends(get_collection_stats_use_case),
+):
+    stats = use_case.execute(current_user.id)
+    return CollectionStatsResponse(
+        gamesRated=stats.games_rated,
+        averageRating=stats.average_rating,
+        statusCounts=StatusCountsResponse(
+            wantToPlay=stats.status_counts[UserGameStatus.want_to_play],
+            playing=stats.status_counts[UserGameStatus.playing],
+            finished=stats.status_counts[UserGameStatus.finished],
+        ),
+        recentGames=[_to_collection_response(g) for g in stats.recent_games],
+    )
 
 
 @router.post(

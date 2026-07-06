@@ -27,12 +27,30 @@ class CollectionGameResponse(BaseModel):
     platforms: list[str]
     release_year: int | None = Field(None, alias="releaseYear")
     rating: float | None = Field(None)
+    status: UserGameStatus
 
     model_config = {"populate_by_name": True, "from_attributes": True}
 
 
 class CollectionResponse(BaseModel):
     items: list[CollectionGameResponse]
+
+
+class StatusCountsResponse(BaseModel):
+    want_to_play: int = Field(..., alias="wantToPlay")
+    playing: int
+    finished: int
+
+    model_config = {"populate_by_name": True}
+
+
+class CollectionStatsResponse(BaseModel):
+    games_rated: int = Field(..., alias="gamesRated")
+    average_rating: float | None = Field(None, alias="averageRating")
+    status_counts: StatusCountsResponse = Field(..., alias="statusCounts")
+    recent_games: list[CollectionGameResponse] = Field(..., alias="recentGames")
+
+    model_config = {"populate_by_name": True}
 
 
 class AddToCollectionRequest(BaseModel):

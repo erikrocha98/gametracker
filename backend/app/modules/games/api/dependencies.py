@@ -5,6 +5,7 @@ from app.core.config import Settings, get_settings
 from app.core.database import get_db
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
+from app.modules.games.application.get_collection_stats import GetCollectionStatsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
 from app.modules.games.application.rate_game import RateGameUseCase
@@ -97,3 +98,9 @@ def get_set_game_status_use_case(
     repo: UserGameRepository = Depends(get_user_game_repository),
 ) -> SetGameStatusUseCase:
     return SetGameStatusUseCase(repository=repo)
+
+
+def get_collection_stats_use_case(
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> GetCollectionStatsUseCase:
+    return GetCollectionStatsUseCase(repository=repo)
