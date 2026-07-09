@@ -1,6 +1,6 @@
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 import { Button, CircularProgress, Typography } from '@mui/material'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
@@ -56,11 +56,15 @@ export function GameDetailsPage() {
     open: false,
   })
 
-  // Reset per-game local state when navigating to another game (same route, new param)
-  useEffect(() => {
+  // Reset per-game local state when navigating to another game (same route, new param).
+  // Adjusting state during render on a changed value is React's recommended pattern and
+  // avoids the cascading renders of calling setState inside an effect.
+  const [trackedGameId, setTrackedGameId] = useState(gameId)
+  if (gameId !== trackedGameId) {
+    setTrackedGameId(gameId)
     setAdded(false)
     setUserRatingOverride(undefined)
-  }, [gameId])
+  }
 
   const handleAddToWantToPlay = useCallback(async () => {
     if (!gameId) return

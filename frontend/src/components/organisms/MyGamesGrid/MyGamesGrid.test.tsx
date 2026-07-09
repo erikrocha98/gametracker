@@ -58,9 +58,11 @@ test('renders empty state when no items', () => {
   expect(screen.getByText(texts.myGames.emptyTitle)).toBeInTheDocument()
 })
 
-test('calls onRemove when remove button is clicked', async () => {
+test('calls onRemove when the delete option is picked from a card menu', async () => {
   const { onRemove } = renderGrid()
-  const removeButtons = screen.getAllByRole('button', { name: texts.myGames.removeAriaLabel })
-  await userEvent.click(removeButtons[0])
+  // a remoção mora dentro do menu do card: abrir o menu do primeiro card e clicar em "Deletar"
+  const menuButtons = screen.getAllByRole('button', { name: texts.myGames.menuAriaLabel })
+  await userEvent.click(menuButtons[0])
+  await userEvent.click(await screen.findByRole('menuitem', { name: texts.myGames.menuDelete }))
   expect(onRemove).toHaveBeenCalledWith('zelda')
 })

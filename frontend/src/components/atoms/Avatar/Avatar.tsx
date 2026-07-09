@@ -6,7 +6,7 @@ interface AvatarProps {
   size?: number
 }
 
-export function getInitials(username: string): string {
+function getInitials(username: string): string {
   const parts = username.trim().split(/[\s_]+/).filter(Boolean)
   if (parts.length === 0) return ''
   if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
