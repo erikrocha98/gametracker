@@ -8,7 +8,7 @@ import type { CollectionGame } from '../../../types/game'
 import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 
 const GAMES: CollectionGame[] = [
-  { id: 1, gameId: 'rawg-1', name: 'Zelda', coverUrl: null, platforms: [], releaseYear: 2017, rating: null },
+  { id: 1, gameId: 'rawg-1', name: 'Zelda', coverUrl: null, platforms: [], releaseYear: 2017, rating: null, status: 'want_to_play' },
 ]
 
 function renderCollection(

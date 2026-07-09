@@ -10,6 +10,8 @@ export interface GameSearchResponse {
   results: GameSearchResult[]
 }
 
+export type GameStatus = 'want_to_play' | 'playing' | 'finished'
+
 export interface CollectionGame {
   id: number
   gameId: string
@@ -18,10 +20,24 @@ export interface CollectionGame {
   platforms: string[]
   releaseYear: number | null
   rating: number | null
+  status: GameStatus
 }
 
 export interface CollectionResponse {
   items: CollectionGame[]
+}
+
+export interface StatusCounts {
+  wantToPlay: number
+  playing: number
+  finished: number
+}
+
+export interface CollectionStats {
+  gamesRated: number
+  averageRating: number | null
+  statusCounts: StatusCounts
+  recentGames: CollectionGame[]
 }
 
 export type SearchStatus = 'idle' | 'loading' | 'success' | 'empty' | 'error'

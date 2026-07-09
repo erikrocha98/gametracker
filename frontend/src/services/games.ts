@@ -1,7 +1,19 @@
-import type { CollectionGame, CollectionResponse, GameDetailResponse, GameSearchResponse } from '../types/game'
+import type {
+  CollectionGame,
+  CollectionResponse,
+  CollectionStats,
+  GameDetailResponse,
+  GameSearchResponse,
+  GameStatus,
+} from '../types/game'
 import { http } from './http'
 
 export type CollectionStatus = 'want_to_play' | 'finished'
+
+export interface GameStatusResponse {
+  gameId: string
+  status: GameStatus
+}
 
 export function searchGames(q: string, signal?: AbortSignal): Promise<GameSearchResponse> {
   return http.get<GameSearchResponse>(`/games/search?q=${encodeURIComponent(q)}`, { signal })
@@ -30,4 +42,12 @@ export function rateGame(gameId: string, rating: number): Promise<CollectionGame
 
 export function removeRating(gameId: string): Promise<void> {
   return http.delete<void>(`/games/${encodeURIComponent(gameId)}/rating`)
+}
+
+export function getCollectionStats(): Promise<CollectionStats> {
+  return http.get<CollectionStats>('/games/stats')
+}
+
+export function setGameStatus(gameId: string, status: GameStatus): Promise<GameStatusResponse> {
+  return http.patch<GameStatusResponse>(`/games/${encodeURIComponent(gameId)}/status`, { status })
 }

@@ -5,6 +5,9 @@ export interface User {
   username: string
   email: string
   email_verified: boolean
+  bio: string | null
+  avatarUrl: string | null
+  memberSince: string
 }
 
 export interface LoginData {
@@ -24,6 +27,8 @@ export const login = (data: LoginData): Promise<User> => http.post('/auth/login'
 export const logout = (): Promise<void> => http.post('/auth/logout')
 
 export const getMe = (): Promise<User> => http.get('/auth/me')
+
+export const updateBio = (bio: string | null): Promise<User> => http.patch('/auth/me', { bio })
 
 export const signup = (data: SignUpData): Promise<User> => http.post('/auth/signup', data)
 

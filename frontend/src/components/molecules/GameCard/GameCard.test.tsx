@@ -14,6 +14,7 @@ const GAME: CollectionGame = {
   platforms: ['PlayStation 5', 'PC'],
   releaseYear: 2013,
   rating: null,
+  status: 'want_to_play',
 }
 
 function renderCard(game = GAME) {
