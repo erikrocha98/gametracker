@@ -7,6 +7,7 @@ interface StatCardProps {
   value: string | number
   label: string
   icon: ReactNode
+  caption?: string
 }
 
 const Card = styled.div`
@@ -24,7 +25,7 @@ const IconRow = styled.div`
   color: ${colors.primary};
 `
 
-export function StatCard({ value, label, icon }: StatCardProps) {
+export function StatCard({ value, label, icon, caption }: StatCardProps) {
   return (
     <Card>
       <IconRow aria-hidden>{icon}</IconRow>
@@ -34,6 +35,11 @@ export function StatCard({ value, label, icon }: StatCardProps) {
       <Typography variant="body2" sx={{ color: colors.textSecondary }}>
         {label}
       </Typography>
+      {caption && (
+        <Typography variant="caption" sx={{ color: colors.textSecondary, fontStyle: 'italic' }}>
+          {caption}
+        </Typography>
+      )}
     </Card>
   )
 }
