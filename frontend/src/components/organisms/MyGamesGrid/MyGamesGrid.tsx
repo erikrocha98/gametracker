@@ -5,7 +5,7 @@ import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { EmptyState } from '../../molecules/EmptyState'
 import { GameCard } from '../../molecules/GameCard'
-import type { CollectionGame } from '../../../types/game'
+import type { CollectionGame, GameStatus } from '../../../types/game'
 
 interface MyGamesGridProps {
   items: CollectionGame[]
@@ -13,6 +13,7 @@ interface MyGamesGridProps {
   error: boolean
   onRemove: (gameId: string) => void
   onRate: (gameId: string, value: number | null) => void
+  onStatusChange: (gameId: string, status: GameStatus) => void
 }
 
 const Grid = styled.div`
@@ -27,7 +28,7 @@ const LoadingWrapper = styled.div`
   padding: 48px 0;
 `
 
-export function MyGamesGrid({ items, loading, error, onRemove, onRate }: MyGamesGridProps) {
+export function MyGamesGrid({ items, loading, error, onRemove, onRate, onStatusChange }: MyGamesGridProps) {
   if (loading) {
     return (
       <LoadingWrapper>
@@ -62,6 +63,7 @@ export function MyGamesGrid({ items, loading, error, onRemove, onRate }: MyGames
           game={game}
           onRemove={() => onRemove(game.gameId)}
           onRate={(value) => onRate(game.gameId, value)}
+          onStatusChange={(status) => onStatusChange(game.gameId, status)}
         />
       ))}
     </Grid>

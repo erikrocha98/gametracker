@@ -3,17 +3,30 @@ import userEvent from '@testing-library/user-event'
 import { ThemeProvider as MuiThemeProvider } from '@mui/material'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
+import type { GameStatus } from '../../../types/game'
 import { GameCardMenu } from './GameCardMenu'
 
-function renderMenu(rating: number | null = null, onRate = vi.fn(), onDelete = vi.fn()) {
+function renderMenu(
+  rating: number | null = null,
+  onRate = vi.fn(),
+  onDelete = vi.fn(),
+  onStatusChange = vi.fn(),
+  status: GameStatus = 'want_to_play',
+) {
   render(
     <MuiThemeProvider theme={theme}>
       <StyledThemeProvider theme={theme}>
-        <GameCardMenu rating={rating} onRate={onRate} onDelete={onDelete} />
+        <GameCardMenu
+          status={status}
+          rating={rating}
+          onStatusChange={onStatusChange}
+          onRate={onRate}
+          onDelete={onDelete}
+        />
       </StyledThemeProvider>
     </MuiThemeProvider>,
   )
-  return { onRate, onDelete }
+  return { onRate, onDelete, onStatusChange }
 }
 
 async function openMenu() {
@@ -24,6 +37,20 @@ test('menu options are hidden until the trigger is clicked', () => {
   renderMenu()
   // queryBy: afirmando que ainda NÃO está na tela antes da interação
   expect(screen.queryByText('Deletar')).not.toBeInTheDocument()
+})
+
+test('clicking the "Jogando" option changes the status to playing', async () => {
+  const { onStatusChange } = renderMenu()
+  await openMenu()
+  await userEvent.click(await screen.findByRole('menuitem', { name: 'Jogando' }))
+  expect(onStatusChange).toHaveBeenCalledWith('playing')
+})
+
+test('clicking the "Jogado" option changes the status to finished', async () => {
+  const { onStatusChange } = renderMenu()
+  await openMenu()
+  await userEvent.click(await screen.findByRole('menuitem', { name: 'Jogado' }))
+  expect(onStatusChange).toHaveBeenCalledWith('finished')
 })
 
 test('clicking delete calls onDelete', async () => {

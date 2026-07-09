@@ -16,16 +16,25 @@ const items: CollectionGame[] = [
 function renderGrid(props = {}) {
   const onRemove = vi.fn()
   const onRate = vi.fn()
+  const onStatusChange = vi.fn()
   render(
     <MemoryRouter>
       <ThemeProvider theme={theme}>
         <StyledThemeProvider theme={theme}>
-          <MyGamesGrid items={items} loading={false} error={false} onRemove={onRemove} onRate={onRate} {...props} />
+          <MyGamesGrid
+            items={items}
+            loading={false}
+            error={false}
+            onRemove={onRemove}
+            onRate={onRate}
+            onStatusChange={onStatusChange}
+            {...props}
+          />
         </StyledThemeProvider>
       </ThemeProvider>
     </MemoryRouter>,
   )
-  return { onRemove, onRate }
+  return { onRemove, onRate, onStatusChange }
 }
 
 test('renders game cards', () => {

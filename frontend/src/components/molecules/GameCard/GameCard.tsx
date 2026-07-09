@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { formatYear } from '../../../utils/game'
-import type { CollectionGame } from '../../../types/game'
+import type { CollectionGame, GameStatus } from '../../../types/game'
 import { GamepadRating } from '../GamepadRating'
 import { GameCardMenu } from '../GameCardMenu'
 
@@ -11,6 +11,7 @@ interface GameCardProps {
   game: CollectionGame
   onRemove?: () => void
   onRate?: (value: number | null) => void
+  onStatusChange?: (status: GameStatus) => void
 }
 
 const Wrapper = styled.div`
@@ -82,7 +83,7 @@ const Meta = styled.p`
   text-overflow: ellipsis;
 `
 
-export function GameCard({ game, onRemove, onRate }: GameCardProps) {
+export function GameCard({ game, onRemove, onRate, onStatusChange }: GameCardProps) {
   return (
     <Wrapper>
       <CardLink to={`/games/${game.gameId}`}>
@@ -93,8 +94,14 @@ export function GameCard({ game, onRemove, onRate }: GameCardProps) {
             ) : (
               <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
             )}
-            {onRemove && onRate && (
-              <GameCardMenu rating={game.rating} onRate={onRate} onDelete={onRemove} />
+            {onRemove && onRate && onStatusChange && (
+              <GameCardMenu
+                status={game.status}
+                rating={game.rating}
+                onStatusChange={onStatusChange}
+                onRate={onRate}
+                onDelete={onRemove}
+              />
             )}
           </CoverWrapper>
           <div>

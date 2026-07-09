@@ -5,6 +5,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   IconButton,
   Menu,
   MenuItem,
@@ -13,13 +14,22 @@ import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
+import type { GameStatus } from '../../../types/game'
 import { GamepadRating } from '../GamepadRating'
 
 interface GameCardMenuProps {
+  status: GameStatus
   rating: number | null
+  onStatusChange: (status: GameStatus) => void
   onRate: (value: number | null) => void
   onDelete: () => void
 }
+
+const STATUS_OPTIONS: { value: GameStatus; label: string }[] = [
+  { value: 'want_to_play', label: texts.myGames.statusWantToPlay },
+  { value: 'playing', label: texts.myGames.statusPlaying },
+  { value: 'finished', label: texts.myGames.statusFinished },
+]
 
 const MenuButton = styled(IconButton)`
   position: absolute !important;
@@ -34,7 +44,7 @@ const MenuButton = styled(IconButton)`
   }
 `
 
-export function GameCardMenu({ rating, onRate, onDelete }: GameCardMenuProps) {
+export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete }: GameCardMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [rateOpen, setRateOpen] = useState(false)
   const menuOpen = Boolean(anchorEl)
@@ -51,6 +61,14 @@ export function GameCardMenu({ rating, onRate, onDelete }: GameCardMenuProps) {
   }, [])
 
   const handleCloseMenu = useCallback(() => setAnchorEl(null), [])
+
+  const handleStatusClick = useCallback(
+    (value: GameStatus) => {
+      setAnchorEl(null)
+      onStatusChange(value)
+    },
+    [onStatusChange],
+  )
 
   const handleRateClick = useCallback(() => {
     setAnchorEl(null)
@@ -88,6 +106,16 @@ export function GameCardMenu({ rating, onRate, onDelete }: GameCardMenuProps) {
       </MenuButton>
 
       <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleCloseMenu} onClick={stopEvent}>
+        {STATUS_OPTIONS.map((option) => (
+          <MenuItem
+            key={option.value}
+            selected={status === option.value}
+            onClick={() => handleStatusClick(option.value)}
+          >
+            {option.label}
+          </MenuItem>
+        ))}
+        <Divider />
         <MenuItem onClick={handleRateClick}>{texts.myGames.menuRate}</MenuItem>
         <MenuItem disabled>{texts.myGames.menuReview}</MenuItem>
         <MenuItem disabled>{texts.myGames.menuAddToList}</MenuItem>

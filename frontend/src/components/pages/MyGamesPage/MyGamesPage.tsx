@@ -3,11 +3,11 @@ import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
-import { getCollection, rateGame, removeFromWantToPlay, removeRating } from '../../../services/games'
+import { getCollection, rateGame, removeFromWantToPlay, removeRating, setGameStatus } from '../../../services/games'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { PaginationControls } from '../../molecules/PaginationControls'
 import { MyGamesGrid } from '../../organisms/MyGamesGrid'
-import type { CollectionGame } from '../../../types/game'
+import type { CollectionGame, GameStatus } from '../../../types/game'
 
 const PageWrapper = styled.div`
   padding: 32px 0 64px;
@@ -59,6 +59,16 @@ export function MyGamesPage() {
     }
   }, [])
 
+  const handleStatusChange = useCallback(async (gameId: string, status: GameStatus) => {
+    try {
+      await setGameStatus(gameId, status)
+      setItems((prev) => prev.map((g) => (g.gameId === gameId ? { ...g, status } : g)))
+      setFeedback({ type: 'success', message: texts.myGames.statusChangeSuccessMessage, open: true })
+    } catch {
+      setFeedback({ type: 'error', message: texts.myGames.statusChangeErrorMessage, open: true })
+    }
+  }, [])
+
   const handleRate = useCallback(async (gameId: string, value: number | null) => {
     try {
       if (value === null) {
@@ -89,6 +99,7 @@ export function MyGamesPage() {
           error={error}
           onRemove={handleRemove}
           onRate={handleRate}
+          onStatusChange={handleStatusChange}
         />
 
         {!loading && !error && items.length > 0 && (
