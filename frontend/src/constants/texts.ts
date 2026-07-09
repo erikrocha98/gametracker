@@ -108,6 +108,8 @@ export const texts = {
     removeRating: 'Remover nota',
   },
   profile: {
+    pageTitle: 'Perfil',
+    loadError: 'Não foi possível carregar seu perfil.',
     activityTitle: 'Atividade',
     recentGamesTitle: 'Jogos recentes',
     statusCountersTitle: 'Sua coleção',
