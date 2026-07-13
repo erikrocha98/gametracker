@@ -35,6 +35,7 @@ from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.application.set_game_status import SetGameStatusUseCase
 from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import GameProviderUnavailable
+from app.modules.game_lists.domain.entities import GameList
 from app.modules.users.api.dependencies import (
     get_current_user,
     get_login_use_case,
@@ -236,6 +237,52 @@ class FakeUserGameRepository:
         if status is not None:
             rows = [r for r in rows if r.status == status]
         return rows
+
+
+class FakeGameListRepository:
+    def __init__(self) -> None:
+        self._rows: list[GameList] = []
+        self._next_id = 1
+
+    def create(self, *, user_id: int, name: str, description: str | None, is_public: bool = False) -> GameList:
+        now = datetime.now(timezone.utc)
+        row = GameList(
+            id=self._next_id,
+            user_id=user_id,
+            name=name,
+            description=description,
+            is_public=is_public,
+            created_at=now,
+            updated_at=now,
+        )
+        self._next_id += 1
+        self._rows.append(row)
+        return row
+
+    def list_by_user(self, user_id: int) -> list[GameList]:
+        return sorted(
+            (r for r in self._rows if r.user_id == user_id),
+            key=lambda r: r.created_at,
+            reverse=True,
+        )
+
+    def get(self, *, user_id: int, list_id: int) -> GameList | None:
+        return next(
+            (r for r in self._rows if r.user_id == user_id and r.id == list_id),
+            None,
+        )
+
+    def update(self, *, user_id: int, list_id: int, name: str, description: str | None) -> GameList:
+        row = self.get(user_id=user_id, list_id=list_id)
+        row.name = name
+        row.description = description
+        row.updated_at = datetime.now(timezone.utc)
+        return row
+
+    def delete(self, *, user_id: int, list_id: int) -> bool:
+        before = len(self._rows)
+        self._rows = [r for r in self._rows if not (r.user_id == user_id and r.id == list_id)]
+        return len(self._rows) < before
 
 
 class FakeEmailSender:

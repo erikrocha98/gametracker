@@ -33,7 +33,7 @@ Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-li
 - **DoD:** os 4 use cases importáveis, com a regra de 404 nos de update/delete.
 - **Depende de:** T3.
 
-### T5. Testes unitários de aplicação (opcional, recomendado)
+### T5. Testes unitários de aplicação (opcional, recomendado) ✅
 - `backend/tests/modules/game_lists/application/` (com `__init__.py`): um teste por use case usando um fake em memória do repositório — criar, listar (só do usuário), editar/editar-inexistente (raise), excluir/excluir-inexistente (raise).
 - **DoD:** `pytest tests/modules/game_lists/application` verde.
 - **Depende de:** T4.
