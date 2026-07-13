@@ -1,0 +1,84 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider as StyledThemeProvider } from 'styled-components'
+import { theme } from '../../../theme/theme'
+import { MyListsPage } from './MyListsPage'
+import { deleteList, getLists } from '../../../services/lists'
+import { texts } from '../../../constants/texts'
+import type { GameList } from '../../../types/list'
+
+vi.mock('../../../services/lists', () => ({
+  getLists: vi.fn(),
+  createList: vi.fn(),
+  updateList: vi.fn(),
+  deleteList: vi.fn(),
+}))
+
+const list: GameList = {
+  id: 1,
+  name: 'RPGs',
+  description: 'favoritos',
+  isPublic: false,
+  createdAt: '2026-07-13T00:00:00Z',
+  updatedAt: '2026-07-13T00:00:00Z',
+}
+
+function renderPage() {
+  return render(
+    <ThemeProvider theme={theme}>
+      <StyledThemeProvider theme={theme}>
+        <MyListsPage />
+      </StyledThemeProvider>
+    </ThemeProvider>,
+  )
+}
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(getLists).mockResolvedValue({ items: [] })
+})
+
+test('renders page title', async () => {
+  renderPage()
+  expect(await screen.findByText(texts.myLists.pageTitle)).toBeInTheDocument()
+})
+
+test('renders empty state when there are no lists', async () => {
+  renderPage()
+  expect(await screen.findByText(texts.myLists.emptyTitle)).toBeInTheDocument()
+})
+
+test('renders the lists returned by the service', async () => {
+  vi.mocked(getLists).mockResolvedValue({ items: [list] })
+  renderPage()
+  expect(await screen.findByText('RPGs')).toBeInTheDocument()
+})
+
+test('renders error message when loading fails', async () => {
+  vi.mocked(getLists).mockRejectedValue(new Error('boom'))
+  renderPage()
+  expect(await screen.findByText(texts.myLists.loadError)).toBeInTheDocument()
+})
+
+test('opens the create modal from the header button', async () => {
+  const user = userEvent.setup()
+  renderPage()
+  await screen.findByText(texts.myLists.pageTitle)
+  await user.click(screen.getByRole('button', { name: texts.myLists.createButton }))
+  expect(await screen.findByText(texts.myLists.modalCreateTitle)).toBeInTheDocument()
+})
+
+test('deletes a list and shows success feedback', async () => {
+  const user = userEvent.setup()
+  vi.mocked(getLists).mockResolvedValue({ items: [list] })
+  vi.mocked(deleteList).mockResolvedValue(undefined)
+  renderPage()
+
+  await screen.findByText('RPGs')
+  await user.click(screen.getByRole('button', { name: texts.myLists.deleteAriaLabel }))
+
+  expect(await screen.findByText(texts.myLists.deleteSuccessMessage)).toBeInTheDocument()
+  expect(deleteList).toHaveBeenCalledWith(list.id)
+  expect(screen.queryByText('RPGs')).not.toBeInTheDocument()
+})

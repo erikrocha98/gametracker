@@ -136,7 +136,7 @@ Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components`, co
 - **DoD:** navegar a `/my-lists` renderiza a nova página.
 - **Depende de:** T19.
 
-### T21. Testes de frontend
+### T21. Testes de frontend ✅
 - Escrever e revisar os testes com a skill `/test-skill` (obrigatório pelo CLAUDE.md); todo componente novo precisa de ao menos um teste.
 - `MyListsPage.test.tsx` (padrão de `MyGamesPage.test.tsx`): mock de `services/lists`, render do título e empty state, abrir modal de criação.
 - `MyListsGrid.test.tsx` (padrão de `MyGamesGrid.test.tsx`): estados loading/erro/vazio e render dos cards.
