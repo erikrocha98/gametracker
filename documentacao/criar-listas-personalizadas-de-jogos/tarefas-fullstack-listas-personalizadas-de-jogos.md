@@ -1,6 +1,6 @@
-# Tarefas: Criar listas personalizadas de jogos
+# Tarefas (fullstack): Criar listas personalizadas de jogos
 
-Quebra do [plano.md](plano.md) em tarefas implementáveis, em ordem sugerida (backend → frontend). Cada tarefa é pequena, verificável e referencia os arquivos a criar/alterar. Marque `[x]` ao concluir.
+Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-listas-personalizadas-de-jogos.md) em tarefas implementáveis, em ordem sugerida (backend → frontend). Cada tarefa é pequena, verificável e referencia os arquivos a criar/alterar. Marque `[x]` ao concluir.
 
 **Convenções:** caminhos a partir da raiz do repositório `gametracker/`. Novo módulo backend: `app/modules/game_lists/`. Todas as operações escopadas por `user_id` via `get_current_user`.
 
@@ -8,23 +8,23 @@ Quebra do [plano.md](plano.md) em tarefas implementáveis, em ordem sugerida (ba
 
 ## Épico 1 — Backend: domínio e aplicação
 
-### T1. Estrutura do módulo `game_lists`
+### T1. Estrutura do módulo `game_lists` ✅
 - Criar pacote `backend/app/modules/game_lists/` com `__init__.py` e subpacotes `domain/`, `application/`, `infrastructure/`, `api/` (cada um com `__init__.py`).
 - **DoD:** `python -c "import app.modules.game_lists"` sem erro.
 
-### T2. Domain — entidade e constante
+### T2. Domain — entidade e constante ✅
 - `domain/entities.py`: dataclass `GameList` (`id`, `user_id`, `name`, `description: str | None`, `is_public: bool`, `created_at`, `updated_at`).
 - Constante `MAX_GAMES_PER_LIST = 50` no topo do módulo, com comentário citando o débito técnico do limite.
 - **DoD:** entidade importável; constante definida.
 - **Depende de:** T1.
 
-### T3. Domain — repositório (Protocol) e exceção
+### T3. Domain — repositório (Protocol) e exceção ✅
 - `domain/repositories.py`: `Protocol GameListRepository` com `create(*, user_id, name, description, is_public=False)`, `list_by_user(user_id)`, `get(*, user_id, list_id)`, `update(*, user_id, list_id, name, description)`, `delete(*, user_id, list_id) -> bool`.
 - `domain/exceptions.py`: `GameListNotFound`.
 - **DoD:** Protocol e exceção importáveis.
 - **Depende de:** T2.
 
-### T4. Application — use cases (um arquivo por caso)
+### T4. Application — use cases (um arquivo por caso) ✅
 - `application/create_game_list.py` — `CreateGameListUseCase` (default `is_public=False`).
 - `application/get_user_lists.py` — `GetUserListsUseCase`.
 - `application/update_game_list.py` — `UpdateGameListUseCase` (raise `GameListNotFound` se `get` retornar `None`).
@@ -113,6 +113,8 @@ Quebra do [plano.md](plano.md) em tarefas implementáveis, em ordem sugerida (ba
 
 ## Épico 5 — Frontend: UI
 
+Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components`, cores via tokens de `src/theme/colors.ts` e textos via `src/constants/texts.ts` (nada hardcoded).
+
 ### T17. Molecule `ListCard`
 - `frontend/src/components/molecules/ListCard/` (`ListCard.tsx` + `index.ts`): nome, descrição e ações editar/excluir.
 - **DoD:** renderiza props; dispara callbacks de editar/excluir.
@@ -134,9 +136,12 @@ Quebra do [plano.md](plano.md) em tarefas implementáveis, em ordem sugerida (ba
 - **Depende de:** T19.
 
 ### T21. Testes de frontend
-- `MyListsPage.test.tsx` (padrão de `MyGamesPage.test.tsx`): mock de `services/lists`, render do título e empty state, abrir modal de criação. Teste de render do `ListCard`.
-- **DoD:** `npm test` verde.
-- **Depende de:** T17, T19.
+- Escrever e revisar os testes com a skill `/test-skill` (obrigatório pelo CLAUDE.md); todo componente novo precisa de ao menos um teste.
+- `MyListsPage.test.tsx` (padrão de `MyGamesPage.test.tsx`): mock de `services/lists`, render do título e empty state, abrir modal de criação.
+- `CreateListModal.test.tsx` (padrão de `AddGameModal.test.tsx`): validação de nome obrigatório e callback ao salvar.
+- `ListCard.test.tsx`: render de nome/descrição e callbacks de editar/excluir.
+- **DoD:** `npm test` verde; `MyListsPage`, `CreateListModal` e `ListCard` cobertos.
+- **Depende de:** T17, T18, T19.
 
 ---
 
@@ -148,6 +153,11 @@ Quebra do [plano.md](plano.md) em tarefas implementáveis, em ordem sugerida (ba
 - Manual (via `docker-compose.yml`): logar, `POST /lists` → 201, `GET /lists`, editar, `DELETE` → 204, 401 sem cookie; na UI criar/editar/excluir e confirmar persistência após reload.
 - **DoD:** todos os critérios de aceitação atendidos (nome, descrição, `is_public` persistido como débito técnico, constante de limite 50 presente).
 - **Depende de:** T13, T21.
+
+### T23. Sugestão de commit
+- Ao final da implementação, sugerir mensagem de commit em inglês no padrão Conventional Commits (CLAUDE.md), ex.: `feat(lists): add custom game lists crud`.
+- **DoD:** mensagem sugerida ao usuário.
+- **Depende de:** T22.
 
 ---
 

@@ -1,4 +1,4 @@
-# Plano: Criar listas personalizadas de jogos
+# Plano (fullstack): Criar listas personalizadas de jogos
 
 ## Context
 
@@ -87,6 +87,7 @@ Um use case por arquivo (padrão do repo), cada um recebendo `repository` no `__
 - Adicionar bloco `myLists` em `frontend/src/constants/texts.ts`: título da página, CTA "Criar lista", labels de nome/descrição, mensagens de sucesso/erro (criar/editar/excluir), empty state, e mapear no `userMenu.myLists` já existente.
 
 ### componentes (atomic design)
+Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components` (sem CSS module/inline), cores sempre via tokens de `src/theme/colors.ts` e nenhum texto visível hardcoded (tudo via `src/constants/texts.ts`).
 - **organism `CreateListModal`** (espelha `AddGameModal`): `Dialog` do MUI com campos nome (obrigatório) e descrição; reaproveita `FeedbackModal`. Serve para criar e editar (prop opcional de lista inicial).
 - **molecule `ListCard`**: card com nome, descrição e ações editar/excluir.
 - **page `MyListsPage`** (espelha `MyGamesPage`): busca `getLists` no mount, grid de `ListCard`, botão "Criar lista" abrindo o modal, empty state (`EmptyState`), feedback via `FeedbackModal`. Sem paginação nesta fase (opcional reusar `PaginationControls`).
@@ -95,7 +96,10 @@ Um use case por arquivo (padrão do repo), cada um recebendo `repository` no `__
 - Em `frontend/src/routes/AppRoutes.tsx`, trocar `<ComingSoonPage />` da rota `/my-lists` por `<MyListsPage />`.
 
 ### testes (frontend)
-- `MyListsPage.test.tsx` seguindo o padrão de `MyGamesPage.test.tsx`: mock de `services/lists`, render do título e do empty state, criação abrindo modal. Teste de render do `ListCard`.
+Todo componente novo precisa de pelo menos um teste (CLAUDE.md); escrever e revisar usando a skill `/test-skill`.
+- `MyListsPage.test.tsx` seguindo o padrão de `MyGamesPage.test.tsx`: mock de `services/lists`, render do título e do empty state, criação abrindo modal.
+- `CreateListModal.test.tsx` seguindo o padrão de `AddGameModal.test.tsx`: validação de nome obrigatório e callback ao salvar.
+- `ListCard.test.tsx`: render de nome/descrição e callbacks de editar/excluir.
 
 ---
 
@@ -111,6 +115,8 @@ Um use case por arquivo (padrão do repo), cada um recebendo `repository` no `__
 - `npm run dev` + backend: navegar em `/my-lists`, criar uma lista pelo modal (feedback de sucesso, aparece no grid), editar, excluir; recarregar e confirmar persistência.
 
 **End-to-end**: subir via `docker-compose.yml`, logar e exercitar o fluxo criar → listar → editar → excluir.
+
+**Fechamento**: ao final da implementação, sugerir mensagem de commit em inglês no padrão Conventional Commits (ex.: `feat(lists): add custom game lists crud`).
 
 ## Fora de escopo (débitos técnicos registrados)
 - Adicionar/remover jogos em listas e a tabela de junção `game_list_items` (aplicará `MAX_GAMES_PER_LIST`).
