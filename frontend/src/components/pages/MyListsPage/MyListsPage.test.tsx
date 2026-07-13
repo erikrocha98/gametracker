@@ -63,10 +63,15 @@ test('renders error message when loading fails', async () => {
 
 test('opens the create modal from the header button', async () => {
   const user = userEvent.setup()
+  // com uma lista existente o empty state (que tem seu próprio botão "Criar lista")
+  // não renderiza, deixando o botão do cabeçalho como alvo inequívoco
+  vi.mocked(getLists).mockResolvedValue({ items: [list] })
   renderPage()
-  await screen.findByText(texts.myLists.pageTitle)
+  await screen.findByText('RPGs')
   await user.click(screen.getByRole('button', { name: texts.myLists.createButton }))
-  expect(await screen.findByText(texts.myLists.modalCreateTitle)).toBeInTheDocument()
+  // o título do modal e o texto do botão são a mesma string ("Criar lista");
+  // buscar por role separa o heading do dialog do button do cabeçalho
+  expect(await screen.findByRole('heading', { name: texts.myLists.modalCreateTitle })).toBeInTheDocument()
 })
 
 test('deletes a list and shows success feedback', async () => {
