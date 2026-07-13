@@ -90,7 +90,8 @@ Um use case por arquivo (padrão do repo), cada um recebendo `repository` no `__
 Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components` (sem CSS module/inline), cores sempre via tokens de `src/theme/colors.ts` e nenhum texto visível hardcoded (tudo via `src/constants/texts.ts`).
 - **organism `CreateListModal`** (espelha `AddGameModal`): `Dialog` do MUI com campos nome (obrigatório) e descrição; reaproveita `FeedbackModal`. Serve para criar e editar (prop opcional de lista inicial).
 - **molecule `ListCard`**: card com nome, descrição e ações editar/excluir.
-- **page `MyListsPage`** (espelha `MyGamesPage`): busca `getLists` no mount, grid de `ListCard`, botão "Criar lista" abrindo o modal, empty state (`EmptyState`), feedback via `FeedbackModal`. Sem paginação nesta fase (opcional reusar `PaginationControls`).
+- **organism `MyListsGrid`** (espelha `MyGamesGrid`): recebe `items`/`loading`/`error` + callbacks e encapsula os 4 estados — loading, erro, vazio (`EmptyState` com CTA de criar) e o grid de `ListCard`. A page não renderiza esses estados diretamente (padrão `MyGamesPage`→`MyGamesGrid`).
+- **page `MyListsPage`** (espelha `MyGamesPage`): orquestra — busca `getLists` no mount, botão "Criar lista" abrindo o modal, `MyListsGrid`, feedback via `FeedbackModal`. Sem paginação nesta fase (opcional reusar `PaginationControls`).
 
 ### rota
 - Em `frontend/src/routes/AppRoutes.tsx`, trocar `<ComingSoonPage />` da rota `/my-lists` por `<MyListsPage />`.
@@ -98,6 +99,7 @@ Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components` (se
 ### testes (frontend)
 Todo componente novo precisa de pelo menos um teste (CLAUDE.md); escrever e revisar usando a skill `/test-skill`.
 - `MyListsPage.test.tsx` seguindo o padrão de `MyGamesPage.test.tsx`: mock de `services/lists`, render do título e do empty state, criação abrindo modal.
+- `MyListsGrid.test.tsx` seguindo o padrão de `MyGamesGrid.test.tsx`: estados loading/erro/vazio e render dos cards.
 - `CreateListModal.test.tsx` seguindo o padrão de `AddGameModal.test.tsx`: validação de nome obrigatório e callback ao salvar.
 - `ListCard.test.tsx`: render de nome/descrição e callbacks de editar/excluir.
 

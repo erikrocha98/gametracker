@@ -91,6 +91,7 @@ export const texts = {
     descriptionPlaceholder: 'Descreva sua lista (opcional)',
     saveButton: 'Salvar',
     nameRequiredError: 'O nome da lista é obrigatório.',
+    nameTooLongError: 'O nome da lista deve ter no máximo 120 caracteres.',
     createSuccessMessage: 'Lista criada com sucesso!',
     createErrorMessage: 'Não foi possível criar a lista. Tente novamente.',
     editSuccessMessage: 'Lista atualizada com sucesso!',

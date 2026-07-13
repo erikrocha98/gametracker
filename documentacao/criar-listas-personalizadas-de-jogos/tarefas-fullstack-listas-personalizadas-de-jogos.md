@@ -115,22 +115,23 @@ Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-li
 
 Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components`, cores via tokens de `src/theme/colors.ts` e textos via `src/constants/texts.ts` (nada hardcoded).
 
-### T17. Molecule `ListCard`
+### T17. Molecule `ListCard` ✅
 - `frontend/src/components/molecules/ListCard/` (`ListCard.tsx` + `index.ts`): nome, descrição e ações editar/excluir.
 - **DoD:** renderiza props; dispara callbacks de editar/excluir.
 - **Depende de:** T14, T16.
 
-### T18. Organism `CreateListModal`
+### T18. Organism `CreateListModal` ✅
 - `frontend/src/components/organisms/CreateListModal/` (espelha `AddGameModal`): `Dialog` MUI com nome (obrigatório) e descrição; reaproveita `FeedbackModal`; prop opcional de lista inicial para reuso em edição.
 - **DoD:** cria e edita; valida nome vazio; emite callback ao salvar.
 - **Depende de:** T15, T16.
 
-### T19. Page `MyListsPage`
-- `frontend/src/components/pages/MyListsPage/` (espelha `MyGamesPage`): `getLists` no mount, grid de `ListCard`, botão "Criar lista" abrindo o modal, `EmptyState`, feedback via `FeedbackModal`.
+### T19. Organism `MyListsGrid` + Page `MyListsPage` ✅
+- `frontend/src/components/organisms/MyListsGrid/` (espelha `MyGamesGrid`): recebe `items`, `loading`, `error`, `onEdit`, `onDelete`; encapsula os 4 estados — loading (`CircularProgress`), erro (`loadError`), vazio (`EmptyState`, com `createButton` como ação abrindo o modal) e o grid de `ListCard`.
+- `frontend/src/components/pages/MyListsPage/` (espelha `MyGamesPage`): apenas orquestra — `getLists` no mount, estado/callbacks, botão "Criar lista" abrindo o modal, `MyListsGrid`, feedback via `FeedbackModal`. A page não renderiza grid nem `EmptyState` diretamente.
 - **DoD:** fluxo criar → listar → editar → excluir funciona na tela.
 - **Depende de:** T15, T16, T17, T18.
 
-### T20. Rota `/my-lists`
+### T20. Rota `/my-lists` ✅
 - `frontend/src/routes/AppRoutes.tsx`: trocar `<ComingSoonPage />` por `<MyListsPage />` na rota `/my-lists`.
 - **DoD:** navegar a `/my-lists` renderiza a nova página.
 - **Depende de:** T19.
@@ -138,9 +139,10 @@ Convenções do CLAUDE.md em todos os componentes: MUI + `styled-components`, co
 ### T21. Testes de frontend
 - Escrever e revisar os testes com a skill `/test-skill` (obrigatório pelo CLAUDE.md); todo componente novo precisa de ao menos um teste.
 - `MyListsPage.test.tsx` (padrão de `MyGamesPage.test.tsx`): mock de `services/lists`, render do título e empty state, abrir modal de criação.
+- `MyListsGrid.test.tsx` (padrão de `MyGamesGrid.test.tsx`): estados loading/erro/vazio e render dos cards.
 - `CreateListModal.test.tsx` (padrão de `AddGameModal.test.tsx`): validação de nome obrigatório e callback ao salvar.
 - `ListCard.test.tsx`: render de nome/descrição e callbacks de editar/excluir.
-- **DoD:** `npm test` verde; `MyListsPage`, `CreateListModal` e `ListCard` cobertos.
+- **DoD:** `npm test` verde; `MyListsPage`, `MyListsGrid`, `CreateListModal` e `ListCard` cobertos.
 - **Depende de:** T17, T18, T19.
 
 ---
