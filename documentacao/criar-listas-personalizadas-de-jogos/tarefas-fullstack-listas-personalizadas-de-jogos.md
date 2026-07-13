@@ -96,16 +96,16 @@ Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-li
 
 ## Épico 4 — Frontend: dados e serviço
 
-### T14. Tipos
+### T14. Tipos ✅
 - `frontend/src/types/list.ts`: `GameList { id; name; description: string | null; isPublic; createdAt; updatedAt }` e `GameListsResponse { items: GameList[] }`.
 - **DoD:** tipos exportados.
 
-### T15. Serviço HTTP
+### T15. Serviço HTTP ✅
 - `frontend/src/services/lists.ts` sobre `http`: `getLists()`, `createList(name, description)`, `updateList(id, name, description)`, `deleteList(id)`. Privacidade não exposta.
 - **DoD:** funções tipadas usando os endpoints `/lists`.
 - **Depende de:** T14 (e, para runtime, T11).
 
-### T16. Textos
+### T16. Textos ✅
 - `frontend/src/constants/texts.ts`: bloco `myLists` (título da página, CTA "Criar lista", labels nome/descrição, mensagens sucesso/erro de criar/editar/excluir, empty state). Reaproveitar `userMenu.myLists` já existente.
 - **DoD:** textos centralizados, sem strings hardcoded nos componentes.
 
