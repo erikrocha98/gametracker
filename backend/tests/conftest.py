@@ -35,6 +35,17 @@ from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.application.set_game_status import SetGameStatusUseCase
 from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import GameProviderUnavailable
+from app.modules.game_lists.api.dependencies import (
+    get_create_game_list_use_case,
+    get_delete_game_list_use_case,
+    get_game_list_repository,
+    get_update_game_list_use_case,
+    get_user_lists_use_case,
+)
+from app.modules.game_lists.application.create_game_list import CreateGameListUseCase
+from app.modules.game_lists.application.delete_game_list import DeleteGameListUseCase
+from app.modules.game_lists.application.get_user_lists import GetUserListsUseCase
+from app.modules.game_lists.application.update_game_list import UpdateGameListUseCase
 from app.modules.game_lists.domain.entities import GameList
 from app.modules.users.api.dependencies import (
     get_current_user,
@@ -332,6 +343,11 @@ def email_sender() -> FakeEmailSender:
 
 
 @pytest.fixture
+def fake_game_list_repo() -> FakeGameListRepository:
+    return FakeGameListRepository()
+
+
+@pytest.fixture
 def api_client(
     user_repo: FakeUserRepo,
     token_repo: FakeTokenRepo,
@@ -340,6 +356,7 @@ def api_client(
     fake_game_detail_provider: FakeGameDetailProvider,
     fake_game_repo: FakeGameRepository,
     fake_user_game_repo: FakeUserGameRepository,
+    fake_game_list_repo: FakeGameListRepository,
 ):
     def _signup_use_case() -> SignUpUserUseCase:
         return SignUpUserUseCase(
@@ -430,6 +447,21 @@ def api_client(
     def _get_collection_stats_use_case() -> GetCollectionStatsUseCase:
         return GetCollectionStatsUseCase(repository=fake_user_game_repo)
 
+    def _get_game_list_repository() -> FakeGameListRepository:
+        return fake_game_list_repo
+
+    def _get_create_game_list_use_case() -> CreateGameListUseCase:
+        return CreateGameListUseCase(repository=fake_game_list_repo)
+
+    def _get_user_lists_use_case() -> GetUserListsUseCase:
+        return GetUserListsUseCase(repository=fake_game_list_repo)
+
+    def _get_update_game_list_use_case() -> UpdateGameListUseCase:
+        return UpdateGameListUseCase(repository=fake_game_list_repo)
+
+    def _get_delete_game_list_use_case() -> DeleteGameListUseCase:
+        return DeleteGameListUseCase(repository=fake_game_list_repo)
+
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
     app.dependency_overrides[get_login_use_case] = _login_use_case
@@ -450,6 +482,11 @@ def api_client(
     app.dependency_overrides[get_user_game_rating_use_case] = _get_user_game_rating_use_case
     app.dependency_overrides[get_set_game_status_use_case] = _get_set_game_status_use_case
     app.dependency_overrides[get_collection_stats_use_case] = _get_collection_stats_use_case
+    app.dependency_overrides[get_game_list_repository] = _get_game_list_repository
+    app.dependency_overrides[get_create_game_list_use_case] = _get_create_game_list_use_case
+    app.dependency_overrides[get_user_lists_use_case] = _get_user_lists_use_case
+    app.dependency_overrides[get_update_game_list_use_case] = _get_update_game_list_use_case
+    app.dependency_overrides[get_delete_game_list_use_case] = _get_delete_game_list_use_case
 
     with TestClient(app) as client:
         yield client

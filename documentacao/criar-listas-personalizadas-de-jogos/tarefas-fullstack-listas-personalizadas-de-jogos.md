@@ -61,17 +61,17 @@ Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-li
 
 ## Épico 3 — Backend: API
 
-### T9. Schemas Pydantic
+### T9. Schemas Pydantic ✅
 - `api/schemas.py`: `CreateGameListRequest` (`name` min_length=1 max_length=120; `description: str | None = None`), `UpdateGameListRequest`, `GameListResponse` (aliases camelCase: `isPublic`, `createdAt`, `updatedAt`), `GameListsResponse`. `model_config = {"populate_by_name": True, "from_attributes": True}`.
 - **DoD:** schemas importáveis; serialização em camelCase.
 - **Depende de:** T2.
 
-### T10. Dependencies (wiring dos use cases)
+### T10. Dependencies (wiring dos use cases) ✅
 - `api/dependencies.py`: `get_game_list_repository(session)` + um provider por use case (padrão de `games/api/dependencies.py`).
 - **DoD:** providers resolvem via `Depends`.
 - **Depende de:** T4, T7.
 
-### T11. Controllers (router `/lists`)
+### T11. Controllers (router `/lists`) ✅
 - `api/controllers.py`: `router = APIRouter(prefix="/lists", tags=["lists"])` com:
   - `POST /lists` → 201 `GameListResponse`
   - `GET /lists` → `GameListsResponse`
@@ -81,12 +81,12 @@ Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-li
 - **DoD:** rotas respondem conforme especificado.
 - **Depende de:** T9, T10.
 
-### T12. Registrar router no app
+### T12. Registrar router no app ✅
 - `backend/app/main.py`: `app.include_router(game_lists_router)`.
 - **DoD:** rotas aparecem em `/docs`.
 - **Depende de:** T11.
 
-### T13. Testes de API + fakes no conftest
+### T13. Testes de API + fakes no conftest ✅
 - Adicionar `FakeGameListRepository` + fixture e overrides dos novos `get_*_use_case` em `backend/tests/conftest.py`.
 - `backend/tests/modules/game_lists/api/test_game_lists_routes.py` (com `__init__.py`): criar (201 + alias camelCase), listar (só do próprio usuário), editar, editar inexistente (404), excluir (204), excluir inexistente (404), 401 sem auth, nome vazio (422).
 - **DoD:** `pytest` completo verde.
