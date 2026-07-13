@@ -42,17 +42,17 @@ Quebra do [plano-fullstack-listas-personalizadas-de-jogos.md](plano-fullstack-li
 
 ## Épico 2 — Backend: infraestrutura e persistência
 
-### T6. Model SQLAlchemy
+### T6. Model SQLAlchemy ✅
 - `infrastructure/game_list_model.py`: `GameListModel(Base)`, tabela `game_lists` — `id` BigInteger PK autoincrement; `user_id` BigInteger FK→`users.id` ondelete CASCADE, not null; `name` String(120) not null; `description` Text nullable; `is_public` Boolean not null default `false`; `created_at`/`updated_at` DateTime(timezone) default `now()` (`updated_at` com `onupdate`). Index `ix_game_lists_user_id`.
 - **DoD:** model importável; espelha `user_game_model.py`.
 - **Depende de:** T2.
 
-### T7. Repositório SQLAlchemy
+### T7. Repositório SQLAlchemy ✅
 - `infrastructure/sqlalchemy_game_list_repository.py`: `SqlAlchemyGameListRepository` implementando o Protocol; `_hydrate(row) -> GameList`; `list_by_user` ordena por `created_at.desc()`. `update`/`delete` filtram por `user_id` + `list_id`.
 - **DoD:** implementa todos os métodos do Protocol.
 - **Depende de:** T3, T6.
 
-### T8. Migration alembic
+### T8. Migration alembic ✅
 - Nova revisão `create_game_lists_table` em `backend/alembic/versions/`, `down_revision = "a7b8c9d0e1f2"`. `upgrade()` cria a tabela + index; `downgrade()` faz drop de ambos. Seguir formato de `c3d4e5f6a7b8_create_user_games_table.py`.
 - **DoD:** `alembic upgrade head` aplica sem erro e `alembic downgrade -1` reverte limpo (contra o Postgres do `docker-compose.yml`).
 - **Depende de:** T6.
