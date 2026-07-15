@@ -33,6 +33,12 @@ const Card = styled.div`
   &:hover {
     background-color: ${colors.cardHover};
   }
+
+  &:hover .list-game-footer,
+  &:focus-within .list-game-footer {
+    opacity: 1;
+    pointer-events: auto;
+  }
 `
 
 const CoverWrapper = styled.div`
@@ -54,11 +60,21 @@ const CoverWrapper = styled.div`
   }
 `
 
+const Footer = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px;
+  background-color: ${colors.overlayCardAction};
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+`
+
 const RemoveButton = styled(IconButton)`
-  position: absolute !important;
-  bottom: 8px !important;
-  right: 8px !important;
-  background-color: ${colors.overlayCardAction} !important;
   color: ${colors.textPrimary} !important;
   padding: 4px !important;
 
@@ -103,13 +119,15 @@ export function ListGameCard({ game, onRemove }: ListGameCardProps) {
             <SportsEsportsIcon sx={{ color: colors.textSecondary, fontSize: 36 }} aria-hidden />
           )}
           {onRemove && (
-            <RemoveButton
-              size="small"
-              aria-label={texts.myLists.removeGameAriaLabel}
-              onClick={handleRemove}
-            >
-              <DeleteOutlinedIcon fontSize="small" />
-            </RemoveButton>
+            <Footer className="list-game-footer">
+              <RemoveButton
+                size="small"
+                aria-label={texts.myLists.removeGameAriaLabel}
+                onClick={handleRemove}
+              >
+                <DeleteOutlinedIcon fontSize="small" />
+              </RemoveButton>
+            </Footer>
           )}
         </CoverWrapper>
         <div>
