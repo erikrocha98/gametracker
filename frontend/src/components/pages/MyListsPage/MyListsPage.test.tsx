@@ -79,7 +79,7 @@ test('opens the create modal from the header button', async () => {
   expect(await screen.findByRole('heading', { name: texts.myLists.modalCreateTitle })).toBeInTheDocument()
 })
 
-test('deletes a list and shows success feedback', async () => {
+test('deletes a list after confirming and shows success feedback', async () => {
   const user = userEvent.setup()
   vi.mocked(getLists).mockResolvedValue({ items: [list] })
   vi.mocked(deleteList).mockResolvedValue(undefined)
@@ -88,7 +88,24 @@ test('deletes a list and shows success feedback', async () => {
   await screen.findByText('RPGs')
   await user.click(screen.getByRole('button', { name: texts.myLists.deleteAriaLabel }))
 
+  // a exclusão só acontece após confirmar no diálogo
+  expect(deleteList).not.toHaveBeenCalled()
+  await user.click(await screen.findByRole('button', { name: texts.myLists.deleteConfirmButton }))
+
   expect(await screen.findByText(texts.myLists.deleteSuccessMessage)).toBeInTheDocument()
   expect(deleteList).toHaveBeenCalledWith(list.id)
   expect(screen.queryByText('RPGs')).not.toBeInTheDocument()
+})
+
+test('does not delete the list when the confirmation is cancelled', async () => {
+  const user = userEvent.setup()
+  vi.mocked(getLists).mockResolvedValue({ items: [list] })
+  renderPage()
+
+  await screen.findByText('RPGs')
+  await user.click(screen.getByRole('button', { name: texts.myLists.deleteAriaLabel }))
+  await user.click(await screen.findByRole('button', { name: texts.myLists.deleteCancelButton }))
+
+  expect(deleteList).not.toHaveBeenCalled()
+  expect(screen.getByText('RPGs')).toBeInTheDocument()
 })

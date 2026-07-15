@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { deleteList, getLists } from '../../../services/lists'
+import { ConfirmDialog } from '../../molecules/ConfirmDialog'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { CreateListModal } from '../../organisms/CreateListModal'
 import { MyListsGrid } from '../../organisms/MyListsGrid'
@@ -28,6 +29,8 @@ export function MyListsPage() {
   const [error, setError] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [editingList, setEditingList] = useState<GameList | null>(null)
+  const [deletingList, setDeletingList] = useState<GameList | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
     type: 'success',
     message: '',
@@ -51,15 +54,28 @@ export function MyListsPage() {
     setModalOpen(true)
   }, [])
 
-  const handleDelete = useCallback(async (list: GameList) => {
+  const handleDelete = useCallback((list: GameList) => {
+    setDeletingList(list)
+  }, [])
+
+  const handleCancelDelete = useCallback(() => {
+    setDeletingList(null)
+  }, [])
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deletingList) return
+    setDeleteLoading(true)
     try {
-      await deleteList(list.id)
-      setItems((prev) => prev.filter((l) => l.id !== list.id))
+      await deleteList(deletingList.id)
+      setItems((prev) => prev.filter((l) => l.id !== deletingList.id))
       setFeedback({ type: 'success', message: texts.myLists.deleteSuccessMessage, open: true })
+      setDeletingList(null)
     } catch {
       setFeedback({ type: 'error', message: texts.myLists.deleteErrorMessage, open: true })
+    } finally {
+      setDeleteLoading(false)
     }
-  }, [])
+  }, [deletingList])
 
   const handleSaved = useCallback((saved: GameList) => {
     setItems((prev) => {
@@ -95,6 +111,18 @@ export function MyListsPage() {
         onClose={() => setModalOpen(false)}
         list={editingList}
         onSaved={handleSaved}
+      />
+
+      <ConfirmDialog
+        open={deletingList !== null}
+        title={texts.myLists.deleteConfirmTitle}
+        description={texts.myLists.deleteConfirmDescription(deletingList?.name ?? '')}
+        confirmLabel={texts.myLists.deleteConfirmButton}
+        cancelLabel={texts.myLists.deleteCancelButton}
+        onConfirm={handleConfirmDelete}
+        onClose={handleCancelDelete}
+        loading={deleteLoading}
+        destructive
       />
 
       <FeedbackModal
