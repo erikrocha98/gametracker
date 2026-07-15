@@ -100,6 +100,13 @@ export const texts = {
     deleteErrorMessage: 'Não foi possível excluir a lista. Tente novamente.',
     editAriaLabel: 'Editar lista',
     deleteAriaLabel: 'Excluir lista',
+    openAriaLabel: 'Abrir lista',
+    detailBackLabel: 'Voltar para minhas listas',
+    detailLoadError: 'Não foi possível carregar esta lista.',
+    detailNotFoundTitle: 'Lista não encontrada',
+    detailNotFoundDescription: 'Não conseguimos localizar esta lista.',
+    detailGamesEmptyTitle: 'Nenhum jogo nesta lista ainda',
+    detailGamesEmptyDescription: 'Em breve você poderá adicionar jogos às suas listas.',
   },
   comingSoon: {
     title: 'Em breve',

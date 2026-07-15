@@ -1,6 +1,8 @@
+import type { MouseEvent } from 'react'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
-import { IconButton } from '@mui/material'
+import { IconButton, Tooltip } from '@mui/material'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
@@ -12,10 +14,18 @@ interface ListCardProps {
   onDelete?: () => void
 }
 
+const POSTER_SLOTS = 5
+
+const CardLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+  display: block;
+`
+
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   padding: 16px;
   border-radius: 8px;
   background-color: ${colors.backgroundPaper};
@@ -34,6 +44,10 @@ const HeaderRow = styled.div`
   gap: 8px;
 `
 
+const TitleBlock = styled.div`
+  min-width: 0;
+`
+
 const Name = styled.p`
   margin: 0;
   font-size: 1rem;
@@ -45,7 +59,7 @@ const Name = styled.p`
 `
 
 const Description = styled.p`
-  margin: 0;
+  margin: 4px 0 0;
   font-size: 0.875rem;
   color: ${colors.textSecondary};
   display: -webkit-box;
@@ -59,35 +73,71 @@ const Actions = styled.div`
   flex-shrink: 0;
 `
 
+const PosterRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(${POSTER_SLOTS}, 1fr);
+  gap: 8px;
+`
+
+const PosterSlot = styled.div`
+  aspect-ratio: 3 / 4;
+  border-radius: 4px;
+  background-color: ${colors.placeholderBackground};
+  border: 1px solid ${colors.inputBorder};
+`
+
 export function ListCard({ list, onEdit, onDelete }: ListCardProps) {
+  const handleEdit = (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onEdit?.()
+  }
+
+  const handleDelete = (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onDelete?.()
+  }
+
   return (
-    <Card>
-      <HeaderRow>
-        <Name>{list.name}</Name>
-        <Actions>
-          {onEdit && (
-            <IconButton
-              size="small"
-              aria-label={texts.myLists.editAriaLabel}
-              onClick={onEdit}
-              sx={{ color: colors.textSecondary }}
-            >
-              <EditOutlinedIcon fontSize="small" />
-            </IconButton>
-          )}
-          {onDelete && (
-            <IconButton
-              size="small"
-              aria-label={texts.myLists.deleteAriaLabel}
-              onClick={onDelete}
-              sx={{ color: colors.textSecondary }}
-            >
-              <DeleteOutlinedIcon fontSize="small" />
-            </IconButton>
-          )}
-        </Actions>
-      </HeaderRow>
-      {list.description && <Description>{list.description}</Description>}
-    </Card>
+    <CardLink to={`/my-lists/${list.id}`} aria-label={`${texts.myLists.openAriaLabel}: ${list.name}`}>
+      <Card>
+        <HeaderRow>
+          <TitleBlock>
+            <Tooltip title={list.name} enterDelay={400}>
+              <Name>{list.name}</Name>
+            </Tooltip>
+            {list.description && <Description>{list.description}</Description>}
+          </TitleBlock>
+          <Actions>
+            {onEdit && (
+              <IconButton
+                size="small"
+                aria-label={texts.myLists.editAriaLabel}
+                onClick={handleEdit}
+                sx={{ color: colors.textSecondary }}
+              >
+                <EditOutlinedIcon fontSize="small" />
+              </IconButton>
+            )}
+            {onDelete && (
+              <IconButton
+                size="small"
+                aria-label={texts.myLists.deleteAriaLabel}
+                onClick={handleDelete}
+                sx={{ color: colors.textSecondary }}
+              >
+                <DeleteOutlinedIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Actions>
+        </HeaderRow>
+        <PosterRow>
+          {Array.from({ length: POSTER_SLOTS }).map((_, i) => (
+            <PosterSlot key={i} />
+          ))}
+        </PosterRow>
+      </Card>
+    </CardLink>
   )
 }

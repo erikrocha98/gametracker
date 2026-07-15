@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
@@ -20,11 +21,13 @@ function renderCard(props = {}) {
   const onEdit = vi.fn()
   const onDelete = vi.fn()
   render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <ListCard list={list} onEdit={onEdit} onDelete={onDelete} {...props} />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <ListCard list={list} onEdit={onEdit} onDelete={onDelete} {...props} />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
   return { onEdit, onDelete }
 }
@@ -52,4 +55,12 @@ test('calls onDelete when the delete action is clicked', async () => {
   const { onDelete } = renderCard()
   await user.click(screen.getByRole('button', { name: texts.myLists.deleteAriaLabel }))
   expect(onDelete).toHaveBeenCalledOnce()
+})
+
+test('links to the list detail page', () => {
+  renderCard()
+  expect(screen.getByRole('link', { name: new RegExp(list.name, 'i') })).toHaveAttribute(
+    'href',
+    `/my-lists/${list.id}`,
+  )
 })

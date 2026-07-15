@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
@@ -17,19 +18,21 @@ function renderGrid(props = {}) {
   const onDelete = vi.fn()
   const onCreate = vi.fn()
   render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <MyListsGrid
-          items={items}
-          loading={false}
-          error={false}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onCreate={onCreate}
-          {...props}
-        />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <MyListsGrid
+            items={items}
+            loading={false}
+            error={false}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onCreate={onCreate}
+            {...props}
+          />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
   return { onEdit, onDelete, onCreate }
 }

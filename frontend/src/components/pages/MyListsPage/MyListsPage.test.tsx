@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
@@ -26,11 +27,13 @@ const list: GameList = {
 
 function renderPage() {
   return render(
-    <ThemeProvider theme={theme}>
-      <StyledThemeProvider theme={theme}>
-        <MyListsPage />
-      </StyledThemeProvider>
-    </ThemeProvider>,
+    <MemoryRouter>
+      <ThemeProvider theme={theme}>
+        <StyledThemeProvider theme={theme}>
+          <MyListsPage />
+        </StyledThemeProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
 }
 

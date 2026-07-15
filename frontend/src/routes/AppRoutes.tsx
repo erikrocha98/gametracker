@@ -6,6 +6,7 @@ import { ComingSoonPage } from '../components/pages/ComingSoonPage'
 import { GameDetailsPage } from '../components/pages/GameDetailsPage'
 import { MyGamesPage } from '../components/pages/MyGamesPage'
 import { MyListsPage } from '../components/pages/MyListsPage'
+import { MyListDetailPage } from '../components/pages/MyListDetailPage'
 import { ProfilePage } from '../components/pages/ProfilePage'
 import { MainTemplate } from '../components/templates/MainTemplate'
 import { ProtectedRoute } from './ProtectedRoute'
@@ -41,6 +42,16 @@ export function AppRoutes() {
           <ProtectedRoute>
             <MainTemplate>
               <MyListsPage />
+            </MainTemplate>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-lists/:listId"
+        element={
+          <ProtectedRoute>
+            <MainTemplate>
+              <MyListDetailPage />
             </MainTemplate>
           </ProtectedRoute>
         }
