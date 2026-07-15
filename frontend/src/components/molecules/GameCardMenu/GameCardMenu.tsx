@@ -32,11 +32,26 @@ const STATUS_OPTIONS: { value: GameStatus; label: string }[] = [
   { value: 'finished', label: texts.myGames.statusFinished },
 ]
 
+const Footer = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px;
+  background-color: ${colors.overlayCardAction};
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+
+  &[data-open='true'] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+`
+
 const MenuButton = styled(IconButton)`
-  position: absolute !important;
-  bottom: 8px !important;
-  right: 8px !important;
-  background-color: ${colors.overlayCardAction} !important;
   color: ${colors.textPrimary} !important;
   padding: 4px !important;
 
@@ -103,13 +118,15 @@ export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete,
 
   return (
     <>
-      <MenuButton
-        size="small"
-        aria-label={texts.myGames.menuAriaLabel}
-        onClick={handleOpenMenu}
-      >
-        <MoreVertIcon fontSize="small" />
-      </MenuButton>
+      <Footer className="game-card-footer" data-open={menuOpen}>
+        <MenuButton
+          size="small"
+          aria-label={texts.myGames.menuAriaLabel}
+          onClick={handleOpenMenu}
+        >
+          <MoreVertIcon fontSize="small" />
+        </MenuButton>
+      </Footer>
 
       <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleCloseMenu} onClick={stopEvent}>
         {STATUS_OPTIONS.map((option) => (

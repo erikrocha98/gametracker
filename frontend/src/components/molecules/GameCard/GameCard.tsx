@@ -44,6 +44,12 @@ const Card = styled.div`
   &:hover {
     background-color: ${colors.cardHover};
   }
+
+  &:hover .game-card-footer,
+  &:focus-within .game-card-footer {
+    opacity: 1;
+    pointer-events: auto;
+  }
 `
 
 const CoverWrapper = styled.div`
