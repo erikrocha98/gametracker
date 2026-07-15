@@ -1,5 +1,6 @@
 import AddIcon from '@mui/icons-material/Add'
 import CheckIcon from '@mui/icons-material/Check'
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import { Button, Chip, CircularProgress, Typography } from '@mui/material'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
@@ -18,6 +19,7 @@ interface GameDetailsHeaderProps {
   userRating: number | null
   onRate: (value: number | null) => void
   ratingLoading: boolean
+  onAddToList: () => void
 }
 
 const Grid = styled.div`
@@ -68,6 +70,12 @@ const RatingRow = styled.div`
   gap: 12px;
 `
 
+const ActionsRow = styled.div`
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+`
+
 const RemoveRatingButton = styled.button`
   background: none;
   border: none;
@@ -96,6 +104,7 @@ export function GameDetailsHeader({
   userRating,
   onRate,
   ratingLoading,
+  onAddToList,
 }: GameDetailsHeaderProps) {
   const releaseDateFormatted = formatReleaseDate(game.releaseDate)
   const metaParts = [
@@ -161,21 +170,31 @@ export function GameDetailsHeader({
           </RatingRow>
         </div>
 
-        <Button
-          variant="contained"
-          startIcon={
-            addLoading
-              ? <CircularProgress size={16} sx={{ color: colors.buttonPrimaryText }} />
-              : added
-                ? <CheckIcon />
-                : <AddIcon />
-          }
-          disabled={addLoading || added}
-          onClick={onAddToWantToPlay}
-          sx={{ alignSelf: 'flex-start' }}
-        >
-          {added ? texts.gameDetails.addedToWantToPlay : texts.gameDetails.addToWantToPlay}
-        </Button>
+        <ActionsRow>
+          <Button
+            variant="contained"
+            startIcon={
+              addLoading
+                ? <CircularProgress size={16} sx={{ color: colors.buttonPrimaryText }} />
+                : added
+                  ? <CheckIcon />
+                  : <AddIcon />
+            }
+            disabled={addLoading || added}
+            onClick={onAddToWantToPlay}
+          >
+            {added ? texts.gameDetails.addedToWantToPlay : texts.gameDetails.addToWantToPlay}
+          </Button>
+
+          <Button
+            variant="outlined"
+            startIcon={<PlaylistAddIcon />}
+            onClick={onAddToList}
+            sx={{ color: colors.primary, borderColor: colors.primary }}
+          >
+            {texts.gameDetails.addToListButton}
+          </Button>
+        </ActionsRow>
       </Info>
     </Grid>
   )

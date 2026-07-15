@@ -17,6 +17,7 @@ function renderGrid(props = {}) {
   const onRemove = vi.fn()
   const onRate = vi.fn()
   const onStatusChange = vi.fn()
+  const onAddToList = vi.fn()
   render(
     <MemoryRouter>
       <ThemeProvider theme={theme}>
@@ -28,13 +29,14 @@ function renderGrid(props = {}) {
             onRemove={onRemove}
             onRate={onRate}
             onStatusChange={onStatusChange}
+            onAddToList={onAddToList}
             {...props}
           />
         </StyledThemeProvider>
       </ThemeProvider>
     </MemoryRouter>,
   )
-  return { onRemove, onRate, onStatusChange }
+  return { onRemove, onRate, onStatusChange, onAddToList }
 }
 
 test('renders game cards', () => {
@@ -65,4 +67,12 @@ test('calls onRemove when the delete option is picked from a card menu', async (
   await userEvent.click(menuButtons[0])
   await userEvent.click(await screen.findByRole('menuitem', { name: texts.myGames.menuDelete }))
   expect(onRemove).toHaveBeenCalledWith('zelda')
+})
+
+test('forwards the gameId to onAddToList when the add-to-list option is picked', async () => {
+  const { onAddToList } = renderGrid()
+  const menuButtons = screen.getAllByRole('button', { name: texts.myGames.menuAriaLabel })
+  await userEvent.click(menuButtons[0])
+  await userEvent.click(await screen.findByRole('menuitem', { name: texts.myGames.menuAddToList }))
+  expect(onAddToList).toHaveBeenCalledWith('zelda')
 })

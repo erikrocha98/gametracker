@@ -23,6 +23,8 @@ const list: GameList = {
   isPublic: false,
   createdAt: '2026-07-13T00:00:00Z',
   updatedAt: '2026-07-13T00:00:00Z',
+  gameCount: 0,
+  coverUrls: [],
 }
 
 function renderPage() {

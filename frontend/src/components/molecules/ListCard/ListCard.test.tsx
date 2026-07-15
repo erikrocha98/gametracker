@@ -15,6 +15,8 @@ const list: GameList = {
   isPublic: false,
   createdAt: '2026-07-13T00:00:00Z',
   updatedAt: '2026-07-13T00:00:00Z',
+  gameCount: 0,
+  coverUrls: [],
 }
 
 function renderCard(props = {}) {
@@ -63,4 +65,17 @@ test('links to the list detail page', () => {
     'href',
     `/my-lists/${list.id}`,
   )
+})
+
+test('renders the recent covers as images in the first poster slots', () => {
+  const covers = ['https://img/a.jpg', 'https://img/b.jpg']
+  renderCard({ list: { ...list, coverUrls: covers } })
+  // capas são decorativas (alt=""), então saem da árvore acessível: consultamos o DOM
+  const images = Array.from(document.querySelectorAll('img')).map((img) => img.getAttribute('src'))
+  expect(images).toEqual(covers)
+})
+
+test('renders only placeholders when the list has no covers', () => {
+  renderCard({ list: { ...list, coverUrls: [] } })
+  expect(document.querySelectorAll('img')).toHaveLength(0)
 })

@@ -12,6 +12,7 @@ function renderMenu(
   onDelete = vi.fn(),
   onStatusChange = vi.fn(),
   status: GameStatus = 'want_to_play',
+  onAddToList: (() => void) | undefined = undefined,
 ) {
   render(
     <MuiThemeProvider theme={theme}>
@@ -22,11 +23,12 @@ function renderMenu(
           onStatusChange={onStatusChange}
           onRate={onRate}
           onDelete={onDelete}
+          onAddToList={onAddToList}
         />
       </StyledThemeProvider>
     </MuiThemeProvider>,
   )
-  return { onRate, onDelete, onStatusChange }
+  return { onRate, onDelete, onStatusChange, onAddToList }
 }
 
 async function openMenu() {
@@ -60,17 +62,32 @@ test('clicking delete calls onDelete', async () => {
   expect(onDelete).toHaveBeenCalledOnce()
 })
 
-test('review and add-to-list options are disabled', async () => {
+test('the review option is always disabled', async () => {
   renderMenu()
   await openMenu()
   expect(await screen.findByRole('menuitem', { name: 'Adicionar review' })).toHaveAttribute(
     'aria-disabled',
     'true',
   )
-  expect(screen.getByRole('menuitem', { name: 'Adicionar à lista' })).toHaveAttribute(
+})
+
+test('the add-to-list option is disabled when no callback is provided', async () => {
+  renderMenu()
+  await openMenu()
+  expect(await screen.findByRole('menuitem', { name: 'Adicionar à lista' })).toHaveAttribute(
     'aria-disabled',
     'true',
   )
+})
+
+test('the add-to-list option is enabled and calls onAddToList when provided', async () => {
+  const onAddToList = vi.fn()
+  renderMenu(null, vi.fn(), vi.fn(), vi.fn(), 'want_to_play', onAddToList)
+  await openMenu()
+  const item = await screen.findByRole('menuitem', { name: 'Adicionar à lista' })
+  expect(item).not.toHaveAttribute('aria-disabled', 'true')
+  await userEvent.click(item)
+  expect(onAddToList).toHaveBeenCalledOnce()
 })
 
 test('remove-rating action is offered only when a rating exists', async () => {

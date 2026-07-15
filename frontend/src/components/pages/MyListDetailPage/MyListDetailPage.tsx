@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 import { CircularProgress, Typography } from '@mui/material'
 import { Link, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
-import { getLists } from '../../../services/lists'
+import { getList, removeGameFromList } from '../../../services/lists'
 import { EmptyState } from '../../molecules/EmptyState'
-import type { GameList } from '../../../types/list'
+import { FeedbackModal } from '../../molecules/FeedbackModal'
+import { ListGamesGrid } from '../../organisms/ListGamesGrid'
+import type { GameListDetail } from '../../../types/list'
 
 const PageWrapper = styled.div`
   padding: 32px 0 64px;
@@ -47,18 +48,39 @@ type Status = 'loading' | 'success' | 'not-found' | 'error'
 
 export function MyListDetailPage() {
   const { listId } = useParams<{ listId: string }>()
-  const [list, setList] = useState<GameList | null>(null)
+  const [list, setList] = useState<GameListDetail | null>(null)
   const [status, setStatus] = useState<Status>('loading')
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
+    type: 'success',
+    message: '',
+    open: false,
+  })
 
   useEffect(() => {
-    const id = Number(listId)
-    getLists()
+    getList(Number(listId))
       .then((data) => {
-        const found = data.items.find((l) => l.id === id) ?? null
-        setList(found)
-        setStatus(found ? 'success' : 'not-found')
+        setList(data)
+        setStatus('success')
       })
-      .catch(() => setStatus('error'))
+      .catch((err) => {
+        if (err instanceof Response && err.status === 404) {
+          setStatus('not-found')
+          return
+        }
+        setStatus('error')
+      })
+  }, [listId])
+
+  const handleRemove = useCallback(async (gameId: string) => {
+    try {
+      await removeGameFromList(Number(listId), gameId)
+      setList((prev) =>
+        prev ? { ...prev, items: prev.items.filter((g) => g.gameId !== gameId) } : prev,
+      )
+      setFeedback({ type: 'success', message: texts.myLists.removeGameSuccessMessage, open: true })
+    } catch {
+      setFeedback({ type: 'error', message: texts.myLists.removeGameErrorMessage, open: true })
+    }
   }, [listId])
 
   if (status === 'loading') {
@@ -100,28 +122,33 @@ export function MyListDetailPage() {
   }
 
   return (
-    <PageWrapper>
-      <BackLink to="/my-lists">
-        <ArrowBackIcon fontSize="small" />
-        {texts.myLists.detailBackLabel}
-      </BackLink>
+    <>
+      <PageWrapper>
+        <BackLink to="/my-lists">
+          <ArrowBackIcon fontSize="small" />
+          {texts.myLists.detailBackLabel}
+        </BackLink>
 
-      <Header>
-        <Typography variant="h4" sx={{ color: colors.textPrimary, fontWeight: 700 }}>
-          {list.name}
-        </Typography>
-        {list.description && (
-          <Description variant="body1" sx={{ color: colors.textSecondary }}>
-            {list.description}
-          </Description>
-        )}
-      </Header>
+        <Header>
+          <Typography variant="h4" sx={{ color: colors.textPrimary, fontWeight: 700 }}>
+            {list.name}
+          </Typography>
+          {list.description && (
+            <Description variant="body1" sx={{ color: colors.textSecondary }}>
+              {list.description}
+            </Description>
+          )}
+        </Header>
 
-      <EmptyState
-        icon={<SportsEsportsIcon sx={{ fontSize: 48, color: colors.textSecondary }} />}
-        title={texts.myLists.detailGamesEmptyTitle}
-        description={texts.myLists.detailGamesEmptyDescription}
+        <ListGamesGrid items={list.items} onRemove={handleRemove} />
+      </PageWrapper>
+
+      <FeedbackModal
+        type={feedback.type}
+        message={feedback.message}
+        open={feedback.open}
+        onClose={() => setFeedback((prev) => ({ ...prev, open: false }))}
       />
-    </PageWrapper>
+    </>
   )
 }

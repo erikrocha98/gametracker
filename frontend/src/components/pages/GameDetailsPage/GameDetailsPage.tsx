@@ -9,6 +9,7 @@ import { useGameDetails } from '../../../hooks/useGameDetails'
 import { addToWantToPlay, rateGame, removeRating } from '../../../services/games'
 import { EmptyState } from '../../molecules/EmptyState'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
+import { AddToListDialog } from '../../organisms/AddToListDialog'
 import { GameDetailsHeader } from '../../organisms/GameDetailsHeader'
 import { GameDescription } from '../../organisms/GameDescription'
 import { GameScreenshots } from '../../organisms/GameScreenshots'
@@ -50,6 +51,7 @@ export function GameDetailsPage() {
   const [userRatingOverride, setUserRatingOverride] = useState<number | null | undefined>(undefined)
   const userRating = userRatingOverride !== undefined ? userRatingOverride : (data?.userRating ?? null)
   const [ratingLoading, setRatingLoading] = useState(false)
+  const [addToListOpen, setAddToListOpen] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
     type: 'success',
     message: '',
@@ -64,7 +66,11 @@ export function GameDetailsPage() {
     setTrackedGameId(gameId)
     setAdded(false)
     setUserRatingOverride(undefined)
+    setAddToListOpen(false)
   }
+
+  const handleOpenAddToList = useCallback(() => setAddToListOpen(true), [])
+  const handleCloseAddToList = useCallback(() => setAddToListOpen(false), [])
 
   const handleAddToWantToPlay = useCallback(async () => {
     if (!gameId) return
@@ -148,12 +154,19 @@ export function GameDetailsPage() {
           userRating={userRating}
           onRate={handleRate}
           ratingLoading={ratingLoading}
+          onAddToList={handleOpenAddToList}
         />
         <Divider />
         <GameDescription description={data.description} />
         <Divider />
         <GameScreenshots screenshots={data.screenshots} />
       </PageWrapper>
+
+      <AddToListDialog
+        open={addToListOpen}
+        gameId={gameId ?? null}
+        onClose={handleCloseAddToList}
+      />
 
       <FeedbackModal
         type={feedback.type}

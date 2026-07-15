@@ -6,6 +6,7 @@ import { texts } from '../../../constants/texts'
 import { getCollection, rateGame, removeFromWantToPlay, removeRating, setGameStatus } from '../../../services/games'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { PaginationControls } from '../../molecules/PaginationControls'
+import { AddToListDialog } from '../../organisms/AddToListDialog'
 import { MyGamesGrid } from '../../organisms/MyGamesGrid'
 import type { CollectionGame, GameStatus } from '../../../types/game'
 
@@ -23,6 +24,7 @@ export function MyGamesPage() {
   const [error, setError] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [addToListGameId, setAddToListGameId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
     type: 'success',
     message: '',
@@ -69,6 +71,14 @@ export function MyGamesPage() {
     }
   }, [])
 
+  const handleAddToList = useCallback((gameId: string) => {
+    setAddToListGameId(gameId)
+  }, [])
+
+  const handleCloseAddToList = useCallback(() => {
+    setAddToListGameId(null)
+  }, [])
+
   const handleRate = useCallback(async (gameId: string, value: number | null) => {
     try {
       if (value === null) {
@@ -100,6 +110,7 @@ export function MyGamesPage() {
           onRemove={handleRemove}
           onRate={handleRate}
           onStatusChange={handleStatusChange}
+          onAddToList={handleAddToList}
         />
 
         {!loading && !error && items.length > 0 && (
@@ -112,6 +123,12 @@ export function MyGamesPage() {
           />
         )}
       </PageWrapper>
+
+      <AddToListDialog
+        open={addToListGameId !== null}
+        gameId={addToListGameId}
+        onClose={handleCloseAddToList}
+      />
 
       <FeedbackModal
         type={feedback.type}

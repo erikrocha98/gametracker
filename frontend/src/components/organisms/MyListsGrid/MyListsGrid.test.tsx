@@ -9,8 +9,8 @@ import { texts } from '../../../constants/texts'
 import type { GameList } from '../../../types/list'
 
 const items: GameList[] = [
-  { id: 1, name: 'RPGs', description: 'favoritos', isPublic: false, createdAt: '2026-07-13T00:00:00Z', updatedAt: '2026-07-13T00:00:00Z' },
-  { id: 2, name: 'Zerados em 2025', description: null, isPublic: false, createdAt: '2026-07-12T00:00:00Z', updatedAt: '2026-07-12T00:00:00Z' },
+  { id: 1, name: 'RPGs', description: 'favoritos', isPublic: false, createdAt: '2026-07-13T00:00:00Z', updatedAt: '2026-07-13T00:00:00Z', gameCount: 0, coverUrls: [] },
+  { id: 2, name: 'Zerados em 2025', description: null, isPublic: false, createdAt: '2026-07-12T00:00:00Z', updatedAt: '2026-07-12T00:00:00Z', gameCount: 0, coverUrls: [] },
 ]
 
 function renderGrid(props = {}) {

@@ -12,6 +12,7 @@ interface GameCardProps {
   onRemove?: () => void
   onRate?: (value: number | null) => void
   onStatusChange?: (status: GameStatus) => void
+  onAddToList?: () => void
 }
 
 const Wrapper = styled.div`
@@ -83,7 +84,7 @@ const Meta = styled.p`
   text-overflow: ellipsis;
 `
 
-export function GameCard({ game, onRemove, onRate, onStatusChange }: GameCardProps) {
+export function GameCard({ game, onRemove, onRate, onStatusChange, onAddToList }: GameCardProps) {
   return (
     <Wrapper>
       <CardLink to={`/games/${game.gameId}`}>
@@ -101,6 +102,7 @@ export function GameCard({ game, onRemove, onRate, onStatusChange }: GameCardPro
                 onStatusChange={onStatusChange}
                 onRate={onRate}
                 onDelete={onRemove}
+                onAddToList={onAddToList}
               />
             )}
           </CoverWrapper>

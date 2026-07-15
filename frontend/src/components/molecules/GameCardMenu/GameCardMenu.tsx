@@ -23,6 +23,7 @@ interface GameCardMenuProps {
   onStatusChange: (status: GameStatus) => void
   onRate: (value: number | null) => void
   onDelete: () => void
+  onAddToList?: () => void
 }
 
 const STATUS_OPTIONS: { value: GameStatus; label: string }[] = [
@@ -44,7 +45,7 @@ const MenuButton = styled(IconButton)`
   }
 `
 
-export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete }: GameCardMenuProps) {
+export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete, onAddToList }: GameCardMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [rateOpen, setRateOpen] = useState(false)
   const menuOpen = Boolean(anchorEl)
@@ -79,6 +80,11 @@ export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete 
     setAnchorEl(null)
     onDelete()
   }, [onDelete])
+
+  const handleAddToListClick = useCallback(() => {
+    setAnchorEl(null)
+    onAddToList?.()
+  }, [onAddToList])
 
   const handleCloseDialog = useCallback(() => setRateOpen(false), [])
 
@@ -118,7 +124,9 @@ export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete 
         <Divider />
         <MenuItem onClick={handleRateClick}>{texts.myGames.menuRate}</MenuItem>
         <MenuItem disabled>{texts.myGames.menuReview}</MenuItem>
-        <MenuItem disabled>{texts.myGames.menuAddToList}</MenuItem>
+        <MenuItem disabled={!onAddToList} onClick={handleAddToListClick}>
+          {texts.myGames.menuAddToList}
+        </MenuItem>
         <MenuItem onClick={handleDeleteClick} sx={{ color: colors.error }}>
           {texts.myGames.menuDelete}
         </MenuItem>

@@ -14,6 +14,7 @@ interface MyGamesGridProps {
   onRemove: (gameId: string) => void
   onRate: (gameId: string, value: number | null) => void
   onStatusChange: (gameId: string, status: GameStatus) => void
+  onAddToList: (gameId: string) => void
 }
 
 const Grid = styled.div`
@@ -28,7 +29,7 @@ const LoadingWrapper = styled.div`
   padding: 48px 0;
 `
 
-export function MyGamesGrid({ items, loading, error, onRemove, onRate, onStatusChange }: MyGamesGridProps) {
+export function MyGamesGrid({ items, loading, error, onRemove, onRate, onStatusChange, onAddToList }: MyGamesGridProps) {
   if (loading) {
     return (
       <LoadingWrapper>
@@ -64,6 +65,7 @@ export function MyGamesGrid({ items, loading, error, onRemove, onRate, onStatusC
           onRemove={() => onRemove(game.gameId)}
           onRate={(value) => onRate(game.gameId, value)}
           onStatusChange={(status) => onStatusChange(game.gameId, status)}
+          onAddToList={() => onAddToList(game.gameId)}
         />
       ))}
     </Grid>

@@ -1,0 +1,1 @@
+export { ListGameCard } from './ListGameCard'

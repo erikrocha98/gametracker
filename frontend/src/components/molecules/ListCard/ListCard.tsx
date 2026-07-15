@@ -86,6 +86,14 @@ const PosterSlot = styled.div`
   border: 1px solid ${colors.inputBorder};
 `
 
+const PosterImage = styled.img`
+  aspect-ratio: 3 / 4;
+  width: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+`
+
 export function ListCard({ list, onEdit, onDelete }: ListCardProps) {
   const handleEdit = (e: MouseEvent) => {
     e.preventDefault()
@@ -133,9 +141,14 @@ export function ListCard({ list, onEdit, onDelete }: ListCardProps) {
           </Actions>
         </HeaderRow>
         <PosterRow>
-          {Array.from({ length: POSTER_SLOTS }).map((_, i) => (
-            <PosterSlot key={i} />
-          ))}
+          {Array.from({ length: POSTER_SLOTS }).map((_, i) => {
+            const coverUrl = list.coverUrls[i]
+            return coverUrl ? (
+              <PosterImage key={i} src={coverUrl} alt="" />
+            ) : (
+              <PosterSlot key={i} />
+            )
+          })}
         </PosterRow>
       </Card>
     </CardLink>
