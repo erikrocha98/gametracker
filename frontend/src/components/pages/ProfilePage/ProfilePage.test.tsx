@@ -7,8 +7,13 @@ import { texts } from '../../../constants/texts'
 import type { CollectionStats } from '../../../types/game'
 import { ProfilePage } from './ProfilePage'
 import * as gamesService from '../../../services/games'
+import { getLists } from '../../../services/lists'
 
 vi.mock('../../../services/games')
+
+vi.mock('../../../services/lists', () => ({
+  getLists: vi.fn(),
+}))
 
 vi.mock('../../../contexts/AuthContext', () => ({
   useAuth: () => ({
@@ -60,6 +65,10 @@ function renderPage() {
   )
 }
 
+beforeEach(() => {
+  vi.mocked(getLists).mockResolvedValue({ items: [] })
+})
+
 test('renders the profile with stats and recent games after loading', async () => {
   mockGetStats.mockResolvedValue(STATS)
   renderPage()
@@ -71,6 +80,18 @@ test('renders the profile with stats and recent games after loading', async () =
   expect(screen.getByText('4.2')).toBeInTheDocument()
   // a bio do usuário (via useAuth) preenche o campo editável
   expect(screen.getByRole('textbox')).toHaveValue('jogo desde os 8 anos')
+})
+
+test('shows the number of lists the user has', async () => {
+  mockGetStats.mockResolvedValue(STATS)
+  // 9 não colide com nenhum outro número do STATS, então o alvo é inequívoco
+  vi.mocked(getLists).mockResolvedValue({
+    items: Array.from({ length: 9 }, () => ({})),
+  } as Awaited<ReturnType<typeof getLists>>)
+  renderPage()
+
+  // findBy: a contagem só chega depois de getLists resolver
+  expect(await screen.findByText('9')).toBeInTheDocument()
 })
 
 test('shows an error message when the stats request fails', async () => {

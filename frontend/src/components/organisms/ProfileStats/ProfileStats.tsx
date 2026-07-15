@@ -7,6 +7,7 @@ import { StatCard } from '../../molecules/StatCard'
 
 interface ProfileStatsProps {
   gamesRated: number
+  listsCount: number
 }
 
 const Grid = styled.div`
@@ -15,7 +16,7 @@ const Grid = styled.div`
   gap: 16px;
 `
 
-export function ProfileStats({ gamesRated }: ProfileStatsProps) {
+export function ProfileStats({ gamesRated, listsCount }: ProfileStatsProps) {
   return (
     <Grid>
       <StatCard value={gamesRated} label={texts.profile.gamesRatedLabel} icon={<StarBorderIcon />} />
@@ -26,10 +27,9 @@ export function ProfileStats({ gamesRated }: ProfileStatsProps) {
         caption={texts.profile.comingSoon}
       />
       <StatCard
-        value={0}
+        value={listsCount}
         label={texts.profile.listsLabel}
         icon={<FormatListBulletedIcon />}
-        caption={texts.profile.comingSoon}
       />
     </Grid>
   )

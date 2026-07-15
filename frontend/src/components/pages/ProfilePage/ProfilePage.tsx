@@ -5,6 +5,7 @@ import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { useAuth } from '../../../contexts/AuthContext'
 import { getCollectionStats } from '../../../services/games'
+import { getLists } from '../../../services/lists'
 import type { CollectionStats } from '../../../types/game'
 import { ProfileCard } from '../../organisms/ProfileCard'
 import { ProfileStats } from '../../organisms/ProfileStats'
@@ -55,6 +56,7 @@ const SectionTitle = styled(Typography)`
 export function ProfilePage() {
   const { user } = useAuth()
   const [stats, setStats] = useState<CollectionStats | null>(null)
+  const [listsCount, setListsCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -63,6 +65,12 @@ export function ProfilePage() {
       .then(setStats)
       .catch(() => setError(true))
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    getLists()
+      .then((data) => setListsCount(data.items.length))
+      .catch(() => {})
   }, [])
 
   const gamesCount = useMemo(() => {
@@ -103,7 +111,7 @@ export function ProfilePage() {
               <SectionTitle variant="h6" sx={{ color: colors.textPrimary }}>
                 {texts.profile.activityTitle}
               </SectionTitle>
-              <ProfileStats gamesRated={stats.gamesRated} />
+              <ProfileStats gamesRated={stats.gamesRated} listsCount={listsCount} />
             </Section>
 
             <Section>
