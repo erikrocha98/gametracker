@@ -34,17 +34,25 @@ from app.modules.games.application.remove_rating import RemoveRatingUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.application.set_game_status import SetGameStatusUseCase
 from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame, UserGameStatus
-from app.modules.games.domain.exceptions import GameProviderUnavailable
+from app.modules.games.domain.exceptions import GameNotFound, GameProviderUnavailable
 from app.modules.game_lists.api.dependencies import (
+    get_add_game_to_list_use_case,
     get_create_game_list_use_case,
     get_delete_game_list_use_case,
+    get_game_catalog,
+    get_game_list_item_repository,
     get_game_list_repository,
+    get_list_games_use_case,
+    get_remove_game_from_list_use_case,
     get_update_game_list_use_case,
     get_user_lists_use_case,
 )
+from app.modules.game_lists.application.add_game_to_list import AddGameToListUseCase
 from app.modules.game_lists.application.create_game_list import CreateGameListUseCase
 from app.modules.game_lists.application.delete_game_list import DeleteGameListUseCase
+from app.modules.game_lists.application.get_list_games import GetListGamesUseCase
 from app.modules.game_lists.application.get_user_lists import GetUserListsUseCase
+from app.modules.game_lists.application.remove_game_from_list import RemoveGameFromListUseCase
 from app.modules.game_lists.application.update_game_list import UpdateGameListUseCase
 from app.modules.game_lists.domain.entities import GameList, ListedGame
 from app.modules.users.api.dependencies import (
@@ -361,7 +369,12 @@ class FakeGameCatalog:
                 self._next_id = iid + 1
         return self._ext_to_int[external_id]
 
+    # Set to an exception class in tests to simulate provider/game errors.
+    fail_ensure_with: type[Exception] | None = None
+
     def ensure_game(self, external_id: str) -> int:
+        if self.fail_ensure_with is not None:
+            raise self.fail_ensure_with()
         return self.register(external_id)
 
     def resolve_game_id(self, external_id: str) -> int | None:
@@ -420,6 +433,16 @@ def fake_game_list_repo() -> FakeGameListRepository:
 
 
 @pytest.fixture
+def fake_game_list_item_repo() -> FakeGameListItemRepository:
+    return FakeGameListItemRepository()
+
+
+@pytest.fixture
+def fake_game_catalog() -> FakeGameCatalog:
+    return FakeGameCatalog()
+
+
+@pytest.fixture
 def api_client(
     user_repo: FakeUserRepo,
     token_repo: FakeTokenRepo,
@@ -429,6 +452,8 @@ def api_client(
     fake_game_repo: FakeGameRepository,
     fake_user_game_repo: FakeUserGameRepository,
     fake_game_list_repo: FakeGameListRepository,
+    fake_game_list_item_repo: FakeGameListItemRepository,
+    fake_game_catalog: FakeGameCatalog,
 ):
     def _signup_use_case() -> SignUpUserUseCase:
         return SignUpUserUseCase(
@@ -522,17 +547,47 @@ def api_client(
     def _get_game_list_repository() -> FakeGameListRepository:
         return fake_game_list_repo
 
+    def _get_game_list_item_repository() -> FakeGameListItemRepository:
+        return fake_game_list_item_repo
+
+    def _get_game_catalog() -> FakeGameCatalog:
+        return fake_game_catalog
+
     def _get_create_game_list_use_case() -> CreateGameListUseCase:
         return CreateGameListUseCase(repository=fake_game_list_repo)
 
     def _get_user_lists_use_case() -> GetUserListsUseCase:
-        return GetUserListsUseCase(repository=fake_game_list_repo)
+        return GetUserListsUseCase(
+            repository=fake_game_list_repo,
+            item_repository=fake_game_list_item_repo,
+            game_catalog=fake_game_catalog,
+        )
 
     def _get_update_game_list_use_case() -> UpdateGameListUseCase:
         return UpdateGameListUseCase(repository=fake_game_list_repo)
 
     def _get_delete_game_list_use_case() -> DeleteGameListUseCase:
         return DeleteGameListUseCase(repository=fake_game_list_repo)
+
+    def _get_add_game_to_list_use_case() -> AddGameToListUseCase:
+        return AddGameToListUseCase(
+            list_repository=fake_game_list_repo,
+            item_repository=fake_game_list_item_repo,
+            game_catalog=fake_game_catalog,
+        )
+
+    def _get_remove_game_from_list_use_case() -> RemoveGameFromListUseCase:
+        return RemoveGameFromListUseCase(
+            list_repository=fake_game_list_repo,
+            item_repository=fake_game_list_item_repo,
+            game_catalog=fake_game_catalog,
+        )
+
+    def _get_list_games_use_case() -> GetListGamesUseCase:
+        return GetListGamesUseCase(
+            list_repository=fake_game_list_repo,
+            item_repository=fake_game_list_item_repo,
+        )
 
     app.dependency_overrides[get_signup_use_case] = _signup_use_case
     app.dependency_overrides[get_verify_email_use_case] = _verify_use_case
@@ -555,10 +610,15 @@ def api_client(
     app.dependency_overrides[get_set_game_status_use_case] = _get_set_game_status_use_case
     app.dependency_overrides[get_collection_stats_use_case] = _get_collection_stats_use_case
     app.dependency_overrides[get_game_list_repository] = _get_game_list_repository
+    app.dependency_overrides[get_game_list_item_repository] = _get_game_list_item_repository
+    app.dependency_overrides[get_game_catalog] = _get_game_catalog
     app.dependency_overrides[get_create_game_list_use_case] = _get_create_game_list_use_case
     app.dependency_overrides[get_user_lists_use_case] = _get_user_lists_use_case
     app.dependency_overrides[get_update_game_list_use_case] = _get_update_game_list_use_case
     app.dependency_overrides[get_delete_game_list_use_case] = _get_delete_game_list_use_case
+    app.dependency_overrides[get_add_game_to_list_use_case] = _get_add_game_to_list_use_case
+    app.dependency_overrides[get_remove_game_from_list_use_case] = _get_remove_game_from_list_use_case
+    app.dependency_overrides[get_list_games_use_case] = _get_list_games_use_case
 
     with TestClient(app) as client:
         yield client
