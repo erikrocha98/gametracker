@@ -47,8 +47,7 @@ const Card = styled.div`
 
   &:hover .game-card-footer,
   &:focus-within .game-card-footer {
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateY(0);
   }
 `
 

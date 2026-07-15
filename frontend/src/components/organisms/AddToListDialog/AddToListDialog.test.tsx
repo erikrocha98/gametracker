@@ -25,7 +25,8 @@ const baseList = {
 const lists: GameList[] = [
   { ...baseList, id: 1, name: 'Favoritos', gameCount: 3, containsGame: false },
   { ...baseList, id: 2, name: 'Já tenho', gameCount: 5, containsGame: true },
-  { ...baseList, id: 3, name: 'Lista cheia', gameCount: 50, containsGame: false },
+  // o nome não pode colidir com o label "Lista cheia" exibido pelo componente
+  { ...baseList, id: 3, name: 'Backlog gigante', gameCount: 50, containsGame: false },
 ]
 
 const GAME_ID = 'rawg-3498'
@@ -67,7 +68,7 @@ test('disables a full list and shows the full label', async () => {
   vi.mocked(getLists).mockResolvedValue({ items: lists })
   renderDialog()
   expect(await screen.findByText(texts.addToList.listFullLabel)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /Lista cheia/ })).toHaveAttribute('aria-disabled', 'true')
+  expect(screen.getByRole('button', { name: /Backlog gigante/ })).toHaveAttribute('aria-disabled', 'true')
 })
 
 test('adds the game to a list and shows success feedback', async () => {

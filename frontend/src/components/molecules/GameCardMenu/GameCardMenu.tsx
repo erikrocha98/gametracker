@@ -41,13 +41,12 @@ const Footer = styled.div`
   justify-content: flex-end;
   padding: 6px 8px;
   background-color: ${colors.overlayCardAction};
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
+  /* escondida deslizando para fora da capa (o CoverWrapper tem overflow: hidden) */
+  transform: translateY(100%);
+  transition: transform 0.15s;
 
   &[data-open='true'] {
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateY(0);
   }
 `
 
