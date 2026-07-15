@@ -1,9 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
-# Limite de jogos por lista. Débito técnico: só será aplicado quando a
-# associação lista↔jogo (tabela game_list_items) existir. Mantido aqui como
-# regra de domínio pronta para uso futuro.
 MAX_GAMES_PER_LIST = 50
 
 
@@ -16,3 +13,21 @@ class GameList:
     is_public: bool
     created_at: datetime
     updated_at: datetime
+
+
+@dataclass
+class ListedGame:
+    game_id: str  # external id, e.g. "rawg-3328"
+    name: str
+    cover_url: str | None
+    platforms: list[str]
+    release_year: int | None
+    added_at: datetime
+
+
+@dataclass
+class GameListPreview:
+    game_list: GameList
+    game_count: int
+    cover_urls: list[str] = field(default_factory=list)
+    contains_game: bool | None = None

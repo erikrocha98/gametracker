@@ -46,7 +46,7 @@ from app.modules.game_lists.application.create_game_list import CreateGameListUs
 from app.modules.game_lists.application.delete_game_list import DeleteGameListUseCase
 from app.modules.game_lists.application.get_user_lists import GetUserListsUseCase
 from app.modules.game_lists.application.update_game_list import UpdateGameListUseCase
-from app.modules.game_lists.domain.entities import GameList
+from app.modules.game_lists.domain.entities import GameList, ListedGame
 from app.modules.users.api.dependencies import (
     get_current_user,
     get_login_use_case,
@@ -294,6 +294,78 @@ class FakeGameListRepository:
         before = len(self._rows)
         self._rows = [r for r in self._rows if not (r.user_id == user_id and r.id == list_id)]
         return len(self._rows) < before
+
+
+class FakeGameListItemRepository:
+    def __init__(self) -> None:
+        # (list_id, internal_game_id) -> ListedGame
+        self._items: dict[tuple[int, int], ListedGame] = {}
+
+    def add(self, *, list_id: int, game_id: int) -> ListedGame:
+        item = ListedGame(
+            game_id=f"fake-{game_id}",
+            name=f"Game {game_id}",
+            cover_url=None,
+            platforms=[],
+            release_year=None,
+            added_at=datetime.now(timezone.utc),
+        )
+        self._items[(list_id, game_id)] = item
+        return item
+
+    def remove(self, *, list_id: int, game_id: int) -> bool:
+        key = (list_id, game_id)
+        if key not in self._items:
+            return False
+        del self._items[key]
+        return True
+
+    def exists(self, *, list_id: int, game_id: int) -> bool:
+        return (list_id, game_id) in self._items
+
+    def count(self, list_id: int) -> int:
+        return sum(1 for (lid, _) in self._items if lid == list_id)
+
+    def list_games(self, list_id: int) -> list[ListedGame]:
+        items = [item for (lid, _), item in self._items.items() if lid == list_id]
+        return sorted(items, key=lambda g: g.added_at, reverse=True)
+
+    def counts_by_list(self, list_ids: list[int]) -> dict[int, int]:
+        return {lid: sum(1 for (l, _) in self._items if l == lid) for lid in list_ids}
+
+    def recent_covers(self, list_ids: list[int], *, limit: int = 5) -> dict[int, list[str]]:
+        result: dict[int, list[str]] = {}
+        for lid in list_ids:
+            items = sorted(
+                [item for (l, _), item in self._items.items() if l == lid],
+                key=lambda g: g.added_at,
+                reverse=True,
+            )
+            result[lid] = [g.cover_url for g in items[:limit] if g.cover_url is not None]
+        return result
+
+    def list_ids_containing(self, *, list_ids: list[int], game_id: int) -> set[int]:
+        return {lid for (lid, gid) in self._items if lid in list_ids and gid == game_id}
+
+
+class FakeGameCatalog:
+    def __init__(self) -> None:
+        self._ext_to_int: dict[str, int] = {}
+        self._next_id = 1
+
+    def register(self, external_id: str, internal_id: int | None = None) -> int:
+        if external_id not in self._ext_to_int:
+            iid = internal_id if internal_id is not None else self._next_id
+            self._ext_to_int[external_id] = iid
+            if iid >= self._next_id:
+                self._next_id = iid + 1
+        return self._ext_to_int[external_id]
+
+    def ensure_game(self, external_id: str) -> int:
+        return self.register(external_id)
+
+    def resolve_game_id(self, external_id: str) -> int | None:
+        return self._ext_to_int.get(external_id)
 
 
 class FakeEmailSender:
