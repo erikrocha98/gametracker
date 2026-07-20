@@ -2,9 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { SignUpPage } from '../components/pages/SignUpPage'
 import { LoginPage } from '../components/pages/LoginPage'
 import { CatalogPage } from '../components/pages/CatalogPage'
-import { ComingSoonPage } from '../components/pages/ComingSoonPage'
 import { GameDetailsPage } from '../components/pages/GameDetailsPage'
 import { MyGamesPage } from '../components/pages/MyGamesPage'
+import { ReviewsPage } from '../components/pages/ReviewsPage'
 import { MyListsPage } from '../components/pages/MyListsPage'
 import { MyListDetailPage } from '../components/pages/MyListDetailPage'
 import { ProfilePage } from '../components/pages/ProfilePage'
@@ -61,7 +61,7 @@ export function AppRoutes() {
         element={
           <ProtectedRoute>
             <MainTemplate>
-              <ComingSoonPage />
+              <ReviewsPage />
             </MainTemplate>
           </ProtectedRoute>
         }
