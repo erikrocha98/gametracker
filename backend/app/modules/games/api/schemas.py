@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
@@ -62,6 +62,10 @@ class RateGameRequest(BaseModel):
     rating: float = Field(..., ge=0.5, le=5.0, multiple_of=0.5)
 
 
+class WriteReviewRequest(BaseModel):
+    review: str
+
+
 class SetGameStatusRequest(BaseModel):
     status: UserGameStatus
 
@@ -86,5 +90,24 @@ class GameDetailResponse(BaseModel):
     rawg_rating: float | None = Field(None, alias="rawgRating")
     screenshots: list[str]
     user_rating: float | None = Field(None, alias="userRating")
+    user_review: str | None = Field(None, alias="userReview")
+    user_review_created_at: datetime | None = Field(None, alias="userReviewCreatedAt")
 
     model_config = {"populate_by_name": True, "from_attributes": True}
+
+
+class ReviewResponse(BaseModel):
+    game_id: str = Field(..., alias="gameId")
+    name: str
+    cover_url: str | None = Field(None, alias="coverUrl")
+    platforms: list[str]
+    release_year: int | None = Field(None, alias="releaseYear")
+    rating: float | None = Field(None)
+    review: str
+    review_created_at: datetime | None = Field(None, alias="reviewCreatedAt")
+
+    model_config = {"populate_by_name": True, "from_attributes": True}
+
+
+class UserReviewsResponse(BaseModel):
+    items: list[ReviewResponse]

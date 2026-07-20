@@ -8,11 +8,15 @@ from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.get_collection_stats import GetCollectionStatsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
+from app.modules.games.application.get_user_game_review import GetUserGameReviewUseCase
+from app.modules.games.application.get_user_reviews import GetUserReviewsUseCase
 from app.modules.games.application.rate_game import RateGameUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.remove_rating import RemoveRatingUseCase
+from app.modules.games.application.remove_review import RemoveReviewUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.application.set_game_status import SetGameStatusUseCase
+from app.modules.games.application.write_review import WriteReviewUseCase
 from app.modules.games.domain.repositories import GameDetailProvider, GameRepository, GameSearchProvider, UserGameRepository
 from app.modules.games.infrastructure.rawg_provider import RawgGameDetailProvider, RawgGameSearchProvider
 from app.modules.games.infrastructure.sqlalchemy_repository import SqlAlchemyGameRepository
@@ -92,6 +96,31 @@ def get_user_game_rating_use_case(
     repo: UserGameRepository = Depends(get_user_game_repository),
 ) -> GetUserGameRatingUseCase:
     return GetUserGameRatingUseCase(repository=repo)
+
+
+def get_write_review_use_case(
+    details_uc: GetGameDetailsUseCase = Depends(get_game_details_use_case),
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> WriteReviewUseCase:
+    return WriteReviewUseCase(details_use_case=details_uc, repository=repo)
+
+
+def get_remove_review_use_case(
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> RemoveReviewUseCase:
+    return RemoveReviewUseCase(repository=repo)
+
+
+def get_user_game_review_use_case(
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> GetUserGameReviewUseCase:
+    return GetUserGameReviewUseCase(repository=repo)
+
+
+def get_user_reviews_use_case(
+    repo: UserGameRepository = Depends(get_user_game_repository),
+) -> GetUserReviewsUseCase:
+    return GetUserReviewsUseCase(repository=repo)
 
 
 def get_set_game_status_use_case(

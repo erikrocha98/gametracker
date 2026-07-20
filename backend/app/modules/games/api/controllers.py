@@ -6,11 +6,15 @@ from app.modules.games.api.dependencies import (
     get_rate_game_use_case,
     get_remove_game_from_collection_use_case,
     get_remove_rating_use_case,
+    get_remove_review_use_case,
     get_collection_stats_use_case,
     get_search_games_use_case,
     get_set_game_status_use_case,
     get_user_collection_use_case,
     get_user_game_rating_use_case,
+    get_user_game_review_use_case,
+    get_user_reviews_use_case,
+    get_write_review_use_case,
 )
 from app.modules.games.api.schemas import (
     AddToCollectionRequest,
@@ -22,19 +26,26 @@ from app.modules.games.api.schemas import (
     GameSearchResultResponse,
     GameStatusResponse,
     RateGameRequest,
+    ReviewResponse,
     SetGameStatusRequest,
     StatusCountsResponse,
+    UserReviewsResponse,
+    WriteReviewRequest,
 )
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.get_collection_stats import GetCollectionStatsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
+from app.modules.games.application.get_user_game_review import GetUserGameReviewUseCase
+from app.modules.games.application.get_user_reviews import GetUserReviewsUseCase
 from app.modules.games.application.rate_game import RateGameUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.remove_rating import RemoveRatingUseCase
+from app.modules.games.application.remove_review import RemoveReviewUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.application.set_game_status import SetGameStatusUseCase
+from app.modules.games.application.write_review import WriteReviewUseCase
 from app.modules.games.domain.entities import UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import (
     GameAlreadyInCollection,
@@ -43,6 +54,7 @@ from app.modules.games.domain.exceptions import (
     GameProviderNotConfigured,
     GameProviderUnavailable,
     InvalidRating,
+    ReviewTooLong,
 )
 from app.modules.users.api.dependencies import get_current_user
 from app.modules.users.domain.entities import User
@@ -65,6 +77,19 @@ def _to_collection_response(user_game: UserGame) -> CollectionGameResponse:
         release_year=user_game.release_year,
         rating=user_game.rating,
         status=user_game.status,
+    )
+
+
+def _to_review_response(user_game: UserGame) -> ReviewResponse:
+    return ReviewResponse(
+        game_id=user_game.external_id,
+        name=user_game.name,
+        cover_url=user_game.cover_url,
+        platforms=user_game.platforms,
+        release_year=user_game.release_year,
+        rating=user_game.rating,
+        review=user_game.review,
+        review_created_at=user_game.review_created_at,
     )
 
 
@@ -122,6 +147,16 @@ def get_collection_stats(
         ),
         recentGames=[_to_collection_response(g) for g in stats.recent_games],
     )
+
+
+# Registered before the dynamic "/{game_id}" route so "reviews" is not captured as an id.
+@router.get("/reviews", response_model=UserReviewsResponse, response_model_by_alias=True)
+def get_user_reviews(
+    current_user: User = Depends(get_current_user),
+    use_case: GetUserReviewsUseCase = Depends(get_user_reviews_use_case),
+):
+    items = use_case.execute(current_user.id)
+    return UserReviewsResponse(items=[_to_review_response(i) for i in items])
 
 
 @router.post(
@@ -216,12 +251,49 @@ def remove_rating(
         raise HTTPException(status_code=404, detail=_ERR_GAME_NOT_IN_COLLECTION)
 
 
+@router.put(
+    "/{game_id}/review",
+    response_model=ReviewResponse,
+    response_model_by_alias=True,
+)
+def write_review(
+    game_id: str,
+    payload: WriteReviewRequest,
+    current_user: User = Depends(get_current_user),
+    use_case: WriteReviewUseCase = Depends(get_write_review_use_case),
+):
+    try:
+        item = use_case.execute(user_id=current_user.id, external_id=game_id, review=payload.review)
+    except ReviewTooLong:
+        raise HTTPException(status_code=400, detail="Invalid review length")
+    except GameNotFound:
+        raise HTTPException(status_code=404, detail=_ERR_GAME_NOT_FOUND)
+    except GameProviderUnavailable:
+        raise HTTPException(status_code=502, detail=_ERR_PROVIDER_UNAVAILABLE)
+    except GameProviderNotConfigured:
+        raise HTTPException(status_code=503, detail=_ERR_PROVIDER_NOT_CONFIGURED)
+    return _to_review_response(item)
+
+
+@router.delete("/{game_id}/review", status_code=204)
+def remove_review(
+    game_id: str,
+    current_user: User = Depends(get_current_user),
+    use_case: RemoveReviewUseCase = Depends(get_remove_review_use_case),
+):
+    try:
+        use_case.execute(user_id=current_user.id, external_id=game_id)
+    except GameNotInCollection:
+        raise HTTPException(status_code=404, detail=_ERR_GAME_NOT_IN_COLLECTION)
+
+
 @router.get("/{game_id}", response_model=GameDetailResponse, response_model_by_alias=True)
 def get_game_details(
     game_id: str,
     current_user: User = Depends(get_current_user),
     use_case: GetGameDetailsUseCase = Depends(get_game_details_use_case),
     rating_use_case: GetUserGameRatingUseCase = Depends(get_user_game_rating_use_case),
+    review_use_case: GetUserGameReviewUseCase = Depends(get_user_game_review_use_case),
 ):
     try:
         detail = use_case.execute(game_id)
@@ -233,6 +305,7 @@ def get_game_details(
         raise HTTPException(status_code=503, detail=_ERR_PROVIDER_NOT_CONFIGURED)
 
     user_rating = rating_use_case.execute(user_id=current_user.id, external_id=game_id)
+    user_review = review_use_case.execute(user_id=current_user.id, external_id=game_id)
 
     return GameDetailResponse(
         id=detail.id,
@@ -247,4 +320,6 @@ def get_game_details(
         rawgRating=detail.rawg_rating,
         screenshots=detail.screenshots,
         userRating=user_rating,
+        userReview=user_review[0] if user_review else None,
+        userReviewCreatedAt=user_review[1] if user_review else None,
     )
