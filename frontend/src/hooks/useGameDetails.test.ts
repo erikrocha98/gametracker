@@ -20,6 +20,8 @@ const GAME: GameDetailResponse = {
   rawgRating: 4.5,
   screenshots: ['https://example.com/ss1.jpg'],
   userRating: null,
+  userReview: null,
+  userReviewCreatedAt: null,
 }
 
 afterEach(() => vi.clearAllMocks())

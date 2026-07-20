@@ -21,6 +21,8 @@ const GAME: GameDetailResponse = {
   rawgRating: 4.5,
   screenshots: [],
   userRating: null,
+  userReview: null,
+  userReviewCreatedAt: null,
 }
 
 function renderHeader(game = GAME, onAddToList = vi.fn()) {

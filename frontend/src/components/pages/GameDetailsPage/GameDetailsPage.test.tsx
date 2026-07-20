@@ -24,6 +24,8 @@ const GAME: GameDetailResponse = {
   rawgRating: 4.5,
   screenshots: [],
   userRating: null,
+  userReview: null,
+  userReviewCreatedAt: null,
 }
 
 function mockHook(status: DetailsStatus, data: GameDetailResponse | null = null, refetch = vi.fn()) {

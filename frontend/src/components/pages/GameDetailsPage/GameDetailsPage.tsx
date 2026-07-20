@@ -6,13 +6,14 @@ import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
 import { useGameDetails } from '../../../hooks/useGameDetails'
-import { addToWantToPlay, rateGame, removeRating } from '../../../services/games'
+import { addToWantToPlay, rateGame, removeRating, removeReview, writeReview } from '../../../services/games'
 import { EmptyState } from '../../molecules/EmptyState'
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { AddToListDialog } from '../../organisms/AddToListDialog'
 import { GameDetailsHeader } from '../../organisms/GameDetailsHeader'
 import { GameDescription } from '../../organisms/GameDescription'
 import { GameScreenshots } from '../../organisms/GameScreenshots'
+import { ReviewSection } from '../../organisms/ReviewSection'
 
 const PageWrapper = styled.div`
   padding: 32px 0;
@@ -51,6 +52,14 @@ export function GameDetailsPage() {
   const [userRatingOverride, setUserRatingOverride] = useState<number | null | undefined>(undefined)
   const userRating = userRatingOverride !== undefined ? userRatingOverride : (data?.userRating ?? null)
   const [ratingLoading, setRatingLoading] = useState(false)
+  // undefined = not yet overridden by the user; otherwise holds the user-set review
+  const [userReviewOverride, setUserReviewOverride] = useState<
+    { review: string | null; createdAt: string | null } | undefined
+  >(undefined)
+  const userReview = userReviewOverride !== undefined ? userReviewOverride.review : (data?.userReview ?? null)
+  const userReviewCreatedAt =
+    userReviewOverride !== undefined ? userReviewOverride.createdAt : (data?.userReviewCreatedAt ?? null)
+  const [reviewLoading, setReviewLoading] = useState(false)
   const [addToListOpen, setAddToListOpen] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
     type: 'success',
@@ -66,6 +75,7 @@ export function GameDetailsPage() {
     setTrackedGameId(gameId)
     setAdded(false)
     setUserRatingOverride(undefined)
+    setUserReviewOverride(undefined)
     setAddToListOpen(false)
   }
 
@@ -105,6 +115,35 @@ export function GameDetailsPage() {
       setFeedback({ type: 'error', message, open: true })
     } finally {
       setRatingLoading(false)
+    }
+  }, [gameId])
+
+  const handleSaveReview = useCallback(async (text: string) => {
+    if (!gameId) return
+    setReviewLoading(true)
+    try {
+      const result = await writeReview(gameId, text)
+      setUserReviewOverride({ review: result.review, createdAt: result.reviewCreatedAt })
+      setAdded(true)
+      setFeedback({ type: 'success', message: texts.gameDetails.reviewSaveSuccess, open: true })
+    } catch {
+      setFeedback({ type: 'error', message: texts.gameDetails.reviewSaveError, open: true })
+    } finally {
+      setReviewLoading(false)
+    }
+  }, [gameId])
+
+  const handleDeleteReview = useCallback(async () => {
+    if (!gameId) return
+    setReviewLoading(true)
+    try {
+      await removeReview(gameId)
+      setUserReviewOverride({ review: null, createdAt: null })
+      setFeedback({ type: 'success', message: texts.gameDetails.reviewDeleteSuccess, open: true })
+    } catch {
+      setFeedback({ type: 'error', message: texts.gameDetails.reviewDeleteError, open: true })
+    } finally {
+      setReviewLoading(false)
     }
   }, [gameId])
 
@@ -155,6 +194,14 @@ export function GameDetailsPage() {
           onRate={handleRate}
           ratingLoading={ratingLoading}
           onAddToList={handleOpenAddToList}
+        />
+        <Divider />
+        <ReviewSection
+          review={userReview}
+          reviewCreatedAt={userReviewCreatedAt}
+          onSave={handleSaveReview}
+          onDelete={handleDeleteReview}
+          loading={reviewLoading}
         />
         <Divider />
         <GameDescription description={data.description} />
