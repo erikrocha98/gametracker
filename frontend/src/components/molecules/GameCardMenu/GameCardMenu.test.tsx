@@ -62,7 +62,7 @@ test('clicking delete calls onDelete', async () => {
   expect(onDelete).toHaveBeenCalledOnce()
 })
 
-test('the review option is always disabled', async () => {
+test('the review option is disabled when no callback is provided', async () => {
   renderMenu()
   await openMenu()
   expect(await screen.findByRole('menuitem', { name: 'Adicionar review' })).toHaveAttribute(

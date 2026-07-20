@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Typography } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
@@ -19,6 +20,7 @@ const PageTitle = styled(Typography)`
 `
 
 export function MyGamesPage() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<CollectionGame[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -75,6 +77,10 @@ export function MyGamesPage() {
     setAddToListGameId(gameId)
   }, [])
 
+  const handleReview = useCallback((gameId: string) => {
+    navigate(`/games/${gameId}`)
+  }, [navigate])
+
   const handleCloseAddToList = useCallback(() => {
     setAddToListGameId(null)
   }, [])
@@ -111,6 +117,7 @@ export function MyGamesPage() {
           onRate={handleRate}
           onStatusChange={handleStatusChange}
           onAddToList={handleAddToList}
+          onReview={handleReview}
         />
 
         {!loading && !error && items.length > 0 && (

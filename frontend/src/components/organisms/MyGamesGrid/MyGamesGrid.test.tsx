@@ -18,6 +18,7 @@ function renderGrid(props = {}) {
   const onRate = vi.fn()
   const onStatusChange = vi.fn()
   const onAddToList = vi.fn()
+  const onReview = vi.fn()
   render(
     <MemoryRouter>
       <ThemeProvider theme={theme}>
@@ -30,13 +31,14 @@ function renderGrid(props = {}) {
             onRate={onRate}
             onStatusChange={onStatusChange}
             onAddToList={onAddToList}
+            onReview={onReview}
             {...props}
           />
         </StyledThemeProvider>
       </ThemeProvider>
     </MemoryRouter>,
   )
-  return { onRemove, onRate, onStatusChange, onAddToList }
+  return { onRemove, onRate, onStatusChange, onAddToList, onReview }
 }
 
 test('renders game cards', () => {

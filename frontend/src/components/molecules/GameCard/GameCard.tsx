@@ -13,6 +13,7 @@ interface GameCardProps {
   onRate?: (value: number | null) => void
   onStatusChange?: (status: GameStatus) => void
   onAddToList?: () => void
+  onReview?: () => void
 }
 
 const Wrapper = styled.div`
@@ -89,7 +90,7 @@ const Meta = styled.p`
   text-overflow: ellipsis;
 `
 
-export function GameCard({ game, onRemove, onRate, onStatusChange, onAddToList }: GameCardProps) {
+export function GameCard({ game, onRemove, onRate, onStatusChange, onAddToList, onReview }: GameCardProps) {
   return (
     <Wrapper>
       <CardLink to={`/games/${game.gameId}`}>
@@ -108,6 +109,7 @@ export function GameCard({ game, onRemove, onRate, onStatusChange, onAddToList }
                 onRate={onRate}
                 onDelete={onRemove}
                 onAddToList={onAddToList}
+                onReview={onReview}
               />
             )}
           </CoverWrapper>
