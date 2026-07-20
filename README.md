@@ -141,14 +141,6 @@ The frontend follows **Atomic Design**, using Material UI as the component libra
 
 ---
 
-## Roadmap
+## Upcoming features
 
-- [ ] **Game catalog** — search and browse games via IGDB/RAWG integration
-- [ ] **Game status tracking** — mark games as Playing, Played, Want to Play, or Abandoned
-- [ ] **Ratings** — score games on a 0.5–5.0 scale
-- [ ] **Reviews** — write and read reviews per game (with spoiler toggle)
-- [ ] **Custom lists** — create and share curated game lists
-- [ ] **User profile** — display stats, activity, and lists publicly
-- [ ] **Activity feed** — timeline of your interactions and those of people you follow
-- [ ] **Social features** *(v2)* — follow other users, like reviews, comment threads
-- [ ] **Analytics** *(v2)* — trending games, top-rated titles, platform insights
+- [ ] **Embedding-based recommendation system** — suggest games tailored to each user from their library, ratings, and reviews, using vector embeddings to capture similarity between titles and taste. Embeddings will be persisted in PostgreSQL with the [`pgvector`](https://github.com/pgvector/pgvector) extension enabled for efficient similarity search.
