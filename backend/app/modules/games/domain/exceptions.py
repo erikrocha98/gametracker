@@ -20,3 +20,7 @@ class GameNotInCollection(Exception):
 
 class InvalidRating(Exception):
     pass
+
+
+class ReviewTooLong(Exception):
+    pass

@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
 
 from app.modules.games.domain.entities import UserGame, UserGameStatus
@@ -74,6 +76,34 @@ class SqlAlchemyUserGameRepository:
         self._session.flush()
         return True
 
+    def set_review(self, *, user_id: int, game_id: int, review: str) -> UserGame:
+        row = (
+            self._session.query(UserGameModel)
+            .filter_by(user_id=user_id, game_id=game_id)
+            .first()
+        )
+        now = datetime.now(timezone.utc)
+        row.review = review
+        if row.review_created_at is None:
+            row.review_created_at = now
+        row.review_updated_at = now
+        self._session.flush()
+        return self._hydrate(row)
+
+    def clear_review(self, *, user_id: int, game_id: int) -> bool:
+        row = (
+            self._session.query(UserGameModel)
+            .filter_by(user_id=user_id, game_id=game_id)
+            .first()
+        )
+        if row is None:
+            return False
+        row.review = None
+        row.review_created_at = None
+        row.review_updated_at = None
+        self._session.flush()
+        return True
+
     def set_status(self, *, user_id: int, game_id: int, status: UserGameStatus) -> UserGame:
         row = (
             self._session.query(UserGameModel)
@@ -107,4 +137,7 @@ class SqlAlchemyUserGameRepository:
             added_at=row.added_at,
             status=UserGameStatus(row.status.value),
             rating=float(row.rating) if row.rating is not None else None,
+            review=row.review,
+            review_created_at=row.review_created_at,
+            review_updated_at=row.review_updated_at,
         )

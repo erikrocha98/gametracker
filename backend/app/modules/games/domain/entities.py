@@ -45,3 +45,6 @@ class UserGame:
     added_at: datetime
     status: UserGameStatus = UserGameStatus.want_to_play
     rating: float | None = None
+    review: str | None = None
+    review_created_at: datetime | None = None
+    review_updated_at: datetime | None = None
