@@ -13,6 +13,7 @@ function renderMenu(
   onStatusChange = vi.fn(),
   status: GameStatus = 'want_to_play',
   onAddToList: (() => void) | undefined = undefined,
+  onReview: (() => void) | undefined = undefined,
 ) {
   render(
     <MuiThemeProvider theme={theme}>
@@ -24,11 +25,12 @@ function renderMenu(
           onRate={onRate}
           onDelete={onDelete}
           onAddToList={onAddToList}
+          onReview={onReview}
         />
       </StyledThemeProvider>
     </MuiThemeProvider>,
   )
-  return { onRate, onDelete, onStatusChange, onAddToList }
+  return { onRate, onDelete, onStatusChange, onAddToList, onReview }
 }
 
 async function openMenu() {
@@ -69,6 +71,16 @@ test('the review option is disabled when no callback is provided', async () => {
     'aria-disabled',
     'true',
   )
+})
+
+test('the review option is enabled and calls onReview when provided', async () => {
+  const onReview = vi.fn()
+  renderMenu(null, vi.fn(), vi.fn(), vi.fn(), 'want_to_play', undefined, onReview)
+  await openMenu()
+  const item = await screen.findByRole('menuitem', { name: 'Adicionar review' })
+  expect(item).not.toHaveAttribute('aria-disabled', 'true')
+  await userEvent.click(item)
+  expect(onReview).toHaveBeenCalledOnce()
 })
 
 test('the add-to-list option is disabled when no callback is provided', async () => {
