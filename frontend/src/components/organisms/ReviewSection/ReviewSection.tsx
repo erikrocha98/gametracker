@@ -14,6 +14,7 @@ interface ReviewSectionProps {
   onSave: (text: string) => void
   onDelete: () => void
   loading?: boolean
+  showTitle?: boolean
 }
 
 const Section = styled.section`
@@ -42,7 +43,7 @@ const ReviewText = styled(Typography)`
   white-space: pre-wrap;
 `
 
-export function ReviewSection({ review, reviewCreatedAt, onSave, onDelete, loading = false }: ReviewSectionProps) {
+export function ReviewSection({ review, reviewCreatedAt, onSave, onDelete, loading = false, showTitle = true }: ReviewSectionProps) {
   const [draft, setDraft] = useState(review ?? '')
   const [isEditing, setIsEditing] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -84,9 +85,11 @@ export function ReviewSection({ review, reviewCreatedAt, onSave, onDelete, loadi
 
   return (
     <Section>
-      <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 600 }}>
-        {texts.gameDetails.reviewSectionTitle}
-      </Typography>
+      {showTitle && (
+        <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 600 }}>
+          {texts.gameDetails.reviewSectionTitle}
+        </Typography>
+      )}
 
       {showEditor ? (
         <Editor>

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Typography } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
@@ -8,6 +7,7 @@ import { getCollection, rateGame, removeFromWantToPlay, removeRating, setGameSta
 import { FeedbackModal } from '../../molecules/FeedbackModal'
 import { PaginationControls } from '../../molecules/PaginationControls'
 import { AddToListDialog } from '../../organisms/AddToListDialog'
+import { ReviewDialog } from '../../organisms/ReviewDialog'
 import { MyGamesGrid } from '../../organisms/MyGamesGrid'
 import type { CollectionGame, GameStatus } from '../../../types/game'
 
@@ -20,13 +20,13 @@ const PageTitle = styled(Typography)`
 `
 
 export function MyGamesPage() {
-  const navigate = useNavigate()
   const [items, setItems] = useState<CollectionGame[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [addToListGameId, setAddToListGameId] = useState<string | null>(null)
+  const [reviewGameId, setReviewGameId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string; open: boolean }>({
     type: 'success',
     message: '',
@@ -47,6 +47,11 @@ export function MyGamesPage() {
     const start = (page - 1) * pageSize
     return items.slice(start, start + pageSize)
   }, [items, page, pageSize])
+
+  const reviewGameName = useMemo(
+    () => items.find((g) => g.gameId === reviewGameId)?.name,
+    [items, reviewGameId],
+  )
 
   const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size)
@@ -78,8 +83,12 @@ export function MyGamesPage() {
   }, [])
 
   const handleReview = useCallback((gameId: string) => {
-    navigate(`/games/${gameId}`)
-  }, [navigate])
+    setReviewGameId(gameId)
+  }, [])
+
+  const handleCloseReview = useCallback(() => {
+    setReviewGameId(null)
+  }, [])
 
   const handleCloseAddToList = useCallback(() => {
     setAddToListGameId(null)
@@ -135,6 +144,13 @@ export function MyGamesPage() {
         open={addToListGameId !== null}
         gameId={addToListGameId}
         onClose={handleCloseAddToList}
+      />
+
+      <ReviewDialog
+        open={reviewGameId !== null}
+        gameId={reviewGameId}
+        gameName={reviewGameName}
+        onClose={handleCloseReview}
       />
 
       <FeedbackModal

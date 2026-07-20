@@ -76,6 +76,8 @@ export const texts = {
     rateErrorMessage: 'Não foi possível registrar sua nota. Tente novamente.',
     ratingRemovedMessage: 'Nota removida.',
     removeRatingErrorMessage: 'Não foi possível remover sua nota. Tente novamente.',
+    reviewDialogTitle: 'Sua review',
+    reviewDialogLoadError: 'Não foi possível carregar sua review. Tente novamente.',
   },
   myLists: {
     pageTitle: 'Minhas listas',
