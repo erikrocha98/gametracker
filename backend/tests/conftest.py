@@ -18,21 +18,29 @@ from app.modules.games.api.dependencies import (
     get_remove_game_from_collection_use_case,
     get_remove_rating_use_case,
     get_search_games_use_case,
+    get_remove_review_use_case,
     get_set_game_status_use_case,
     get_user_collection_use_case,
     get_user_game_rating_use_case,
     get_user_game_repository,
+    get_user_game_review_use_case,
+    get_user_reviews_use_case,
+    get_write_review_use_case,
 )
 from app.modules.games.application.add_game_to_collection import AddGameToCollectionUseCase
 from app.modules.games.application.get_game_details import GetGameDetailsUseCase
 from app.modules.games.application.get_collection_stats import GetCollectionStatsUseCase
 from app.modules.games.application.get_user_collection import GetUserCollectionUseCase
 from app.modules.games.application.get_user_game_rating import GetUserGameRatingUseCase
+from app.modules.games.application.get_user_game_review import GetUserGameReviewUseCase
+from app.modules.games.application.get_user_reviews import GetUserReviewsUseCase
 from app.modules.games.application.rate_game import RateGameUseCase
 from app.modules.games.application.remove_game_from_collection import RemoveGameFromCollectionUseCase
 from app.modules.games.application.remove_rating import RemoveRatingUseCase
+from app.modules.games.application.remove_review import RemoveReviewUseCase
 from app.modules.games.application.search_games import SearchGamesUseCase
 from app.modules.games.application.set_game_status import SetGameStatusUseCase
+from app.modules.games.application.write_review import WriteReviewUseCase
 from app.modules.games.domain.entities import GameDetail, GameSearchResult, UserGame, UserGameStatus
 from app.modules.games.domain.exceptions import GameNotFound, GameProviderUnavailable
 from app.modules.game_lists.api.dependencies import (
@@ -244,6 +252,24 @@ class FakeUserGameRepository:
         if row is None:
             return False
         row.rating = None
+        return True
+
+    def set_review(self, *, user_id: int, game_id: int, review: str) -> UserGame:
+        row = self.get(user_id=user_id, game_id=game_id)
+        now = datetime.now(timezone.utc)
+        row.review = review
+        if row.review_created_at is None:
+            row.review_created_at = now
+        row.review_updated_at = now
+        return row
+
+    def clear_review(self, *, user_id: int, game_id: int) -> bool:
+        row = self.get(user_id=user_id, game_id=game_id)
+        if row is None:
+            return False
+        row.review = None
+        row.review_created_at = None
+        row.review_updated_at = None
         return True
 
     def set_status(self, *, user_id: int, game_id: int, status: UserGameStatus) -> UserGame:
@@ -538,6 +564,23 @@ def api_client(
     def _get_user_game_rating_use_case() -> GetUserGameRatingUseCase:
         return GetUserGameRatingUseCase(repository=fake_user_game_repo)
 
+    def _get_write_review_use_case() -> WriteReviewUseCase:
+        return WriteReviewUseCase(
+            details_use_case=GetGameDetailsUseCase(
+                provider=fake_game_detail_provider, repository=fake_game_repo
+            ),
+            repository=fake_user_game_repo,
+        )
+
+    def _get_remove_review_use_case() -> RemoveReviewUseCase:
+        return RemoveReviewUseCase(repository=fake_user_game_repo)
+
+    def _get_user_game_review_use_case() -> GetUserGameReviewUseCase:
+        return GetUserGameReviewUseCase(repository=fake_user_game_repo)
+
+    def _get_user_reviews_use_case() -> GetUserReviewsUseCase:
+        return GetUserReviewsUseCase(repository=fake_user_game_repo)
+
     def _get_set_game_status_use_case() -> SetGameStatusUseCase:
         return SetGameStatusUseCase(repository=fake_user_game_repo)
 
@@ -607,6 +650,10 @@ def api_client(
     app.dependency_overrides[get_rate_game_use_case] = _get_rate_game_use_case
     app.dependency_overrides[get_remove_rating_use_case] = _get_remove_rating_use_case
     app.dependency_overrides[get_user_game_rating_use_case] = _get_user_game_rating_use_case
+    app.dependency_overrides[get_write_review_use_case] = _get_write_review_use_case
+    app.dependency_overrides[get_remove_review_use_case] = _get_remove_review_use_case
+    app.dependency_overrides[get_user_game_review_use_case] = _get_user_game_review_use_case
+    app.dependency_overrides[get_user_reviews_use_case] = _get_user_reviews_use_case
     app.dependency_overrides[get_set_game_status_use_case] = _get_set_game_status_use_case
     app.dependency_overrides[get_collection_stats_use_case] = _get_collection_stats_use_case
     app.dependency_overrides[get_game_list_repository] = _get_game_list_repository
