@@ -55,6 +55,23 @@ export interface GameDetailResponse {
   rawgRating: number | null
   screenshots: string[]
   userRating: number | null
+  userReview: string | null
+  userReviewCreatedAt: string | null
 }
 
 export type DetailsStatus = 'idle' | 'loading' | 'success' | 'not-found' | 'error'
+
+export interface UserReview {
+  gameId: string
+  name: string
+  coverUrl: string | null
+  platforms: string[]
+  releaseYear: number | null
+  rating: number | null
+  review: string
+  reviewCreatedAt: string | null
+}
+
+export interface UserReviewsResponse {
+  items: UserReview[]
+}

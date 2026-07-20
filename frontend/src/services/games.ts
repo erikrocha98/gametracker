@@ -5,6 +5,8 @@ import type {
   GameDetailResponse,
   GameSearchResponse,
   GameStatus,
+  UserReview,
+  UserReviewsResponse,
 } from '../types/game'
 import { http } from './http'
 
@@ -50,4 +52,16 @@ export function getCollectionStats(): Promise<CollectionStats> {
 
 export function setGameStatus(gameId: string, status: GameStatus): Promise<GameStatusResponse> {
   return http.patch<GameStatusResponse>(`/games/${encodeURIComponent(gameId)}/status`, { status })
+}
+
+export function writeReview(gameId: string, review: string): Promise<UserReview> {
+  return http.put<UserReview>(`/games/${encodeURIComponent(gameId)}/review`, { review })
+}
+
+export function removeReview(gameId: string): Promise<void> {
+  return http.delete<void>(`/games/${encodeURIComponent(gameId)}/review`)
+}
+
+export function getUserReviews(): Promise<UserReviewsResponse> {
+  return http.get<UserReviewsResponse>('/games/reviews')
 }
