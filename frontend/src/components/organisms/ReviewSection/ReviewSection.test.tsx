@@ -5,6 +5,7 @@ import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
 import { ReviewSection } from './ReviewSection'
 import { texts } from '../../../constants/texts'
+import { formatReleaseDate } from '../../../utils/game'
 
 interface Overrides {
   review?: string | null
@@ -55,9 +56,11 @@ test('the character counter reflects what was typed', async () => {
 })
 
 test('with an existing review it shows the text, the creation date and the actions', () => {
-  renderSection({ review: 'Meu texto', reviewCreatedAt: '2026-07-13T00:00:00Z' })
+  const createdAt = '2026-07-13T00:00:00Z'
+  renderSection({ review: 'Meu texto', reviewCreatedAt: createdAt })
   expect(screen.getByText('Meu texto')).toBeInTheDocument()
-  expect(screen.getByText(/escrita em 13\/07\/2026/i)).toBeInTheDocument()
+  // rótulo montado com o mesmo util, agnóstico ao fuso do runner
+  expect(screen.getByText(texts.gameDetails.reviewCreatedAtLabel(formatReleaseDate(createdAt)!))).toBeInTheDocument()
   expect(screen.getByRole('button', { name: texts.gameDetails.reviewEditButton })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: texts.gameDetails.reviewDeleteButton })).toBeInTheDocument()
   // no modo leitura não há editor

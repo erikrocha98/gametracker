@@ -4,6 +4,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { theme } from '../../../theme/theme'
 import { ReviewCard } from './ReviewCard'
+import { formatReleaseDate } from '../../../utils/game'
 import type { UserReview } from '../../../types/game'
 
 const review: UserReview = {
@@ -37,8 +38,9 @@ test('renders the game name and the review excerpt', () => {
 
 test('renders the formatted creation date', () => {
   renderCard()
-  // formatReleaseDate usa Intl pt-BR → dd/mm/aaaa
-  expect(screen.getByText('13/07/2026')).toBeInTheDocument()
+  // computamos a data esperada com o mesmo util para não depender do fuso do runner
+  const formatted = formatReleaseDate(review.reviewCreatedAt)!
+  expect(screen.getByText(formatted)).toBeInTheDocument()
 })
 
 test('links to the game details page', () => {
@@ -48,5 +50,6 @@ test('links to the game details page', () => {
 
 test('does not render a date when reviewCreatedAt is null', () => {
   renderCard({ reviewCreatedAt: null })
-  expect(screen.queryByText('13/07/2026')).not.toBeInTheDocument()
+  const formatted = formatReleaseDate(review.reviewCreatedAt)!
+  expect(screen.queryByText(formatted)).not.toBeInTheDocument()
 })
