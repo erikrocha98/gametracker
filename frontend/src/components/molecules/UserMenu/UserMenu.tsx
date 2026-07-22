@@ -1,9 +1,9 @@
-import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
+import { Avatar } from '../../atoms/Avatar'
 
 interface UserMenuProps {
   username: string
@@ -78,7 +78,7 @@ export function UserMenu({ username }: UserMenuProps) {
   return (
     <Wrapper ref={wrapperRef}>
       <Trigger onClick={toggle} aria-haspopup="menu" aria-expanded={open}>
-        <PermIdentityOutlinedIcon sx={{ fontSize: 20 }} />
+        <Avatar username={username} size={28} />
         {username}
       </Trigger>
       {open && (
