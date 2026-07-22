@@ -120,7 +120,7 @@ export function CatalogCollection({
         <>
           <Grid>
             {pagedItems.map((game) => (
-              <GameCard key={game.id} game={game} />
+              <GameCard key={game.gameId} game={game} />
             ))}
           </Grid>
           <PaginationControls

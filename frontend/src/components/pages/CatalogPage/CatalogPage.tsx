@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { getCollection, type CollectionStatus } from '../../../services/games'
-import type { CollectionGame } from '../../../types/game'
+import { getCollection, getUserReviews, type CollectionStatus } from '../../../services/games'
+import type { CollectionGame, UserReview } from '../../../types/game'
 import type { ActivityFilterValue } from '../../molecules/ActivityFilters'
 import { CatalogCollection } from '../../organisms/CatalogCollection'
 import { CatalogHero } from '../../organisms/CatalogHero'
@@ -11,6 +11,19 @@ const FILTER_TO_STATUS: Record<ActivityFilterValue, CollectionStatus | null> = {
   reviews: null,
 }
 
+function reviewToCollectionGame(review: UserReview): CollectionGame {
+  return {
+    id: 0,
+    gameId: review.gameId,
+    name: review.name,
+    coverUrl: review.coverUrl,
+    platforms: review.platforms,
+    releaseYear: review.releaseYear,
+    rating: review.rating,
+    status: 'finished',
+  }
+}
+
 export function CatalogPage() {
   const [filter, setFilter] = useState<ActivityFilterValue>('added')
   const [items, setItems] = useState<CollectionGame[]>([])
@@ -19,24 +32,40 @@ export function CatalogPage() {
   const [refetchKey, setRefetchKey] = useState(0)
 
   useEffect(() => {
+    let active = true
     const status = FILTER_TO_STATUS[filter]
-    if (status === null) return
+    const request =
+      status === null
+        ? getUserReviews().then((data) => data.items.map(reviewToCollectionGame))
+        : getCollection(status).then((data) => data.items)
 
-    getCollection(status)
-      .then((data) => {
-        setItems(data.items)
+    request
+      .then((collectionItems) => {
+        if (!active) return
+        setItems(collectionItems)
         setError(false)
       })
       .catch((err) => {
-        if (err instanceof Response && err.status === 404) return
+        if (!active) return
+        if (err instanceof Response && err.status === 404) {
+          setItems([])
+          setError(false)
+          return
+        }
         setError(true)
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
   }, [filter, refetchKey])
 
   const handleFilterChange = useCallback((value: ActivityFilterValue) => {
     setFilter(value)
-    if (FILTER_TO_STATUS[value] !== null) setLoading(true)
+    setLoading(true)
   }, [])
 
   const handleItemAdded = useCallback(() => {
@@ -44,16 +73,12 @@ export function CatalogPage() {
     setRefetchKey((k) => k + 1)
   }, [])
 
-  const isReviews = FILTER_TO_STATUS[filter] === null
-  const displayItems = isReviews ? [] : items
-  const displayLoading = isReviews ? false : loading
-
   return (
     <>
       <CatalogHero />
       <CatalogCollection
-        items={displayItems}
-        loading={displayLoading}
+        items={items}
+        loading={loading}
         error={error}
         filter={filter}
         onFilterChange={handleFilterChange}
