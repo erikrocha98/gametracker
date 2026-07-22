@@ -46,6 +46,7 @@ class StatusCountsResponse(BaseModel):
 
 class CollectionStatsResponse(BaseModel):
     games_rated: int = Field(..., alias="gamesRated")
+    reviews_count: int = Field(..., alias="reviewsCount")
     average_rating: float | None = Field(None, alias="averageRating")
     status_counts: StatusCountsResponse = Field(..., alias="statusCounts")
     recent_games: list[CollectionGameResponse] = Field(..., alias="recentGames")

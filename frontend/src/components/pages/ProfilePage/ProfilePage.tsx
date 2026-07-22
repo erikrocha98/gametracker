@@ -111,7 +111,11 @@ export function ProfilePage() {
               <SectionTitle variant="h6" sx={{ color: colors.textPrimary }}>
                 {texts.profile.activityTitle}
               </SectionTitle>
-              <ProfileStats gamesRated={stats.gamesRated} listsCount={listsCount} />
+              <ProfileStats
+                gamesRated={stats.gamesRated}
+                reviewsCount={stats.reviewsCount}
+                listsCount={listsCount}
+              />
             </Section>
 
             <Section>

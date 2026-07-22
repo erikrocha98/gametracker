@@ -37,6 +37,7 @@ const mockGetStats = vi.mocked(gamesService.getCollectionStats)
 
 const STATS: CollectionStats = {
   gamesRated: 4,
+  reviewsCount: 2,
   averageRating: 4.2,
   statusCounts: { wantToPlay: 2, playing: 1, finished: 3 },
   recentGames: [

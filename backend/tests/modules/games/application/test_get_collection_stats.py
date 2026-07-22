@@ -31,6 +31,19 @@ def test_games_rated_and_average():
     assert stats.average_rating == 4.5
 
 
+def test_reviews_count():
+    repo = FakeUserGameRepository()
+    repo.add(user_id=1, game_id=1)
+    repo.add(user_id=1, game_id=2)
+    repo.add(user_id=1, game_id=3)
+    repo.set_review(user_id=1, game_id=1, review="Great game")
+    repo.set_review(user_id=1, game_id=2, review="Loved it")
+
+    stats = GetCollectionStatsUseCase(repository=repo).execute(1)
+
+    assert stats.reviews_count == 2
+
+
 def test_average_is_none_without_ratings():
     repo = FakeUserGameRepository()
     repo.add(user_id=1, game_id=1)
@@ -70,6 +83,7 @@ def test_empty_collection():
     stats = GetCollectionStatsUseCase(repository=repo).execute(1)
 
     assert stats.games_rated == 0
+    assert stats.reviews_count == 0
     assert stats.average_rating is None
     assert stats.status_counts == {s: 0 for s in UserGameStatus}
     assert stats.recent_games == []

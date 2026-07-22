@@ -3,7 +3,7 @@ import { ProfileStats } from './ProfileStats'
 import { texts } from '../../../constants/texts'
 
 test('renders the rated-games value and each stat label', () => {
-  render(<ProfileStats gamesRated={7} listsCount={0} />)
+  render(<ProfileStats gamesRated={7} reviewsCount={0} listsCount={0} />)
 
   expect(screen.getByText('7')).toBeInTheDocument()
   expect(screen.getByText(texts.profile.gamesRatedLabel)).toBeInTheDocument()
@@ -11,17 +11,16 @@ test('renders the rated-games value and each stat label', () => {
   expect(screen.getByText(texts.profile.listsLabel)).toBeInTheDocument()
 })
 
-test('renders the number of lists', () => {
-  render(<ProfileStats gamesRated={0} listsCount={3} />)
+test('renders the number of reviews', () => {
+  render(<ProfileStats gamesRated={0} reviewsCount={4} listsCount={0} />)
 
-  // o card de listas exibe a contagem real, sem selo "Em breve"
-  const listsValue = screen.getByText(texts.profile.listsLabel).previousElementSibling
-  expect(listsValue).toHaveTextContent('3')
+  const reviewsValue = screen.getByText(texts.profile.reviewsLabel).previousElementSibling
+  expect(reviewsValue).toHaveTextContent('4')
 })
 
-test('marks only reviews as coming soon', () => {
-  render(<ProfileStats gamesRated={0} listsCount={0} />)
+test('renders the number of lists', () => {
+  render(<ProfileStats gamesRated={0} reviewsCount={0} listsCount={3} />)
 
-  // apenas reviews ainda não existe: só ele exibe o selo "Em breve"
-  expect(screen.getAllByText(texts.profile.comingSoon)).toHaveLength(1)
+  const listsValue = screen.getByText(texts.profile.listsLabel).previousElementSibling
+  expect(listsValue).toHaveTextContent('3')
 })

@@ -35,6 +35,7 @@ export interface StatusCounts {
 
 export interface CollectionStats {
   gamesRated: number
+  reviewsCount: number
   averageRating: number | null
   statusCounts: StatusCounts
   recentGames: CollectionGame[]

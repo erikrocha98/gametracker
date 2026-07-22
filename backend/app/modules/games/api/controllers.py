@@ -139,6 +139,7 @@ def get_collection_stats(
     stats = use_case.execute(current_user.id)
     return CollectionStatsResponse(
         gamesRated=stats.games_rated,
+        reviewsCount=stats.reviews_count,
         averageRating=stats.average_rating,
         statusCounts=StatusCountsResponse(
             wantToPlay=stats.status_counts[UserGameStatus.want_to_play],

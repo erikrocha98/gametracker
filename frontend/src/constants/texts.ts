@@ -204,7 +204,6 @@ export const texts = {
     gamesRatedLabel: 'Jogos avaliados',
     reviewsLabel: 'Reviews',
     listsLabel: 'Listas',
-    comingSoon: 'Em breve',
     statusWantToPlayLabel: 'Quero jogar',
     statusPlayingLabel: 'Jogando',
     statusFinishedLabel: 'Jogado',

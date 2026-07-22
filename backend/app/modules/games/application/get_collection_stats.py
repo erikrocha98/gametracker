@@ -9,6 +9,7 @@ RECENT_GAMES_LIMIT = 6
 @dataclass
 class CollectionStats:
     games_rated: int
+    reviews_count: int
     average_rating: float | None
     status_counts: dict[UserGameStatus, int]
     recent_games: list[UserGame]
@@ -25,12 +26,15 @@ class GetCollectionStatsUseCase:
         ratings = [g.rating for g in games if g.rating is not None]
         average_rating = round(sum(ratings) / len(ratings), 2) if ratings else None
 
+        reviews_count = sum(1 for g in games if g.review is not None)
+
         status_counts = {status: 0 for status in UserGameStatus}
         for game in games:
             status_counts[game.status] += 1
 
         return CollectionStats(
             games_rated=len(ratings),
+            reviews_count=reviews_count,
             average_rating=average_rating,
             status_counts=status_counts,
             recent_games=games[:RECENT_GAMES_LIMIT],
