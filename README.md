@@ -129,7 +129,7 @@ The frontend follows **Atomic Design**, using Material UI as the component libra
 
 ## Database schema
 
-![Database entity-relationship diagram](documentacao/User%20Game%20Review%20Ecosystem-2026-07-22-223249.png)
+![Database entity-relationship diagram](database_diagram.png)
 
 ---
 
