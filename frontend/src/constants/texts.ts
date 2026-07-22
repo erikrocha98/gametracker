@@ -1,4 +1,7 @@
 export const texts = {
+  brand: {
+    name: 'Gametracker',
+  },
   feedbackModal: {
     closeAriaLabel: 'Fechar modal',
   },

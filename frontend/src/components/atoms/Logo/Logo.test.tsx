@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { ThemeProvider } from '@mui/material/styles'
 import { theme } from '../../../theme/theme'
+import { texts } from '../../../constants/texts'
 import { Logo } from './Logo'
 
 function renderLogo(props: { size?: 'sm' | 'md' } = {}) {
@@ -11,9 +12,9 @@ function renderLogo(props: { size?: 'sm' | 'md' } = {}) {
   )
 }
 
-test('renders playlogd text', () => {
+test('renders the brand name text', () => {
   renderLogo()
-  expect(screen.getByText('playlogd')).toBeInTheDocument()
+  expect(screen.getByText(texts.brand.name)).toBeInTheDocument()
 })
 
 test('renders the gamepad icon', () => {

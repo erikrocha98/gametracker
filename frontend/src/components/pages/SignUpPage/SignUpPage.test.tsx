@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { ThemeProvider as StyledThemeProvider } from 'styled-components'
 import { MemoryRouter } from 'react-router-dom'
 import { theme } from '../../../theme/theme'
+import { texts } from '../../../constants/texts'
 import { SignUpPage } from './SignUpPage'
 
 vi.mock('../../../contexts/AuthContext', () => ({
@@ -23,6 +24,6 @@ test('renders logo and signup tab', () => {
       </ThemeProvider>
     </MemoryRouter>,
   )
-  expect(screen.getByText('playlogd')).toBeInTheDocument()
+  expect(screen.getByText(texts.brand.name)).toBeInTheDocument()
   expect(screen.getByRole('tab', { name: 'Criar conta' })).toBeInTheDocument()
 })

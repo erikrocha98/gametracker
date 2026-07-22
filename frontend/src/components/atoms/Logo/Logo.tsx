@@ -1,6 +1,7 @@
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import Typography from '@mui/material/Typography'
 import styled from 'styled-components'
+import { texts } from '../../../constants/texts'
 
 interface LogoProps {
   size?: 'sm' | 'md'
@@ -33,7 +34,7 @@ export function Logo({ size = 'md' }: LogoProps) {
         variant={size === 'md' ? 'h5' : 'subtitle1'}
         sx={{ fontWeight: 700, color: 'text.primary' }}
       >
-        playlogd
+        {texts.brand.name}
       </Typography>
     </Container>
   )
