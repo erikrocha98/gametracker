@@ -1,4 +1,4 @@
-import MoreVertIcon from '@mui/icons-material/MoreVert'
+import MenuIcon from '@mui/icons-material/Menu'
 import {
   Button,
   Dialog,
@@ -129,11 +129,11 @@ export function GameCardMenu({ status, rating, onStatusChange, onRate, onDelete,
           aria-label={texts.myGames.menuAriaLabel}
           onClick={handleOpenMenu}
         >
-          <MoreVertIcon fontSize="small" />
+          <MenuIcon fontSize="small" />
         </MenuButton>
       </Footer>
 
-      <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleCloseMenu} onClick={stopEvent}>
+      <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleCloseMenu} onClick={stopEvent} disableRestoreFocus>
         {STATUS_OPTIONS.map((option) => (
           <MenuItem
             key={option.value}

@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react'
-import { Button, TextField, Typography } from '@mui/material'
+import { Button, IconButton, TextField, Typography } from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import styled from 'styled-components'
 import { colors } from '../../../theme/colors'
 import { texts } from '../../../constants/texts'
@@ -36,6 +38,13 @@ const CounterRow = styled.div`
 
 const Actions = styled.div`
   display: flex;
+  gap: 8px;
+`
+
+const MetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 `
 
@@ -123,23 +132,31 @@ export function ReviewSection({ review, reviewCreatedAt, onSave, onDelete, loadi
           <ReviewText variant="body2" sx={{ color: colors.textSecondary, lineHeight: 1.7 }}>
             {review}
           </ReviewText>
-          {createdAtLabel && (
+          <MetaRow>
             <Typography variant="caption" sx={{ color: colors.textSecondary }}>
-              {texts.gameDetails.reviewCreatedAtLabel(createdAtLabel)}
+              {createdAtLabel ? texts.gameDetails.reviewCreatedAtLabel(createdAtLabel) : ''}
             </Typography>
-          )}
-          <Actions>
-            <Button variant="outlined" onClick={handleStartEdit} disabled={loading}>
-              {texts.gameDetails.reviewEditButton}
-            </Button>
-            <Button
-              onClick={handleOpenConfirm}
-              disabled={loading}
-              sx={{ color: colors.error }}
-            >
-              {texts.gameDetails.reviewDeleteButton}
-            </Button>
-          </Actions>
+            <Actions>
+              <IconButton
+                size="small"
+                onClick={handleStartEdit}
+                disabled={loading}
+                aria-label={texts.gameDetails.reviewEditButton}
+                sx={{ color: colors.textSecondary }}
+              >
+                <EditIcon sx={{ fontSize: '1rem' }} />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={handleOpenConfirm}
+                disabled={loading}
+                aria-label={texts.gameDetails.reviewDeleteButton}
+                sx={{ color: colors.textSecondary }}
+              >
+                <DeleteIcon sx={{ fontSize: '1rem' }} />
+              </IconButton>
+            </Actions>
+          </MetaRow>
         </>
       )}
 
