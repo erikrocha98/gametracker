@@ -147,6 +147,12 @@ The frontend follows **Atomic Design**, using Material UI as the component libra
 
 ---
 
+## Development methodology
+
+This project was built with the assistance of [Claude Code](https://claude.com/claude-code), following a methodology inspired by **Spec-Driven Development** — each feature starts from a written specification/plan that is reviewed and approved before any implementation, keeping the code aligned with clearly defined requirements.
+
+---
+
 ## Upcoming features
 
 - [ ] **Embedding-based recommendation system** — suggest games tailored to each user from their library, ratings, and reviews, using vector embeddings to capture similarity between titles and taste. Embeddings will be persisted in PostgreSQL with the [`pgvector`](https://github.com/pgvector/pgvector) extension enabled for efficient similarity search.
